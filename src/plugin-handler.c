@@ -26,11 +26,11 @@ int load_plugin(char *path)
     new_plugin.handle = handle;
     new_plugin.callback_count = 0;
 
-    new_plugin.callback_list = malloc(sizeof(callback));
+    new_plugin.callback_list = malloc(sizeof(callback)); /* So we can use realloc() */
 
     dlerror();
 
-    if ((handle = dlopen(path, RTLD_NOW )) == NULL)
+    if ((handle = dlopen(path, RTLD_LAZY )) == NULL)
     {
         printf("%s\n", dlerror());
         return -1;
@@ -80,6 +80,8 @@ int load_plugin(char *path)
         return -4;
     }
     plugin_list[plugin_count] = &new_plugin;
+
+    plugin_count++;
 
     printf("oink?\n");
 
@@ -134,15 +136,16 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr)
         return -1;
     }
 
-    callback **callback_list = pluginptr->callback_list;
-    int *cb_count = &pluginptr->callback_count;
-    *cb_count++;
+    if (pluginptr->callback_count == 0)
+    {
+        pluginptr->callback_list = malloc(1); /* So we can know if realloc() fails, if pluginptr is NULL callback_list will return it */
+    }
 
-    plugin **tmp_list = callback_list;
+    //pluginptr->callback_list;
 
-    callback_list = realloc(tmp_list, *cb_count * (sizeof callback_list) / sizeof (callback) );
+     pluginptr->callback_list = (callback**) realloc( pluginptr->callback_list, pluginptr->callback_count * (sizeof pluginptr->callback_list) / sizeof (callback) );
 
-    if (callback_list == NULL)
+    if ( pluginptr->callback_list == NULL)
     {
         printf("Failed to add more memory for callback holder in plugin %s\n", pluginptr->plugin_name);
         return -2;
@@ -152,7 +155,11 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr)
     new_callback.cb_func = cb_func;
     new_callback.cb_name = cb_name;
 
-    callback_list[*cb_count] = &new_callback;
+    pluginptr->callback_list[pluginptr->callback_count] = malloc ( sizeof(callback) );
+
+    pluginptr->callback_list[pluginptr->callback_count] = &new_callback;
+
+    pluginptr->callback_count++;
 
     return 1;
 }
