@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include "../include/plugin-handler.h"
-#include "../include/server.h"
+#include "../../include/plugin-handler.h"
+#include "../../include/server.h"
 
 char plugin_name[] = "Logger";
 char plugin_version[] = "0.01";
