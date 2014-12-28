@@ -8,14 +8,10 @@
 #include "../include/server.h"
 
 /*
-    Global variables.
+    Initalizing global variables.
 */
-plugin **plugin_list;
-int plugin_count;
-/*
-    End of global variables.
-*/
-
+plugin **plugin_list = NULL;
+int plugin_count = 0;
 
 int load_plugin(char *path)
 {
@@ -25,6 +21,7 @@ int load_plugin(char *path)
 
     new_plugin.handle = handle;
     new_plugin.callback_count = 0;
+    new_plugin.status = RUNNING;
 
     new_plugin.callback_list = malloc(sizeof(callback)); /* So we can use realloc() */
 
@@ -74,12 +71,17 @@ int load_plugin(char *path)
         return -3;
     }
 
-    plugin_list = realloc(plugin_list, plugin_count * (sizeof(plugin_list) / sizeof(plugin)) );
-    if (plugin_list == 0)
+    plugin **tmp_list = NULL;
+    tmp_list = realloc(plugin_list, plugin_count * (sizeof(plugin_list) / sizeof(plugin**)) );
+    if (tmp_list == NULL)
     {
         return -4;
     }
+
+    plugin_list = tmp_list;
     plugin_list[plugin_count] = &new_plugin;
+
+    printf("Author: %s\n", plugin_list[plugin_count]->plugin_author);
 
     plugin_count++;
 
@@ -136,30 +138,22 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr)
         return -1;
     }
 
-    if (pluginptr->callback_count == 0)
-    {
-        pluginptr->callback_list = malloc(1); /* So we can know if realloc() fails, if pluginptr is NULL callback_list will return it */
-    }
 
-    //pluginptr->callback_list;
-
-     pluginptr->callback_list = (callback**) realloc( pluginptr->callback_list, pluginptr->callback_count * (sizeof pluginptr->callback_list) / sizeof (callback) );
-
-    if ( pluginptr->callback_list == NULL)
-    {
-        printf("Failed to add more memory for callback holder in plugin %s\n", pluginptr->plugin_name);
-        return -2;
-    }
+    printf("cb_name: %s\n", cb_name);
+    printf("cb_ptr: %p\n", cb_func);
 
     callback new_callback;
+
     new_callback.cb_func = cb_func;
     new_callback.cb_name = cb_name;
 
-    pluginptr->callback_list[pluginptr->callback_count] = malloc ( sizeof(callback) );
+   // printf("cb_func: %p\n", cb_func);
+
+    printf("?\n");
 
     pluginptr->callback_list[pluginptr->callback_count] = &new_callback;
-
     pluginptr->callback_count++;
+
 
     return 1;
 }
@@ -177,7 +171,7 @@ void execute_callbacks(char *cb_name, void **args, int argc)
                     int (*cb)(void **, int) = plugin_list[i]->callback_list[y]->cb_func;
 
                     int res;
-                    if ( (res = (cb(args, argc) != BCIRC_PLUGIN_OK)) )
+                    if ( ((res = cb(args, argc)) != BCIRC_PLUGIN_OK))
                     {
                         if (res == BCIRC_PLUGIN_STOP)
                             pause_plugin(plugin_list[i]);
@@ -188,5 +182,6 @@ void execute_callbacks(char *cb_name, void **args, int argc)
             }
         }
     }
+
     return;
 }

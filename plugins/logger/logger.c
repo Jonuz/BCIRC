@@ -21,7 +21,7 @@ int on_connect(void **params, int argc)
 int plugin_init(plugin *pluginptr)
 {
     printf("plugin_init()\n");
-    register_callback(CALLBACK_SERVER_CONNECTED, on_connect, pluginptr);
+    register_callback( CALLBACK_SERVER_CONNECTED, on_connect, pluginptr);
     return BCIRC_PLUGIN_OK;
 }
 
