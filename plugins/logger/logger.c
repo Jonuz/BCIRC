@@ -11,9 +11,28 @@ char plugin_author[] = "Joona";
 
 int on_connect(void **params, int argc)
 {
-    printf("on_connect");
+    printf("on_connect..\n");
     server *srv = (server*) params[0];
     printf("Connected to %s:%s\n", srv->host, srv->port);
+    return BCIRC_PLUGIN_OK;
+}
+
+int on_server_send(void **paramams, int argc)
+{
+    printf("I think that server sent something to us..:o\n");
+
+    server *srv = NULL;
+    char *buf = NULL;
+
+    srv = (server*) paramams[0];
+    buf = (char*) paramams[1];
+
+    for (int i = 0; i < strlen(buf); i++)
+    {
+        if ((buf[i] != '\337') || (buf[i] != '\n') || (buf[i] != '\r'))
+            printf("%c", buf[i]);
+    }
+
     return BCIRC_PLUGIN_OK;
 }
 
@@ -21,6 +40,9 @@ int on_connect(void **params, int argc)
 int plugin_init(plugin *pluginptr)
 {
     printf("plugin_init()\n");
+
     register_callback( CALLBACK_SERVER_CONNECTED, on_connect, pluginptr);
+    register_callback( CALLBACK_SERVER_RECV, on_server_send, pluginptr );
+
     return BCIRC_PLUGIN_OK;
 }

@@ -76,18 +76,7 @@ int load_plugin(char *path)
         return -4;
     }
 
-
     plugin_list[plugin_count] = new_plugin;
-
-    if (plugin_list[plugin_count] != new_plugin)
-    {
-        printf("kill it with fire!\n");
-    }
-
-    printf("Author: %s\n", plugin_list[0]->plugin_author);
-    printf("plugin_count: %d\n", plugin_count);
-    printf("address of first plugin: %p\n", plugin_list[0]);
-
     plugin_count++;
 
     printf("oink?\n");
@@ -147,16 +136,16 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr)
     printf("cb_name: %s\n", cb_name);
     printf("cb_ptr: %p\n", cb_func);
 
-    callback new_callback;
+    callback *new_callback = malloc(sizeof(callback));
 
-    new_callback.cb_func = cb_func;
-    new_callback.cb_name = cb_name;
+    new_callback->cb_func = cb_func;
+    new_callback->cb_name = cb_name;
 
    // printf("cb_func: %p\n", cb_func);
 
     printf("?\n");
 
-    pluginptr->callback_list[pluginptr->callback_count] = &new_callback;
+    pluginptr->callback_list[pluginptr->callback_count] = new_callback;
     pluginptr->callback_count++;
 
 
