@@ -53,6 +53,7 @@
 
 typedef enum { RUNNING, PAUSED } PLUGIN_STATUS;
 
+
 typedef struct
 {
     char *cb_name;
@@ -85,6 +86,8 @@ int remove_plugin(plugin *pluginptr);
 typedef int(*CALLBACK_FUNC)(void**, int);
 
 int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr); /* This function should be called in plugin */
+int main_register_callback(char *cb_name, CALLBACK_FUNC cb_func); /* Because we want also use this in main program */
+
 void execute_callbacks(char *cb_name, void **args, int argc);
 
 

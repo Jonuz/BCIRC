@@ -11,3 +11,9 @@ int privmsg(char *msg, char *target, server *srv)
 
 	return res;
 }
+
+int get_numeric(void **params, int argc)
+{
+
+
+}

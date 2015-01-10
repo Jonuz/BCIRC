@@ -20,7 +20,7 @@ int load_plugin(char *path)
     new_plugin->callback_count = 0;
     new_plugin->status = RUNNING;
 
-    new_plugin->callback_list = malloc(sizeof(callback*  )); /* So we can use realloc() */
+    new_plugin->callback_list = malloc(sizeof(callback*));
 
     dlerror();
 
@@ -141,6 +141,30 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr)
     pluginptr->callback_count++;
 
     return 1;
+}
+
+int main_register_callback(char *cb_name, CALLBACK_FUNC cb_func)
+{
+    /*
+     Since register_callback() wants plugin as parameter but we would also like to use
+     our awesome callback system in main program, we do this "plugin" and give it as parameter.
+    */
+    static plugin *cb_plugin;
+
+    cb_plugin = malloc(sizeof(plugin));
+    cb_plugin->callback_list = malloc(sizeof(callback*));
+
+    cb_plugin->callback_count = 0;
+    cb_plugin->handle = NULL;
+    cb_plugin->status = RUNNING;
+
+    cb_plugin->plugin_name = "CB-Handler";
+    cb_plugin->plugin_version = "Joona";
+    cb_plugin->plugin_version = "0";
+
+
+    return register_callback(cb_name, cb_func, cb_plugin);
+
 }
 
 void execute_callbacks(char *cb_name, void **args, int argc)

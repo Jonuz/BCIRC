@@ -17,6 +17,7 @@ typedef struct
 } irc_base;
 
 int privmsg(char *msg, char *target, server *srv);
+int get_numeric(void **params, int argc);
 
 //int get_numeric_response(server *srv);
 
