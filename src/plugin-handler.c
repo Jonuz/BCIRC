@@ -30,8 +30,6 @@ int load_plugin(char *path)
         return -1;
     }
 
-
-    new_plugin->plugin_name = malloc(50 * sizeof(char));
     new_plugin->plugin_name = (char*) dlsym(handle, "plugin_name");
     if (new_plugin->plugin_name == NULL)
     {
