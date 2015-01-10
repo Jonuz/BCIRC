@@ -7,23 +7,20 @@
 #include "../include/irc.h"
 #include "../include/server.h"
 
-/*
-    Initalizing global variables.
-*/
-plugin **plugin_list = NULL;
-int plugin_count = 0;
+int plugin_count;
+plugin **plugin_list;
 
 int load_plugin(char *path)
 {
-    plugin new_plugin;
+    plugin *new_plugin = malloc(sizeof(plugin));
     void *handle = NULL;
     int (*init_func)(plugin*);
 
-    new_plugin.handle = handle;
-    new_plugin.callback_count = 0;
-    new_plugin.status = RUNNING;
+    new_plugin->handle = handle;
+    new_plugin->callback_count = 0;
+    new_plugin->status = RUNNING;
 
-    new_plugin.callback_list = malloc(sizeof(callback)); /* So we can use realloc() */
+    new_plugin->callback_list = malloc(sizeof(callback*  )); /* So we can use realloc() */
 
     dlerror();
 
@@ -33,24 +30,26 @@ int load_plugin(char *path)
         return -1;
     }
 
-    new_plugin.plugin_name = (char*) dlsym(handle, "plugin_name");
-    if (new_plugin.plugin_name == NULL)
+
+    new_plugin->plugin_name = malloc(50 * sizeof(char));
+    new_plugin->plugin_name = (char*) dlsym(handle, "plugin_name");
+    if (new_plugin->plugin_name == NULL)
     {
         printf("Failed to get name of plugin!\n");
         printf("Path: %s\n", path);
         return -2;
     }
 
-    new_plugin.plugin_author = (char*) dlsym(handle, "plugin_author");
-    if (new_plugin.plugin_author == NULL)
+    new_plugin->plugin_author = (char*) dlsym(handle, "plugin_author");
+    if (new_plugin->plugin_author == NULL)
     {
         printf("Failed to get author of plugin!\n");
         printf("Path: %s\n", path);
         return -2;
     }
 
-    new_plugin.plugin_version = (char*) dlsym(handle, "plugin_version");
-    if (new_plugin.plugin_version == NULL)
+    new_plugin->plugin_version = (char*) dlsym(handle, "plugin_version");
+    if (new_plugin->plugin_version == NULL)
     {
         printf("Failed to get version of plugin!\n");
         printf("Path: %s\n", path);
@@ -65,23 +64,29 @@ int load_plugin(char *path)
     }
 
     int res;
-    if ((res = init_func(&new_plugin)) != BCIRC_PLUGIN_OK)
+    if ((res = init_func(new_plugin)) != BCIRC_PLUGIN_OK)
     {
-        printf("Plugin %s returned %d!\n", new_plugin.plugin_name, res);
+        printf("Plugin %s returned %d!\n", new_plugin->plugin_name, res);
         return -3;
     }
 
-    plugin **tmp_list = NULL;
-    tmp_list = realloc(plugin_list, plugin_count * (sizeof(plugin_list) / sizeof(plugin**)) );
-    if (tmp_list == NULL)
+    plugin_list = realloc(plugin_list, plugin_count * sizeof(plugin*) );
+    if (plugin_list == NULL)
     {
         return -4;
     }
 
-    plugin_list = tmp_list;
-    plugin_list[plugin_count] = &new_plugin;
 
-    printf("Author: %s\n", plugin_list[plugin_count]->plugin_author);
+    plugin_list[plugin_count] = new_plugin;
+
+    if (plugin_list[plugin_count] != new_plugin)
+    {
+        printf("kill it with fire!\n");
+    }
+
+    printf("Author: %s\n", plugin_list[0]->plugin_author);
+    printf("plugin_count: %d\n", plugin_count);
+    printf("address of first plugin: %p\n", plugin_list[0]);
 
     plugin_count++;
 

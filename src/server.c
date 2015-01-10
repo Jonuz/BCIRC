@@ -61,7 +61,7 @@ int server_send(char *buf, server *srv)
 */
 int server_recv(char *buf, server *srv)
 {
-    char tmpbuf[512];
+    char tmpbuf[2048];
 	int res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
 
 	if (res <= 0)
@@ -82,7 +82,7 @@ int server_recv(char *buf, server *srv)
 	srv->recvd_len += res;
 
     void **params;
-    params = malloc(sizeof(server));
+    params = malloc(sizeof(server*));
     params[0] = (void*)srv;
 
     execute_callbacks(CALLBACK_SERVER_CONNECTED, params, 1);

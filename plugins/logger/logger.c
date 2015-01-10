@@ -24,20 +24,3 @@ int plugin_init(plugin *pluginptr)
     register_callback( CALLBACK_SERVER_CONNECTED, on_connect, pluginptr);
     return BCIRC_PLUGIN_OK;
 }
-
-/*
-int on_server_recv(void **params)
-{
-    for (int i = 0; i < strlen(buf) + 1; i++)
-    {
-        if (buf[i] == '\0')
-            break;
-        if (buf[i] == '\r')
-            continue;
-        if (buf[i] == '\377')
-            continue;
-        printf("%c", buf[i]);
-    }
-    return 1;
-}
-*/
