@@ -17,6 +17,7 @@
 	char plugin_version[] = __version;
 */
 
+#define BCIRC_PLUGIN_BREAK 2
 #define BCIRC_PLUGIN_OK 1
 #define BCIRC_PLUGIN_STOP 0
 #define BCIRC_PLUGIN_FAIL -1
@@ -49,7 +50,12 @@
 #define CALLBACK_SERVER_SEND "server_send"
 
 
-
+/*
+    Params:
+        int numeric
+        server *srv
+*/
+#define CALLBACK_GOT_NUMERIC "got_numeric"
 
 typedef enum { RUNNING, PAUSED } PLUGIN_STATUS;
 
