@@ -130,22 +130,15 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr)
         return -1;
     }
 
-
-    printf("cb_name: %s\n", cb_name);
-    printf("cb_ptr: %p\n", cb_func);
-
     callback *new_callback = malloc(sizeof(callback));
 
     new_callback->cb_func = cb_func;
     new_callback->cb_name = cb_name;
 
-   // printf("cb_func: %p\n", cb_func);
-
-    printf("?\n");
+    //pluginptr->callback_list = realloc(pluginptr->callback_list, pluginptr->callback_count * sizeof(callback));
 
     pluginptr->callback_list[pluginptr->callback_count] = new_callback;
     pluginptr->callback_count++;
-
 
     return 1;
 }

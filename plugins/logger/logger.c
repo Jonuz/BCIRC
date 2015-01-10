@@ -19,8 +19,6 @@ int on_connect(void **params, int argc)
 
 int on_server_send(void **paramams, int argc)
 {
-    printf("I think that server sent something to us..:o\n");
-
     server *srv = NULL;
     char *buf = NULL;
 
