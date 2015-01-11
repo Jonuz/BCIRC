@@ -31,7 +31,7 @@ int get_numeric(void **params, int argc)
         for (int i = 0; i < 3; i++)
         {
             if (!isdigit(buffer[i]))
-                return BCIRC_PLUGIN_BREAK;
+                return BCIRC_PLUGIN_CONTINUE;
         }
     }
     else
@@ -39,18 +39,20 @@ int get_numeric(void **params, int argc)
         return BCIRC_PLUGIN_BREAK;
     }
 
-    char nums[3];
+    char nums[4];
     memcpy(nums, buffer, 3);
     nums[3] = '\0';
 
-    int *numeric = (int*) atoi(nums); //fix warning
+    int *numeric = (int*) atoi(nums); //TODO: fix warning
 
     void **cb_params = malloc(sizeof(server*));
-    cb_params = realloc(cb_params, sizeof(cb_params) + sizeof(int));
+    cb_params = realloc(cb_params, sizeof(cb_params) + sizeof(int*));
+
+    if (cb_params == NULL)
+        return BCIRC_PLUGIN_CONTINUE;
 
     cb_params[0] = (void*) numeric;
     cb_params[1] = (void*) srv;
-
 
     execute_callbacks(CALLBACK_GOT_NUMERIC, cb_params, 2);
 

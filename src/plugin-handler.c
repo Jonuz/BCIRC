@@ -186,6 +186,10 @@ void execute_callbacks(char *cb_name, void **args, int argc)
                             pause_plugin(plugin_list[i]);
                         else if (res == BCIRC_PLUGIN_FAIL)
                             remove_plugin(plugin_list[i]);
+                        else if(res == BCIRC_PLUGIN_BREAK);
+                            break;
+                        else if (res == BCIRC_PLUGIN_CONTINUE)
+                            continue;
                     }
                 }
             }

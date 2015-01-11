@@ -17,6 +17,7 @@
 	char plugin_version[] = __version;
 */
 
+#define BCIRC_PLUGIN_CONTINUE
 #define BCIRC_PLUGIN_BREAK 2
 #define BCIRC_PLUGIN_OK 1
 #define BCIRC_PLUGIN_STOP 0
