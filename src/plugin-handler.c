@@ -93,13 +93,16 @@ int get_plugins(char *plugin_dir)
     {
         while ((dir = readdir(d)) != NULL)
         {
-            if (strlen(dir->d_name) > 3)
+            if (dir->d_type == DT_REG)
             {
-                if (strcmp(dir->d_name, ".so") == strlen(dir->d_name) - 3); /* TODO: Fix this */
+                if (strlen(dir->d_name) > 3)
                 {
-                    char *plugin_to_add = malloc( strlen(plugin_dir) + 1 + strlen(dir->d_name) * sizeof(char));
-                    sprintf(plugin_to_add, "%s/%s", plugin_dir, dir->d_name);
-                    load_plugin(plugin_to_add);
+                    if (strstr(dir->d_name, ".so") != NULL)
+                    {
+                        char *plugin_to_add = malloc( strlen(plugin_dir) + 1 + strlen(dir->d_name) * sizeof(char));
+                        sprintf(plugin_to_add, "%s/%s", plugin_dir, dir->d_name);
+                        load_plugin(plugin_to_add);
+                    }
                 }
             }
 
@@ -107,9 +110,10 @@ int get_plugins(char *plugin_dir)
     }
     else
     {
+        closedir(d);
         return -1;
     }
-
+    closedir(d);
     return 1;
 }
 
