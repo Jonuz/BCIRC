@@ -3,13 +3,17 @@
 
 #include <string.h>
 #include <time.h>
+#include <stdbool.h>
 #include <sys/types.h>
+
 
 typedef struct {
 
 	char *host;
 	char *port;
 	char *pass;
+
+    bool motd_sent;
 
 	int s;
 

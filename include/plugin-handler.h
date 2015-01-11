@@ -17,7 +17,7 @@
 	char plugin_version[] = __version;
 */
 
-#define BCIRC_PLUGIN_CONTINUE
+#define BCIRC_PLUGIN_CONTINUE 3
 #define BCIRC_PLUGIN_BREAK 2
 #define BCIRC_PLUGIN_OK 1
 #define BCIRC_PLUGIN_STOP 0
@@ -89,6 +89,7 @@ extern int plugin_count;
 int load_plugin(char *path);
 int pause_plugin(plugin *pluginptr);
 int remove_plugin(plugin *pluginptr);
+int get_plugins(char *dir);
 
 typedef int(*CALLBACK_FUNC)(void**, int);
 

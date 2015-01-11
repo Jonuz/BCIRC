@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <dlfcn.h>
+#include <dirent.h>
 
 #include "../include/plugin-handler.h"
 #include "../include/irc.h"
@@ -82,6 +83,35 @@ int load_plugin(char *path)
     return 1;
 }
 
+
+int get_plugins(char *plugin_dir)
+{
+    DIR *d;
+    struct dirent *dir;
+    d = opendir(plugin_dir);
+    if (d)
+    {
+        while ((dir = readdir(d)) != NULL)
+        {
+            if (strlen(dir->d_name) > 3)
+            {
+                if (strcmp(dir->d_name, ".so") == strlen(dir->d_name) - 3);
+                {
+                    char *plugin_to_add = malloc( strlen(plugin_dir) + strlen(dir->d_name) * sizeof(char));
+                    sprintf(plugin_to_add, "%s/%s", plugin_dir, dir->d_name);
+                    load_plugin(plugin_to_add);
+                }
+            }
+
+        }
+    }
+    else
+    {
+        return -1;
+    }
+
+    return 1;
+}
 
 int pause_plugin(plugin *pluginptr)
 {
@@ -184,10 +214,13 @@ void execute_callbacks(char *cb_name, void **args, int argc)
                     {
                         if (res == BCIRC_PLUGIN_STOP)
                             pause_plugin(plugin_list[i]);
+
                         else if (res == BCIRC_PLUGIN_FAIL)
                             remove_plugin(plugin_list[i]);
-                        else if(res == BCIRC_PLUGIN_BREAK);
+
+                        else if (res == BCIRC_PLUGIN_BREAK)
                             break;
+
                         else if (res == BCIRC_PLUGIN_CONTINUE)
                             continue;
                     }
