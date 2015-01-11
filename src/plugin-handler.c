@@ -95,9 +95,9 @@ int get_plugins(char *plugin_dir)
         {
             if (strlen(dir->d_name) > 3)
             {
-                if (strcmp(dir->d_name, ".so") == strlen(dir->d_name) - 3);
+                if (strcmp(dir->d_name, ".so") == strlen(dir->d_name) - 3)
                 {
-                    char *plugin_to_add = malloc( strlen(plugin_dir) + strlen(dir->d_name) * sizeof(char));
+                    char *plugin_to_add = malloc(strlen(plugin_dir) + 1 + strlen(dir->d_name)  * sizeof(char));
                     sprintf(plugin_to_add, "%s/%s", plugin_dir, dir->d_name);
                     load_plugin(plugin_to_add);
                 }
