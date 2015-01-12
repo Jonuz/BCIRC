@@ -18,8 +18,13 @@ int privmsg(char *msg, char *target, server *srv)
 
 int get_numeric(void **params, int argc)
 {
-    char *buffer = (char*) params[0];
-    server *srv = (server*) params[1];
+    char *buffer = malloc( sizeof( (char*) params[0]) / sizeof(char*) );
+    server *srv = malloc( sizeof( (server*) params[1]) / sizeof(server*) );
+
+    buffer = (char*) params[0];
+    srv = (server*) params[1];
+
+    srv = (server*) params[1];
 
     if (buffer == NULL)
         return BCIRC_PLUGIN_STOP;
