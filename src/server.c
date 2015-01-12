@@ -53,14 +53,11 @@ int server_disconnect(server *srv)
 */
 int server_send(char *buf, server *srv)
 {
-
-	int res = send(srv->s, buf, sizeof buf, 0);
+    int res = send(srv->s, buf, sizeof buf, 0);
     if (res <= 0)
         return res;
-
-	srv->sent_len += res;
-
-	return res;
+    srv->sent_len += res;
+    return res;
 }
 
 
@@ -76,7 +73,7 @@ int server_recv(char *buf, server *srv)
 	if (res <= 0)
 	{
 		free(buf);
-        //run_server_disconnect_cbs(srv);
+		server_disconnect(srv);
         return res;
 	}
 
@@ -96,7 +93,6 @@ int server_recv(char *buf, server *srv)
 
     params = realloc(params, sizeof(params) + sizeof((void*)buf));
     params[1] = (void*)buf;
-
 
     execute_callbacks(CALLBACK_SERVER_RECV, params, 1);
 

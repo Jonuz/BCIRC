@@ -99,7 +99,7 @@ int get_plugins(char *plugin_dir)
                 {
                     if (strstr(dir->d_name, ".so") != NULL)
                     {
-                        char *plugin_to_add = malloc( strlen(plugin_dir) + 1 + strlen(dir->d_name) * sizeof(char));
+                        char *plugin_to_add = malloc(strlen(plugin_dir) + 1 + strlen(dir->d_name) + 1 * sizeof(char));
                         sprintf(plugin_to_add, "%s/%s", plugin_dir, dir->d_name);
                         load_plugin(plugin_to_add);
                     }
