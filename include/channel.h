@@ -12,16 +12,21 @@ typedef struct
 	char *pass;
 	char *modes;
 
+
+    server *srv;
+
 	struct user **users;
 	size_t user_count;
 
 } channel;
 
+extern channel **channel_list;
+extern int channel_count;
 
-int join_channel(char *name, server *srv);
-int part_channel(char *name, char *reason, server *srv);
+channel *get_channels();
+channel *get_channel(char *chan_name);
 
-int kick(char *name, char *reason, channel *chan);
-
+int remove_channel(channel *chan);
+channel *create_channel(char *chan_name, server *srv);
 
 #endif

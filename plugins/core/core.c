@@ -28,8 +28,8 @@ int handle_ping(void **params, int argc)
     if (params == NULL)
         return BCIRC_PLUGIN_BREAK;
 
-    char *buf = (char*) params[0];
-    server *srv = (server*) params[1];
+    char *buf = (char*) params[1];
+    server *srv = (server*) params[0];
 
     if ((buf == NULL) || (srv == NULL))
         return BCIRC_PLUGIN_BREAK;
@@ -40,8 +40,10 @@ int handle_ping(void **params, int argc)
     }
 
     unsigned int i;
-    if (strcmp(buf, "PING :") == 0)
+    if (strstr(buf, "PING :") != NULL)
     {
+
+
         for (i = 6; i < strlen(buf); i++)
             if (!isdigit(buf[i]))
                 break;
@@ -71,7 +73,7 @@ int handle_registeration(void **params, int argc)
     server *srv = (server*) params[0];
 
     char password_msg[] = "PASS passu\r\n";
-    char username_msg[] = "USER 0 * :Testikappale\r\n";
+    char username_msg[] = "USER quest  asd Testimies :Tosimies\r\n";
     char nickname_msg[] = "NICK Testikappale\r\n";
 
     usleep(10000);

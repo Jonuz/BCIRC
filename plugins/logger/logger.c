@@ -27,7 +27,7 @@ int on_server_send(void **paramams, int argc)
 
     for (int i = 0; i < strlen(buf); i++)
     {
-        if ((buf[i] != '\337') || (buf[i] != '\n') || (buf[i] != '\r'))
+        if (buf[i] != '\337')
             printf("%c", buf[i]);
     }
 

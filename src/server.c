@@ -53,7 +53,7 @@ int server_disconnect(server *srv)
 */
 int server_send(char *buf, server *srv)
 {
-    int res = send(srv->s, buf, sizeof buf, 0);
+    int res = send(srv->s, buf, strlen(buf), 0);
     if (res <= 0)
         return res;
     srv->sent_len += res;
@@ -67,7 +67,7 @@ int server_send(char *buf, server *srv)
 */
 int server_recv(char *buf, server *srv)
 {
-    char tmpbuf[2048];
+    char tmpbuf[10000];
 	int res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
 
 	if (res <= 0)
@@ -76,14 +76,17 @@ int server_recv(char *buf, server *srv)
 		server_disconnect(srv);
         return res;
 	}
-
-	for (size_t i = 0; i < strlen(tmpbuf); i++) /* Buffer may contain some unwanted stuff after end of the message */
+/* TODO: FIX THIS
+	for (size_t i = 0; i < strlen(tmpbuf); i++)
 	{
         if ((tmpbuf[i] == '\n') && (i != strlen(tmpbuf)))
             tmpbuf[i+1] = '\0';
 	}
-
+*/
     buf = realloc(buf, strlen(tmpbuf) + 1 * (sizeof(char)));
+    if (buf == NULL)
+        return -2;
+
     strcpy(buf, tmpbuf);
 	srv->recvd_len += res;
 

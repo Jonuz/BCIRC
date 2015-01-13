@@ -40,6 +40,7 @@
 		</Compiler>
 		<Unit filename="../include/channel.h" />
 		<Unit filename="../include/irc.h" />
+		<Unit filename="../include/irc_cmds.h" />
 		<Unit filename="../include/plugin-handler.h" />
 		<Unit filename="../include/server.h" />
 		<Unit filename="../include/user.h" />
@@ -54,7 +55,13 @@
 			<Option compile="0" />
 			<Option link="0" />
 		</Unit>
+		<Unit filename="../src/channel.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="../src/irc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../src/irc_cmds.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../src/plugin-handler.c">

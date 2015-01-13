@@ -27,13 +27,20 @@ typedef struct {
 
 } server;
 
+extern server **server_list;
+extern int server_count;
+
+void handle_servers();
+
 int server_disconnect(server *srv);
 int server_connect(server *srv);
 int server_set_info(server *srv);
-int server_send(char *buf, server *srv);
-void server_set_timeout(time_t sec, time_t usec , server *srv);
+
 int server_recv(char *buf, server *srv);
+int server_send(char *buf, server *srv);
+
+void server_set_timeout(time_t sec, time_t usec , server *srv);
+
 
 
 #endif
-
