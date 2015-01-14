@@ -28,7 +28,7 @@ int server_connect(server *srv)
 	if (connect(*s, res->ai_addr, res->ai_addrlen) != 0)
         return -3;
 
-    void **cb_params = malloc( sizeof(server) );
+    void **cb_params = malloc( sizeof(server*) );
     cb_params[0] = (void*) srv;
     execute_callbacks( CALLBACK_SERVER_CONNECTED, cb_params, 1 );
 
@@ -67,8 +67,9 @@ int server_send(char *buf, server *srv)
 */
 int server_recv(char *buf, server *srv)
 {
-    char tmpbuf[10000];
+    char tmpbuf[1024];
 	int res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
+	tmpbuf[res] = '\0';
 
 	if (res <= 0)
 	{
@@ -76,13 +77,7 @@ int server_recv(char *buf, server *srv)
 		server_disconnect(srv);
         return res;
 	}
-/* TODO: FIX THIS
-	for (size_t i = 0; i < strlen(tmpbuf); i++)
-	{
-        if ((tmpbuf[i] == '\n') && (i != strlen(tmpbuf)))
-            tmpbuf[i+1] = '\0';
-	}
-*/
+
     buf = realloc(buf, strlen(tmpbuf) + 1 * (sizeof(char)));
     if (buf == NULL)
         return -2;
@@ -98,6 +93,7 @@ int server_recv(char *buf, server *srv)
     params[1] = (void*)buf;
 
     execute_callbacks(CALLBACK_SERVER_RECV, params, 1);
+	free(buf);
 
 	return res;
 }
