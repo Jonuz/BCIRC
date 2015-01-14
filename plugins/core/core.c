@@ -10,6 +10,8 @@
 int handle_ping(void **params, int argc);
 int handle_registeration(void **params, int argc);
 
+int test_numeric(void **params, int argc);
+
 char plugin_name[] = "BCIRC-Core plugin";
 char plugin_author[] = "Joona";
 char plugin_version[] = "0.1";
@@ -18,10 +20,19 @@ int plugin_init(plugin *pluginptr)
 {
     register_callback(CALLBACK_SERVER_RECV, handle_ping, pluginptr);
     register_callback(CALLBACK_SERVER_CONNECTED, handle_registeration, pluginptr);
+	register_callback(CALLBACK_GOT_NUMERIC, test_numeric, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
 
+
+int test_numeric(void **params, int argc)
+{
+	int *numeric = (int*) params[0];
+	printf("%d\n", numeric);
+
+	return BCIRC_PLUGIN_OK;
+}
 
 int handle_ping(void **params, int argc)
 {
@@ -40,12 +51,10 @@ int handle_ping(void **params, int argc)
     }
 
     unsigned int i;
-    if (strstr(buf, "PING :") != NULL)
+    if (strstr(buf, "PING :")  == buf[0])
     {
-
-
         for (i = 6; i < strlen(buf); i++)
-            if (!isdigit(buf[i]))
+            if (buf[i] == ' ');
                 break;
     }
     else

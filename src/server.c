@@ -93,7 +93,7 @@ int server_recv(char *buf, server *srv)
     params[1] = (void*)buf;
 
     execute_callbacks(CALLBACK_SERVER_RECV, params, 1);
-	free(buf);
+	//free(buf);
 
 	return res;
 }
