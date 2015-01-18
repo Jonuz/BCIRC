@@ -93,7 +93,7 @@ int get_plugins(char *plugin_dir)
     {
         while ((dir = readdir(d)) != NULL)
         {
-            if (dir->d_type == DT_REG)
+            if (dir->d_type == DT_REG | DT_LNK ) //is file or symlink
             {
                 if (strlen(dir->d_name) > 3)
                 {
@@ -181,24 +181,36 @@ int main_register_callback(char *cb_name, CALLBACK_FUNC cb_func)
 {
     /*
      Since register_callback() wants plugin as parameter but we would also like to use
-     our awesome callback system in main program, we do this "plugin" and give it as parameter.
+     our awesome callback system in main program we do this "plugin" and give it as parameter.
     */
-    static plugin *cb_plugin;
+    static plugin *cb_plugin = NULL;
 
-    cb_plugin = malloc(sizeof(plugin));
-    cb_plugin->callback_list = malloc(sizeof(callback*));
+    if (cb_plugin == NULL)
+    {
+        plugin **new_list = realloc(plugin_list, plugin_count * sizeof(plugin*));
+        if (new_list == NULL)
+        {
+            return -1;
+        }
 
-    cb_plugin->callback_count = 0;
-    cb_plugin->handle = NULL;
-    cb_plugin->status = RUNNING;
+        new_list[plugin_count] = cb_plugin;
+        plugin_count++;
 
-    cb_plugin->plugin_name = "CB-Handler";
-    cb_plugin->plugin_version = "Joona";
-    cb_plugin->plugin_version = "0";
+        cb_plugin = malloc(sizeof(plugin));
+        cb_plugin->callback_list = malloc(sizeof(callback*));
 
+        cb_plugin->callback_count = 0;
+        cb_plugin->handle = NULL;
+        cb_plugin->status = RUNNING;
+
+        cb_plugin->plugin_name = "CB-Handler";
+        cb_plugin->plugin_version = "Joona";
+        cb_plugin->plugin_version = "0";
+
+        plugin_list = new_list;
+    }
 
     return register_callback(cb_name, cb_func, cb_plugin);
-
 }
 
 void execute_callbacks(char *cb_name, void **args, int argc)
@@ -232,6 +244,5 @@ void execute_callbacks(char *cb_name, void **args, int argc)
             }
         }
     }
-
     return;
 }

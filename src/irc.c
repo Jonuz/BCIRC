@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 
 #include "../include/irc.h"
@@ -9,12 +10,12 @@
 
 int get_numeric(void **params, int argc) // FIX THIS
 {
-    char *buffer = malloc( sizeof( (char*) params[0]) / sizeof(char*) );
-    server *srv = malloc( sizeof( (server*) params[1]) / sizeof(server*) );
+    printf("asd??\n");
+
+    char *buffer = malloc( sizeof( (char*) params[0]) );
+    server *srv = malloc( sizeof( (server*) params[1]) );
 
     buffer = (char*) params[0];
-    srv = (server*) params[1];
-
     srv = (server*) params[1];
 
     if (buffer == NULL)
@@ -22,28 +23,27 @@ int get_numeric(void **params, int argc) // FIX THIS
     if (srv == NULL)
         return BCIRC_PLUGIN_STOP;
 
-    if (strlen(buffer) < 3)
+    char *nums = malloc(sizeof(char) * 4);
+    char *tokked = strtok(buffer, " ");
+
+    int i = 0;
+    while (tokked != NULL)
     {
-        for (int i = 0; i < 3; i++)
+        if (i == 0)
+            continue;
+        printf("%s\n", tokked);
+        if (isdigit(tokked))
         {
-            if (!isdigit(buffer[i]))
-                return BCIRC_PLUGIN_CONTINUE;
+            break;
         }
-    }
-    else
-    {
-        return BCIRC_PLUGIN_BREAK;
+        return BCIRC_PLUGIN_CONTINUE;
     }
 
-    char nums[4];
-    memcpy(nums, buffer, 3);
-    nums[3] = '\0';
+    printf("numeric: %s\n", tokked);
 
     int *numeric = (int*) atoi(nums); //TODO: fix warning
 
-    void **cb_params = malloc(sizeof(server*) + sizeof(char*) + sizeof(int*)); 
-
-
+    void **cb_params = malloc(sizeof(void*) * 3);
     if (cb_params == NULL)
         return BCIRC_PLUGIN_CONTINUE;
 

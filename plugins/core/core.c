@@ -29,7 +29,7 @@ int plugin_init(plugin *pluginptr)
 int test_numeric(void **params, int argc)
 {
 	int *numeric = (int*) params[0];
-	printf("%d\n", numeric);
+	printf("%d\n", *numeric);
 
 	return BCIRC_PLUGIN_OK;
 }
@@ -38,9 +38,8 @@ int handle_ping(void **params, int argc)
 {
     if (params == NULL)
         return BCIRC_PLUGIN_BREAK;
-
-    char *buf = (char*) params[1];
     server *srv = (server*) params[0];
+    char *buf = (char*) params[1];
 
     if ((buf == NULL) || (srv == NULL))
         return BCIRC_PLUGIN_BREAK;
@@ -51,21 +50,15 @@ int handle_ping(void **params, int argc)
     }
 
     unsigned int i;
-    if (strstr(buf, "PING :")  == buf[0])
-    {
-        for (i = 6; i < strlen(buf); i++)
-            if (buf[i] == ' ');
-                break;
-    }
-    else
+    if (strstr(buf, "PING :") == NULL) //fix me!
     {
         return BCIRC_PLUGIN_CONTINUE;
     }
 
-    char *pong = malloc(i + 2 * sizeof(char));
-    memcpy(pong, buf, i);
+    char *pong = malloc(sizeof(buf));
+    strcpy(pong, buf);
+
     pong[1] = 'O';
-    sprintf(pong, "%s\r\n", pong);
 
     server_send(pong, srv);
     printf("%s", pong);
@@ -83,7 +76,7 @@ int handle_registeration(void **params, int argc)
 
     char password_msg[] = "PASS passu\r\n";
     char username_msg[] = "USER quest  asd Testimies :Tosimies\r\n";
-    char nickname_msg[] = "NICK Testikappale\r\n";
+    char nickname_msg[] = "NICK dadasd\r\n";
 
     usleep(10000);
 
