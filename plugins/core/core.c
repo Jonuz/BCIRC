@@ -36,8 +36,6 @@ int test_numeric(void **params, int argc)
 
 int handle_ping(void **params, int argc)
 {
-    if (params == NULL)
-        return BCIRC_PLUGIN_BREAK;
     server *srv = (server*) params[0];
     char *buf = (char*) params[1];
 
@@ -49,13 +47,13 @@ int handle_ping(void **params, int argc)
         return BCIRC_PLUGIN_CONTINUE;
     }
 
-    unsigned int i;
     if (strstr(buf, "PING :") == NULL) //fix me!
     {
         return BCIRC_PLUGIN_CONTINUE;
     }
 
-    char *pong = malloc(sizeof(buf));
+    int len = strlen(buf) + 1   ;
+    char pong[len];
     strcpy(pong, buf);
 
     pong[1] = 'O';

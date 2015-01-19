@@ -37,12 +37,12 @@ int main()
     }
 
     char *buffer = malloc(0); // So realloc() can be used.
-/*
+
     if (main_register_callback(CALLBACK_SERVER_RECV, get_numeric) != 1)
     {
         printf("Failed to add main_cb\n");
     }
-*/
+
     while(server_recv(buffer, &server_info) >= 1)
     {
     }

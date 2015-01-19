@@ -91,9 +91,9 @@ int get_plugins(char *plugin_dir)
     d = opendir(plugin_dir);
     if (d)
     {
-        while ((dir = readdir(d)) != NULL)
+        while ( (dir = readdir(d)) != NULL)
         {
-            if (dir->d_type == DT_REG | DT_LNK ) //is file or symlink
+            if ( dir->d_type == DT_REG | DT_LNK ) //is file or symlink
             {
                 if (strlen(dir->d_name) > 3)
                 {
@@ -164,12 +164,12 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr)
         return -1;
     }
 
-    callback *new_callback = malloc(sizeof(callback));
+    callback *new_callback = malloc(sizeof(callback*));
+    new_callback->cb_name = malloc(sizeof(cb_name));
 
     new_callback->cb_func = cb_func;
     new_callback->cb_name = cb_name;
-
-    //pluginptr->callback_list = realloc(pluginptr->callback_list, pluginptr->callback_count * sizeof(callback));
+    //pluginptr->callback_list = realloc(pluginptr->callback_list, pluginptr->callback_count * sizeof(callback*));
 
     pluginptr->callback_list[pluginptr->callback_count] = new_callback;
     pluginptr->callback_count++;
@@ -187,15 +187,6 @@ int main_register_callback(char *cb_name, CALLBACK_FUNC cb_func)
 
     if (cb_plugin == NULL)
     {
-        plugin **new_list = realloc(plugin_list, plugin_count * sizeof(plugin*));
-        if (new_list == NULL)
-        {
-            return -1;
-        }
-
-        new_list[plugin_count] = cb_plugin;
-        plugin_count++;
-
         cb_plugin = malloc(sizeof(plugin));
         cb_plugin->callback_list = malloc(sizeof(callback*));
 
@@ -207,7 +198,18 @@ int main_register_callback(char *cb_name, CALLBACK_FUNC cb_func)
         cb_plugin->plugin_version = "Joona";
         cb_plugin->plugin_version = "0";
 
+        plugin **new_list = NULL;
+
+        new_list = realloc(plugin_list, plugin_count + 1 * sizeof(plugin*));
+        if (new_list == NULL)
+        {
+            printf("Failed to reserve memory in main_register_callback !\n");
+            return -1;
+        }
+        new_list[plugin_count] = cb_plugin;
         plugin_list = new_list;
+
+        plugin_count++;
     }
 
     return register_callback(cb_name, cb_func, cb_plugin);

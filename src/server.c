@@ -86,10 +86,7 @@ int server_recv(char *buf, server *srv)
 	srv->recvd_len += res;
 
     void **params;
-    params = malloc(sizeof(server*));
     params[0] = (void*)srv;
-
-    params = realloc(params, sizeof(params) + sizeof((void*)buf));
     params[1] = (void*)buf;
 
     execute_callbacks(CALLBACK_SERVER_RECV, params, 1);

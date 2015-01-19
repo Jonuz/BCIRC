@@ -7,16 +7,24 @@
 #include "../include/irc.h"
 #include "../include/plugin-handler.h"
 
+bool is_fulldigit(char *str)
+{
+    for (size_t i = 0; i < strlen(str); i++)
+    {
+        if (!isdigit(str[i]))
+            return false;
+    }
+    return true;
+}
 
 int get_numeric(void **params, int argc) // FIX THIS
 {
-    printf("asd??\n");
 
     char *buffer = malloc( sizeof( (char*) params[0]) );
     server *srv = malloc( sizeof( (server*) params[1]) );
 
-    buffer = (char*) params[0];
-    srv = (server*) params[1];
+    srv = (server*) params[0];
+    buffer = (char*) params[1];
 
     if (buffer == NULL)
         return BCIRC_PLUGIN_STOP;
@@ -24,22 +32,22 @@ int get_numeric(void **params, int argc) // FIX THIS
         return BCIRC_PLUGIN_STOP;
 
     char *nums = malloc(sizeof(char) * 4);
-    char *tokked = strtok(buffer, " ");
 
-    int i = 0;
+    size_t i = 0;
+    char *tokked = strtok(buffer, " ");
     while (tokked != NULL)
     {
-        if (i == 0)
-            continue;
-        printf("%s\n", tokked);
-        if (isdigit(tokked))
-        {
-            break;
-        }
-        return BCIRC_PLUGIN_CONTINUE;
+        for (size_t y = 0; y < strlen(tokked); y++)
+            if (is_fulldigit(tokked))
+                printf("tokked: %s & i :%d\n", tokked, i);
+
+
+        tokked = strtok(NULL, " ");
+        i++;
     }
 
-    printf("numeric: %s\n", tokked);
+    return BCIRC_PLUGIN_CONTINUE;
+    printf("\n\n numeric: %s \n\n", tokked);
 
     int *numeric = (int*) atoi(nums); //TODO: fix warning
 
