@@ -28,10 +28,9 @@ int plugin_init(plugin *pluginptr)
 
 int test_numeric(void **params, int argc)
 {
-	int *numeric = (int*) params[0];
-	printf("%d\n", *numeric);
-
-	return BCIRC_PLUGIN_OK;
+	int numeric = (int) params[0];
+	printf("%d\n", numeric);
+    return BCIRC_PLUGIN_OK;
 }
 
 int handle_ping(void **params, int argc)
@@ -47,19 +46,22 @@ int handle_ping(void **params, int argc)
         return BCIRC_PLUGIN_CONTINUE;
     }
 
-    if (strstr(buf, "PING :") == NULL) //fix me!
+    char *tmp = malloc( strlen(buf) * sizeof(char) );
+    strcpy(tmp, buf);
+    char *maybe_ping = strtok(tmp, " ");
+
+    if (strcmp(maybe_ping, "PING") != 0)
     {
         return BCIRC_PLUGIN_CONTINUE;
     }
 
-    int len = strlen(buf) + 1   ;
-    char pong[len];
-    strcpy(pong, buf);
+    char *pong = malloc( (strlen(buf) * sizeof(char)) );
+    sprintf(pong, buf);
 
     pong[1] = 'O';
 
-    server_send(pong, srv);
     printf("%s", pong);
+    server_send(pong, srv);
 
     return BCIRC_PLUGIN_OK;
 }

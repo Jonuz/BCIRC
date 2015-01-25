@@ -61,9 +61,6 @@
 		<Unit filename="../src/irc.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../src/irc_cmds.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="../src/plugin-handler.c">
 			<Option compilerVar="CC" />
 		</Unit>

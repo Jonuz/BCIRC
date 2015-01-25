@@ -54,6 +54,7 @@
 /*
     Params:
         int numeric
+        char *buffer;
         server *srv
 */
 #define CALLBACK_GOT_NUMERIC "got_numeric"

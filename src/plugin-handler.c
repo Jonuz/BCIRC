@@ -93,7 +93,7 @@ int get_plugins(char *plugin_dir)
     {
         while ( (dir = readdir(d)) != NULL)
         {
-            if ( dir->d_type == DT_REG | DT_LNK ) //is file or symlink
+            if ( dir->d_type == DT_REG ) //is file or symlink
             {
                 if (strlen(dir->d_name) > 3)
                 {
