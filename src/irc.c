@@ -17,7 +17,7 @@ bool is_fulldigit(char *str)
     return true;
 }
 
-int get_numeric(void **params, int argc) // FIX THIS
+int get_numeric(void **params, int argc)
 {
 
     char *buffer = malloc( sizeof( (char*) params[0]) );
