@@ -41,10 +41,14 @@
 		<Unit filename="../include/channel.h" />
 		<Unit filename="../include/irc.h" />
 		<Unit filename="../include/irc_cmds.h" />
+		<Unit filename="../include/numeric.h" />
 		<Unit filename="../include/plugin-handler.h" />
 		<Unit filename="../include/server.h" />
 		<Unit filename="../include/user.h" />
 		<Unit filename="../main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../plugins/channel/channelhandler.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../plugins/core/core.c">
@@ -60,6 +64,12 @@
 		</Unit>
 		<Unit filename="../src/irc.c">
 			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../src/irc_cmds.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../src/irc_cmds.h">
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="../src/plugin-handler.c">
 			<Option compilerVar="CC" />

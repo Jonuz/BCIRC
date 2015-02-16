@@ -23,41 +23,7 @@
 #define BCIRC_PLUGIN_STOP 0
 #define BCIRC_PLUGIN_FAIL -1
 
-/*
-    Params:
-        server *srv
-*/
-#define CALLBACK_SERVER_CONNECTED "server_connected"
 
-
-/*
-    Params:
-        server *srv
-*/
-#define CALLBACK_SERVER_DISCONNECTED "server_disconnected"
-
-/*
-    Params:
-        char *buffer
-        server *srv
-*/
-#define CALLBACK_SERVER_RECV "server_recv"
-
-/*
-    Params:
-        char *buffer
-        server *srv
-*/
-#define CALLBACK_SERVER_SEND "server_send"
-
-
-/*
-    Params:
-        int numeric
-        char *buffer;
-        server *srv
-*/
-#define CALLBACK_GOT_NUMERIC "got_numeric"
 
 typedef enum { RUNNING, PAUSED } PLUGIN_STATUS;
 

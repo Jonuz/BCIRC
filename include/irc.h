@@ -8,6 +8,18 @@
 #include "user.h"
 #include "server.h"
 
+
+/*
+    Plugin callbacks
+*/
+/*
+    Params:
+        int numeric
+        char *buffer;
+        server *srv
+*/
+#define CALLBACK_GOT_NUMERIC "got_numeric"
+
 typedef struct
 {
 	struct user *my_info;

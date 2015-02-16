@@ -27,9 +27,6 @@
 #ifndef INCLUDED_numeric_h
 #define INCLUDED_numeric_h
 
-#include "config.h"
-#include "messages.h"
-
 /*
  * Reserve numerics 000-099 for server-client connections where the client
  * is local to the server. If any server is passed a numeric in this range

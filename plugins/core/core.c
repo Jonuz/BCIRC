@@ -6,9 +6,11 @@
 #include "../../include/irc.h"
 #include "../../include/server.h"
 #include "../../include/plugin-handler.h"
+#include "../../include/numeric.h"
 
 int handle_ping(void **params, int argc);
 int handle_registeration(void **params, int argc);
+int got_in(void **params, int argc);
 
 int test_numeric(void **params, int argc);
 
@@ -20,18 +22,12 @@ int plugin_init(plugin *pluginptr)
 {
     register_callback(CALLBACK_SERVER_RECV, handle_ping, pluginptr);
     register_callback(CALLBACK_SERVER_CONNECTED, handle_registeration, pluginptr);
-	register_callback(CALLBACK_GOT_NUMERIC, test_numeric, pluginptr);
+	register_callback(CALLBACK_GOT_NUMERIC, got_in, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
 
 
-int test_numeric(void **params, int argc)
-{
-	int numeric = (int) params[0];
-	printf("%d\n", numeric);
-    return BCIRC_PLUGIN_OK;
-}
 
 int handle_ping(void **params, int argc)
 {
@@ -86,6 +82,30 @@ int handle_registeration(void **params, int argc)
     usleep(1000);
     server_send(nickname_msg, srv);
     usleep(1000);
+
+    return BCIRC_PLUGIN_OK;
+}
+
+int got_in(void **params, int argc)
+{
+    for (int i = 0; i < argc; i++)
+    {
+        if (params[i] == NULL)
+        {
+            printf("params[%i] is NULL!\n", i);
+            return BCIRC_PLUGIN_BREAK;
+        }
+
+    }
+
+    int numeric = (int) params[0];
+    server *srv = (server*) params[2];
+
+    if (numeric != RPL_ENDOFMOTD)
+        return BCIRC_PLUGIN_CONTINUE;
+
+    printf("Connected to %s!\n", srv->host);
+
 
     return BCIRC_PLUGIN_OK;
 }

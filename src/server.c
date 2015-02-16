@@ -43,7 +43,6 @@ int server_disconnect(server *srv)
     cb_params[0] = (void*) srv;
     execute_callbacks( CALLBACK_SERVER_DISCONNECTED, cb_params, 1 );
 
-
 	return close(srv->s);
 }
 
