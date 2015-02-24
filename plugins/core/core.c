@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "../../include/irc.h"
+#include "../../include/irc_cmds.h"
 #include "../../include/server.h"
 #include "../../include/plugin-handler.h"
 #include "../../include/numeric.h"
@@ -105,7 +106,7 @@ int got_in(void **params, int argc)
         return BCIRC_PLUGIN_CONTINUE;
 
     printf("Connected to %s!\n", srv->host);
-
+    join_channel("#tietokone", NULL, srv);
 
     return BCIRC_PLUGIN_OK;
 }

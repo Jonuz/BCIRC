@@ -12,14 +12,14 @@
 /*
     Plugin callbacks
 */
+
+#define CALLBACK_GOT_NUMERIC "got_numeric"
 /*
     Params:
         int numeric
         char *buffer;
         server *srv
 */
-#define CALLBACK_GOT_NUMERIC "got_numeric"
-
 typedef struct
 {
 	struct user *my_info;

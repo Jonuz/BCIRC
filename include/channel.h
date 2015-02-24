@@ -49,6 +49,7 @@ typedef struct
 	char *name;
 	char *key;
 	char *modes;
+	char *topic;
 
     server *srv;
 	struct user **users;
