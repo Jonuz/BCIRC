@@ -9,6 +9,10 @@
 #include "../../include/numeric.h"
 
 
+char plugin_name[] = "BCIRC-Channel plugin";
+char plugin_author[] = "Joona";
+char plugin_version[] = "0.1";
+
 int handle_ping(void **params, int argc);
 int handle_registeration(void **params, int argc);
 int got_in(void **params, int argc);
@@ -41,9 +45,6 @@ int plugin_init(plugin *pluginptr)
 
 int check_numeric(void **params, int argc)
 {
-    for (int i = 0; i < argc; i++)
-        if (params[i] == NULL);
-            return BCIRC_PLUGIN_BREAK;
 
     int numeric =  (int) params[0];
     char *buf = params[1];
@@ -56,7 +57,7 @@ int check_numeric(void **params, int argc)
             break;
 
         case RPL_NAMREPLY:
-            add_users(params);
+            //add_users(params);
             break;
 
         case ERR_NEEDMOREPARAMS:
@@ -109,6 +110,8 @@ int set_topic(void **params)
     channel *chan = NULL;
     char *chan_name = NULL;
 
+    printf("BUF: %s\n\n", buf);
+
     char *topic = NULL;
 
     char *word_save = NULL;
@@ -128,8 +131,6 @@ int set_topic(void **params)
                 printf("Failed to add memory on %s\n", __PRETTY_FUNCTION__);
                 exit(EXIT_FAILURE);
             }
-            sprintf(chan->topic, "%s%s", chan->topic, word);
-            printf("Topic: %s\n", chan->topic);
         }
         word = strtok_r(buf, " ", &word_save);
 

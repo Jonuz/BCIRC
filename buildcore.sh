@@ -5,5 +5,5 @@ cc main.c ./src/*.c -Wall -ldl -std=gnu11 -g -c -fPIC
 
 ar rcs ./plugins/libbcirc.a *.o
 
-rm ./include/*.gch
-rm *.o
+#rm ./include/*.gch
+#rm *.o

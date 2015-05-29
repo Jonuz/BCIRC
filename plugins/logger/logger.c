@@ -26,7 +26,7 @@ int on_server_send(void **paramams, int argc)
     if ((srv == NULL) || (buf == NULL))
         return BCIRC_PLUGIN_BREAK;
 
-    printf("%s", buf);
+    printf("%s\n", buf);
 
     return BCIRC_PLUGIN_OK;
 }

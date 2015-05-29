@@ -37,15 +37,20 @@ int get_numeric(void **params, int argc)
     char *line = strtok_r(buffer, "\r", &lines_save);
     char *word = NULL;
 
+    char *line_whole = NULL; //Because strtok_r() will split our line.
+
     for (int line_count = 0; line != NULL; line_count++)
     {
+        line_whole = malloc(strlen(line) * sizeof(char));
+        strcpy(line_whole, line);
         word = strtok_r(line, " ", &words_save);
+
         for (int word_count = 0; word != NULL; word_count++)
         {
             if (word_count == 1)
             {
                 if (!is_fulldigit(word))
-                    return BCIRC_PLUGIN_CONTINUE;
+                    continue;
 
                 int numeric = atoi(word);
 
@@ -58,8 +63,10 @@ int get_numeric(void **params, int argc)
                     return BCIRC_PLUGIN_FAIL;
                 }
                 params[0] = (void*) numeric;
-                params[1] = (void*) buffer;
+                params[1] = (void*) line_whole;
                 params[2] = (void*) srv;
+
+                printf("Line_whole: %s\n", line_whole);
 
                 execute_callbacks(CALLBACK_GOT_NUMERIC, params, 3);
 

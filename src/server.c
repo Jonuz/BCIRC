@@ -84,15 +84,24 @@ int server_recv(char *buf, server *srv)
     strcpy(buf, tmpbuf);
 	srv->recvd_len += res;
 
-    void **params;
-    params[0] = (void*)srv;
-    params[1] = (void*)buf;
+    char *save = malloc(15);
+    char *line = malloc(strlen(buf) * sizeof(char));
+    line = strtok_r(buf, "\r\n", &save);
 
-    execute_callbacks(CALLBACK_SERVER_RECV, params, 1);
-	//free(buf);
+    while (line != NULL)
+    {
+        void **params = malloc(2 * sizeof(void*));
+        params[0] = (void*) srv;
+        params[1] = (void*) line;
+
+        execute_callbacks(CALLBACK_SERVER_RECV, params, 2);
+        line = strtok_r(NULL, "\r\n", &save);
+
+    }
 
 	return res;
 }
+
 
 
 void server_set_timeout(time_t sec, time_t usec, server *srv)
