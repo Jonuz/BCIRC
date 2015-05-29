@@ -4,6 +4,8 @@
 #include "../../include/server.h"
 #include "../../include/channel.h"
 #include "../../include/irc.h"
+#include "../../include/irc_cmds.h"
+
 
 
 #include "../../include/numeric.h"
@@ -54,6 +56,10 @@ int check_numeric(void **params, int argc)
     {
         case RPL_TOPIC:
             set_topic(params);
+            break;
+
+        case RPL_ENDOFOMOTD:
+            join_channel("#jonuz.test", NULL, srv);
             break;
 
         case RPL_NAMREPLY:
@@ -122,7 +128,6 @@ int set_topic(void **params)
         if (i == 3)
             if ( (chan = get_channel(word)) == NULL )
                 create_channel(word, srv);
-
         if (i > 3)
         {
             chan->topic = realloc(chan->topic, (strlen(chan->topic) + strlen(word)) / sizeof(char));
@@ -132,8 +137,6 @@ int set_topic(void **params)
                 exit(EXIT_FAILURE);
             }
         }
-        word = strtok_r(buf, " ", &word_save);
-
+        word = strtok_r(NULL, " ", &word_save);
     }
-
 }

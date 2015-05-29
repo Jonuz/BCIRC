@@ -66,8 +66,6 @@ int get_numeric(void **params, int argc)
                 params[1] = (void*) line_whole;
                 params[2] = (void*) srv;
 
-                printf("Got numeric! %d\n", numeric);
-
                 execute_callbacks(CALLBACK_GOT_NUMERIC, params, 3);
 
                 continue;

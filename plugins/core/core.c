@@ -21,8 +21,6 @@ char plugin_version[] = "0.1";
 
 int plugin_init(plugin *pluginptr)
 {
-    puts("Registered Core");
-
     register_callback(CALLBACK_SERVER_RECV, handle_ping, pluginptr);
     register_callback(CALLBACK_SERVER_CONNECTED, handle_registeration, pluginptr);
 	register_callback(CALLBACK_GOT_NUMERIC, got_in, pluginptr);
@@ -59,7 +57,6 @@ int handle_ping(void **params, int argc)
     pong[1] = 'O';
 
     puts("PONG!");
-    printf("Pong: %s\n", pong);
     server_send(pong, srv);
 
     return BCIRC_PLUGIN_OK;
@@ -98,7 +95,6 @@ int got_in(void **params, int argc)
         return BCIRC_PLUGIN_CONTINUE;
 
     printf("Connected to %s!\n", srv->host);
-    join_channel("#tietokone", NULL, srv);
 
     return BCIRC_PLUGIN_OK;
 }
