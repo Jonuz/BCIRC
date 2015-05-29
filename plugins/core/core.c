@@ -53,8 +53,8 @@ int handle_ping(void **params, int argc)
     if (strcmp(maybe_ping, "PING") != 0)
         return BCIRC_PLUGIN_CONTINUE;
 
-    char *pong = malloc( (strlen(buf) * sizeof(char)) );
-    sprintf(pong, buf);
+    char *pong = malloc( ((strlen(buf) + 2) * sizeof(char)) );
+    sprintf(pong, "%s\r\n", buf);
 
     pong[1] = 'O';
 
@@ -74,10 +74,10 @@ int handle_registeration(void **params, int argc)
     server *srv = (server*) params[0];
 
     char password_msg[] = "PASS passu\r\n";
-    char username_msg[] = "USER quest  asd Tositestimies :Tosimies\r\n";
+    char username_msg[] = "USER quest dsd Tositestimies :Tosimies\r\n";
     char nickname_msg[] = "NICK dadasd\r\n";
 
-    usleep(10000);
+    usleep(100);
 
     server_send(password_msg, srv);
     usleep(1000);
