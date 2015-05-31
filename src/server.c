@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 
 #include "../include/server.h"
+#include "../include/irc.h"
 #include "../include/plugin-handler.h"
 
 int server_connect(server *srv)
@@ -66,39 +67,44 @@ int server_send(char *buf, server *srv)
 */
 int server_recv(char *buf, server *srv)
 {
-    char tmpbuf[1024];
+	char tmpbuf[1024];
 	int res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
 	tmpbuf[res] = '\0';
 
 	if (res <= 0)
 	{
-		free(buf);
+		//free(buf);
 		server_disconnect(srv);
-        return res;
+		return res;
 	}
 
-    buf = realloc(buf, strlen(tmpbuf) + 1 * (sizeof(char)));
-    if (buf == NULL)
-        return -2;
+	if (!buf)
+		buf = malloc(strlen(tmpbuf) * sizeof(char));
+	else
+		buf = realloc(buf, (strlen(tmpbuf) + 1) * (sizeof(char)));
 
-    strcpy(buf, tmpbuf);
+	if (buf == NULL)
+		return -2;
+
+	char *buf_copy = malloc(sizeof(tmpbuf));
+	strcpy(buf_copy, tmpbuf);
+	strcpy(buf, tmpbuf);
 	srv->recvd_len += res;
 
-    char *save = malloc(15);
-    char *line = malloc(strlen(buf) * sizeof(char));
-    line = strtok_r(buf, "\r\n", &save);
+	is_privmsg(srv, buf_copy);
 
-    while (line != NULL)
-    {
-        void **params = malloc(2 * sizeof(void*));
-        params[0] = (void*) srv;
-        params[1] = (void*) line;
+	char *save = malloc(sizeof(buf));
+	char *line = malloc((strlen(buf) + 1) * sizeof(char));
+	line = strtok_r(buf, "\r\n", &save);
 
-        execute_callbacks(CALLBACK_SERVER_RECV, params, 2);
-        line = strtok_r(NULL, "\r\n", &save);
-
-    }
-
+	while (line != NULL)
+	{
+		void **params = malloc(2 * sizeof(void*));
+		strcat(line, "\0");			params[0] = (void*) srv;
+		params[1] = (void*) line;
+		execute_callbacks(CALLBACK_SERVER_RECV, params, 2);
+		line = strtok_r(NULL, "\r\n", &save);
+  	}
 	return res;
 }
 

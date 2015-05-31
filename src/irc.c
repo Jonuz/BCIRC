@@ -17,9 +17,10 @@ bool is_fulldigit(char *str)
     return true;
 }
 
+
+
 int get_numeric(void **params, int argc)
 {
-
     char *buffer = malloc( sizeof( (char*) params[0]) );
     server *srv = malloc( sizeof( (server*) params[1]) );
 
@@ -31,49 +32,99 @@ int get_numeric(void **params, int argc)
     if (srv == NULL)
         return BCIRC_PLUGIN_STOP;
 
-    char *lines_save = NULL;
-    char *words_save = NULL;
+    char *save = malloc(strlen(buffer) * sizeof(char));
+    char *word = malloc(strlen(buffer) * sizeof(char));
 
-    char *line = strtok_r(buffer, "\r", &lines_save);
-    char *word = NULL;
+    word = strtok_r(buffer, " ", &save);
+    if (!word)
+      return BCIRC_PLUGIN_CONTINUE;
+    word = strtok_r(NULL, " ", &save);
+    if (!word)
+      return BCIRC_PLUGIN_CONTINUE;
 
-    char *line_whole = NULL; //Because strtok_r() will split our line.
-
-    for (int line_count = 0; line != NULL; line_count++)
+    if (is_fulldigit(word))
     {
-        line_whole = malloc(strlen(line) * sizeof(char));
-        strcpy(line_whole, line);
-        word = strtok_r(line, " ", &words_save);
+      int numeric = atoi(word);
 
-        for (int word_count = 0; word != NULL; word_count++)
-        {
-            if (word_count == 1)
-            {
-                if (!is_fulldigit(word))
-                    continue;
+      void **params = malloc(sizeof(void*) * 3);
+      for (int i = 0; i < 3; i++)
+        params[i] = malloc(sizeof(void*));
 
-                int numeric = atoi(word);
+      params[0] = (void*) numeric;
+      params[1] = (void*) buffer;
+      params[2] = (void*) srv;
 
-                void **params = NULL;
-                params = malloc(3 * sizeof(void*));
-
-                if (params == NULL)
-                {
-                    puts("Failed to alloc memory in get_numeric()!");
-                    return BCIRC_PLUGIN_FAIL;
-                }
-                params[0] = (void*) numeric;
-                params[1] = (void*) line_whole;
-                params[2] = (void*) srv;
-
-                execute_callbacks(CALLBACK_GOT_NUMERIC, params, 3);
-
-                continue;
-            }
-            word = strtok_r(NULL, " ", &words_save);
-        }
-        line = strtok_r(NULL, "\r", &lines_save);
+      execute_callbacks(CALLBACK_GOT_NUMERIC, params, 3);
     }
-
     return BCIRC_PLUGIN_OK;
+}
+
+int is_privmsg(server *srv, char *buf)
+{
+    if (!srv)
+        return -1;
+    if (!buf)
+        return -1;
+
+    char *nick = NULL;
+    char *hostmask = NULL;
+    char *target = NULL;
+    char *msg = NULL;
+
+    char *save = malloc(sizeof(buf));
+    char *str = strtok_r(buf, ":! ", &save);
+
+    //:Jonuz!~Joona@178.62.198.166 PRIVMSG dadasd :lol oot homo
+
+    for (int i = 0; str != NULL; i++)
+    {
+        //printf("str: %s | i: %d\n", str, i);
+        if (i == 0)
+        {
+            nick = malloc((strlen(str) + 1) * sizeof(char));
+            strcpy(nick, str);
+        }
+        if (i == 1)
+        {
+            hostmask = malloc((strlen(str) + 1) * sizeof(char));
+            strcpy(hostmask, str);
+        }
+        if (i == 2)
+            if (strcmp(str, "PRIVMSG") != 0)
+                return BCIRC_PLUGIN_OK;
+
+        if (i == 3)
+        {
+            target = malloc((strlen(str) + 1) * sizeof(char));
+            strcpy(target, str);
+            break;
+        }
+        str = strtok_r(NULL, ":! ", &save);
+      }
+
+      if (!nick)
+          return -2;
+      if (!hostmask)
+          return -2;
+      if (!target)
+          return -2;
+
+
+      msg = malloc(sizeof(save));
+      strcpy(msg, save);
+      msg++;
+
+      int len = strlen(msg);
+      msg[len-1] = '\0';
+
+      void **params = malloc(sizeof(void*) * 5);
+      params[0] = srv;
+      params[1] = nick;
+      params[2] = hostmask;
+      params[3] = target;
+      params[4] = msg;
+
+      execute_callbacks(CALLBACK_GOT_PRIVMSG, params, 5);
+
+      return BCIRC_PLUGIN_OK;
 }

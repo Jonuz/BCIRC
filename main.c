@@ -27,7 +27,12 @@ int main()
     strcpy(server_info.host, host);
     strcpy(server_info.port, port);
 
+    plugin_list = malloc(sizeof(plugin*));
+
     get_plugins("/home/joona/Ohjelmointi/Irc/build/plugins");
+
+    if (main_register_callback(CALLBACK_SERVER_RECV, get_numeric) != 1)
+      printf("Failed to add callback for get_numeric\n");
 
     int res;
     if ( (res = server_connect(&server_info) ) != 1)
@@ -36,18 +41,12 @@ int main()
         return -1;
     }
 
-    char *buffer = malloc(0); // So realloc() can be used.
-
-    if (main_register_callback(CALLBACK_SERVER_RECV, get_numeric) != 1)
-    {
-        printf("Failed to add main_cb\n");
-    }
-
+    char *buffer = NULL;
     while(server_recv(buffer, &server_info) >= 1)
     {
     }
 
-	puts("Connection closed");
+    puts("Connection closed");
 
 	return 0;
 }

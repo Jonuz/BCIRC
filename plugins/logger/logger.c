@@ -7,6 +7,21 @@ char plugin_name[] = "Logger";
 char plugin_version[] = "0.01";
 char plugin_author[] = "Joona";
 
+int on_server_send(void **paramams, int argc);
+int on_connect(void **params, int argc);
+
+
+
+int plugin_init(plugin *pluginptr)
+{
+
+    register_callback( CALLBACK_SERVER_CONNECTED, on_connect, pluginptr);
+    register_callback( CALLBACK_SERVER_RECV, on_server_send, pluginptr );
+
+    return BCIRC_PLUGIN_OK;
+}
+
+
 int on_connect(void **params, int argc)
 {
     printf("on_connect..\n");
@@ -26,18 +41,7 @@ int on_server_send(void **paramams, int argc)
     if ((srv == NULL) || (buf == NULL))
         return BCIRC_PLUGIN_BREAK;
 
-    //printf("%s\n", buf);
-
-    return BCIRC_PLUGIN_OK;
-}
-
-
-int plugin_init(plugin *pluginptr)
-{
-    printf("plugin_init()\n");
-
-    register_callback( CALLBACK_SERVER_CONNECTED, on_connect, pluginptr);
-    register_callback( CALLBACK_SERVER_RECV, on_server_send, pluginptr );
+    printf("%s\n", buf);
 
     return BCIRC_PLUGIN_OK;
 }

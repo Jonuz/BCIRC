@@ -23,7 +23,7 @@ int plugin_init(plugin *pluginptr)
 {
     register_callback(CALLBACK_SERVER_RECV, handle_ping, pluginptr);
     register_callback(CALLBACK_SERVER_CONNECTED, handle_registeration, pluginptr);
-	register_callback(CALLBACK_GOT_NUMERIC, got_in, pluginptr);
+    register_callback(CALLBACK_GOT_NUMERIC, got_in, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
@@ -37,6 +37,7 @@ int handle_ping(void **params, int argc)
 
     if ((buf == NULL) || (srv == NULL))
         return BCIRC_PLUGIN_BREAK;
+
 
     if (strlen(buf) < 7)
     {

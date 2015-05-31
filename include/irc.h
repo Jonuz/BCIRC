@@ -17,9 +17,21 @@
 /*
     Params:
         int numeric
-        char *buffer;
+        char *buffer
         server *srv
 */
+#define CALLBACK_GOT_PRIVMSG "got_privmsg"
+/*
+	Params:
+		server *srv
+		char *nick
+		char *hostmask
+		char *target
+		char *msg
+
+*/
+
+
 typedef struct
 {
 	struct user *my_info;
@@ -30,8 +42,6 @@ typedef struct
 
 
 int get_numeric(void **params, int argc);
-
-//int get_numeric_response(server *srv);
-
+int get_privmsg(void **params, int argc);
 
 #endif

@@ -69,13 +69,15 @@ int load_plugin(char *path)
         return -3;
     }
 
-    plugin_list = realloc(plugin_list, plugin_count * sizeof(plugin*) );
+    plugin **new_list = NULL;
+    new_list = realloc(plugin_list, (plugin_count + 1) * sizeof(plugin*));
     if (plugin_list == NULL)
-    {
-        return -4;
-    }
+      return -4;
 
-    plugin_list[plugin_count] = new_plugin;
+    new_list[plugin_count] = malloc(sizeof(plugin));
+    new_list[plugin_count] = new_plugin;
+    plugin_list = new_list;
+
     plugin_count++;
 
     printf("oink?\n");
@@ -183,7 +185,7 @@ int main_register_callback(char *cb_name, CALLBACK_FUNC cb_func)
      Since register_callback() wants plugin as parameter but we would also like to use
      our awesome callback system in main program we do this "plugin" and give it as parameter.
     */
-    static plugin *cb_plugin = NULL;
+    static plugin *cb_plugin = NULL; //Virtual plugin
 
     if (cb_plugin == NULL)
     {
@@ -200,18 +202,19 @@ int main_register_callback(char *cb_name, CALLBACK_FUNC cb_func)
 
         plugin **new_list = NULL;
 
-        new_list = realloc(plugin_list, plugin_count + 1 * sizeof(plugin*));
-        if (new_list == NULL)
+        new_list = (plugin**) realloc(plugin_list, (plugin_count + 1) * sizeof(plugin) );
+        if (new_list != NULL)
         {
-            printf("Failed to reserve memory in main_register_callback !\n");
-            return -1;
+          new_list[plugin_count] = cb_plugin;
+          plugin_list = new_list;
+          plugin_count++;
         }
-        new_list[plugin_count] = cb_plugin;
-        plugin_list = new_list;
-
-        plugin_count++;
+        else
+        {
+          puts("Failed to realloc()!");
+          exit(0);
+        }
     }
-
     return register_callback(cb_name, cb_func, cb_plugin);
 }
 

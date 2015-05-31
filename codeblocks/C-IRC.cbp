@@ -61,6 +61,10 @@
 			<Option compile="0" />
 			<Option link="0" />
 		</Unit>
+		<Unit filename="../plugins/thread/Makefile" />
+		<Unit filename="../plugins/thread/test.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="../src/channel.c">
 			<Option compilerVar="CC" />
 		</Unit>

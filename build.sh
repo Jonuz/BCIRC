@@ -1,3 +1,4 @@
+make clean
 make
 cd plugins
 for d in */; do

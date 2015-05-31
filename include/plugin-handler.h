@@ -40,7 +40,7 @@ typedef struct
 
 	char *plugin_name;
 	char *plugin_version;
-    char *plugin_author;
+  char *plugin_author;
 
     PLUGIN_STATUS status;
 
@@ -60,7 +60,7 @@ int get_plugins(char *dir);
 
 typedef int(*CALLBACK_FUNC)(void**, int);
 
-int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr); /* This function should be called in plugin */
+int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr);
 int main_register_callback(char *cb_name, CALLBACK_FUNC cb_func); /* Because we want also use this in main program */
 
 void execute_callbacks(char *cb_name, void **args, int argc);
