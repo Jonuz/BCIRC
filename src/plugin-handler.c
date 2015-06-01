@@ -8,6 +8,9 @@
 #include "../include/irc.h"
 #include "../include/server.h"
 
+#define get_str_size(str) ( (strlen( (char*) str) + 1) * sizeof(char) )
+
+
 int plugin_count;
 plugin **plugin_list;
 
@@ -21,7 +24,7 @@ int load_plugin(char *path)
     new_plugin->callback_count = 0;
     new_plugin->status = RUNNING;
 
-    new_plugin->callback_list = malloc(sizeof(callback*));
+    new_plugin->callback_list = malloc(sizeof(callback));
 
     dlerror();
 
@@ -166,12 +169,16 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr)
         return -1;
     }
 
-    callback *new_callback = malloc(sizeof(callback*));
-    new_callback->cb_name = malloc(sizeof(cb_name));
+    callback *new_callback = malloc(sizeof(callback));
+    new_callback->cb_name = malloc( (strlen(cb_name) + 1) * sizeof(char) );
+    new_callback->cb_func = malloc(sizeof(cb_func));
+
+    pluginptr->callback_list = realloc(pluginptr->callback_list, (pluginptr->callback_count + 1) * sizeof(callback));
+    pluginptr->callback_list[pluginptr->callback_count] = malloc(sizeof(callback*));
 
     new_callback->cb_func = cb_func;
     new_callback->cb_name = cb_name;
-    //pluginptr->callback_list = realloc(pluginptr->callback_list, pluginptr->callback_count * sizeof(callback*));
+
 
     pluginptr->callback_list[pluginptr->callback_count] = new_callback;
     pluginptr->callback_count++;

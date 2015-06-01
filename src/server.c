@@ -79,29 +79,35 @@ int server_recv(char *buf, server *srv)
 	}
 
 	if (!buf)
-		buf = malloc(strlen(tmpbuf) * sizeof(char));
+		buf = malloc((strlen(tmpbuf) + 1) * sizeof(char));
 	else
-		buf = realloc(buf, (strlen(tmpbuf) + 1) * (sizeof(char)));
+		buf = realloc(buf, (strlen(tmpbuf) + 1) * sizeof(char));
 
 	if (buf == NULL)
 		return -2;
 
-	char *buf_copy = malloc(sizeof(tmpbuf));
+	char *buf_copy = malloc( (strlen(tmpbuf) + 1) * sizeof(char) );
 	strcpy(buf_copy, tmpbuf);
 	strcpy(buf, tmpbuf);
 	srv->recvd_len += res;
 
 	is_privmsg(srv, buf_copy);
 
-	char *save = malloc(sizeof(buf));
+	char *save = malloc((strlen(buf) + 1) * sizeof(char));
 	char *line = malloc((strlen(buf) + 1) * sizeof(char));
 	line = strtok_r(buf, "\r\n", &save);
 
 	while (line != NULL)
 	{
 		void **params = malloc(2 * sizeof(void*));
-		strcat(line, "\0");			params[0] = (void*) srv;
+		strcat(line, "\0");
+
+		params[0] = malloc(sizeof(server*));
+		params[1] = malloc( (strlen(line) + 1) * sizeof(char) );
+
+		params[0] = (void*) srv;
 		params[1] = (void*) line;
+
 		execute_callbacks(CALLBACK_SERVER_RECV, params, 2);
 		line = strtok_r(NULL, "\r\n", &save);
   	}

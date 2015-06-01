@@ -49,8 +49,12 @@ int check_numeric(void **params, int argc)
 {
 
     int numeric =  (int) params[0];
-    char *buf = params[1];
-    server *srv = params[2];
+
+    char *buf = malloc(get_str_size(params[1]));
+    buf = params[1];
+
+    server *srv = malloc(sizeof(server));
+    *srv = params[2];
 
     switch(numeric)
     {

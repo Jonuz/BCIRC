@@ -44,15 +44,15 @@ int handle_ping(void **params, int argc)
         return BCIRC_PLUGIN_CONTINUE;
     }
 
-    char *tmp = malloc( strlen(buf) * sizeof(char) );
+    char *tmp = malloc( (strlen(buf) + 1) * sizeof(char));
     strcpy(tmp, buf);
-    char *maybe_ping = malloc(strlen(tmp) * sizeof(char));
+    char *maybe_ping = malloc( (strlen(tmp) + 1) * sizeof(char));
     maybe_ping = strtok(tmp, " ");
 
     if (strcmp(maybe_ping, "PING") != 0)
         return BCIRC_PLUGIN_CONTINUE;
 
-    char *pong = malloc( ((strlen(buf) + 2) * sizeof(char)) );
+    char *pong = malloc( ((strlen(buf) + 2 + 1) * sizeof(char)) );
     sprintf(pong, "%s\r\n", buf);
 
     pong[1] = 'O';
@@ -90,7 +90,8 @@ int handle_registeration(void **params, int argc)
 int got_in(void **params, int argc)
 {
     int numeric = (int) &params[0];
-    server *srv = (server*) params[2];
+    server *srv = malloc(sizeof(server));
+    srv = (server*) params[2];
 
     if (numeric != RPL_ENDOFMOTD)
         return BCIRC_PLUGIN_CONTINUE;
