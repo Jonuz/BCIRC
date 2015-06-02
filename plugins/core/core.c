@@ -73,7 +73,7 @@ int handle_registeration(void **params, int argc)
 
     char password_msg[] = "PASS passu\r\n";
     char username_msg[] = "USER quest dsd Tositestimies :Tosimies\r\n";
-    char nickname_msg[] = "NICK dadasd\r\n";
+    char nickname_msg[] = "NICK tosibotti\r\n";
 
     usleep(100);
 

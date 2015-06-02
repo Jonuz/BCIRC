@@ -115,13 +115,12 @@ int is_privmsg(server *srv, char *buf)
       if (!target)
           return -2;
 
-
       char *msg = malloc(get_str_size(save));
       strcpy(msg, save);
       msg++;
 
       int len = strlen(msg);
-      msg[len-1] = '\0';
+      msg[len-2] = '\0';
 
       void **params = malloc(sizeof(void*) * 5);
 
