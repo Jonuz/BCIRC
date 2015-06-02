@@ -89,7 +89,7 @@ int handle_registeration(void **params, int argc)
 
 int got_in(void **params, int argc)
 {
-    int numeric = (int) &params[0];
+    int *numeric = (int*) params[0];
     server *srv = malloc(sizeof(server));
     srv = (server*) params[2];
 
@@ -97,6 +97,7 @@ int got_in(void **params, int argc)
         return BCIRC_PLUGIN_CONTINUE;
 
     printf("Connected to %s!\n", srv->host);
+
 
     return BCIRC_PLUGIN_OK;
 }

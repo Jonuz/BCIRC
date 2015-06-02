@@ -49,14 +49,15 @@ int get_numeric(void **params, int argc)
 
     if (is_fulldigit(word))
     {
-        int numeric = atoi(word);
+        int *numeric = atoi(word);
+
         void **new_params = malloc(sizeof(void*) * 3);
 
         new_params[0] = malloc(sizeof(numeric));
         new_params[1] = malloc(get_str_size(buffer));
         new_params[2] = malloc(sizeof(server));
 
-        new_params[0] = numeric;
+        new_params[0] = (void*) numeric;
         new_params[1] = buffer;
         new_params[2] = srv;
 

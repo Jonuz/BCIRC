@@ -7,3 +7,5 @@ TARGET = $(PLUGIN_PATH)/core.so
 $(TARGET):
 	$(CC) $(SOURCES) $(CFLAGS) -o $@
 
+clean:
+	rm -rf ${TARGET}
