@@ -99,7 +99,7 @@ int got_in(void **params, int argc)
     printf("Connected to %s!\n", srv->host);
 
     join_channel("#tesm", NULL, srv );
-    //join_channel("#tietokone", NULL, srv );
+    join_channel("#tietokone", NULL, srv );
 
 
     return BCIRC_PLUGIN_OK;

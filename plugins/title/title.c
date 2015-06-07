@@ -185,6 +185,15 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     free(title);
     title = new_title;
 
+    for (int i = 0; title[i] != '\0'; i++)
+    {
+        if (title[i] == '\r')
+            title[i] = '-';
+        if (title[i] == '\n')
+            title[i] = '-';
+    }
+
+
     if (target_save[0] == '#') //In future: Check if target is channel.
         privmsg(title, target_save, srv_save);
     else

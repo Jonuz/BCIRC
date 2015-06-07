@@ -100,7 +100,6 @@ int server_recv(char *buf, server *srv)
 	while (line != NULL)
 	{
 		void **params = malloc(2 * sizeof(void*));
-		strcat(line, "\0");
 
 		params[0] = malloc(sizeof(server*));
 		params[1] = malloc( (strlen(line) + 1) * sizeof(char) );
