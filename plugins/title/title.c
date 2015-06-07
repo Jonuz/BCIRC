@@ -74,7 +74,7 @@ int check_for_url(void **params, int argv)
     puts("found url!");
 
     size_t len = matches[0].rm_eo - matches[0].rm_so + 1;
-    char *url = malloc((len) * sizeof(char));
+    char *url = malloc((len + 1) * sizeof(char));
 
     strncpy(url, msg+matches[0].rm_so, len);
     url[len-1] = '\0';
@@ -91,7 +91,6 @@ int check_for_url(void **params, int argv)
     strcpy(target_save, target);
     strcpy(nick_save, nick);
 
-
     http_request(url, srv);
 
     return BCIRC_PLUGIN_OK;
@@ -99,7 +98,7 @@ int check_for_url(void **params, int argv)
 
 int http_request(char *url, server *srv)
 {
-    CURL *curl = NULL;
+    CURL *curl = malloc(sizeof(CURL));
     CURLcode res;
     curl_global_init(CURL_GLOBAL_DEFAULT);
 
@@ -115,7 +114,10 @@ int http_request(char *url, server *srv)
         }
 
         curl_easy_setopt(curl, CURLOPT_URL, url);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 4);
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+
         res = curl_easy_perform(curl);
 
         if (res != CURLE_OK)
@@ -124,11 +126,6 @@ int http_request(char *url, server *srv)
             curl_easy_cleanup(curl);
             return BCIRC_PLUGIN_CONTINUE;
         }
-    }
-    else
-    {
-        curl_easy_cleanup(curl);
-        return BCIRC_PLUGIN_CONTINUE;
     }
     return BCIRC_PLUGIN_OK;
 }
@@ -140,51 +137,63 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     int reti;
     regmatch_t matches[1];
 
-    char *response = (char*) malloc((size * nmemb + 1) * sizeof(char));
-    strncat(response, (char*) ptr, size * nmemb);
+    char *response = (char*) malloc((size * nmemb + 2) * sizeof(char));
+    strncpy(response, (char*) ptr, size * nmemb);
+    response[size*nmemb] = '\0';
 
-    puts("title!");
+    //puts("title!");
 
     reti = regcomp(&regex, "<title[^>]*>(.*?)</title>", REG_EXTENDED);
     if (reti != 0)
     {
         printf("Failed to compile regex!\n");
-        return BCIRC_PLUGIN_CONTINUE;
+        free(response);
+        return size * nmemb;;
     }
 
     reti = regexec(&regex, response, 1, matches, 0);
     if (reti != 0)
     {
-        puts("regex didnt match");
-        //printf("%s\n", response);
-        return BCIRC_PLUGIN_CONTINUE;
+        free(response);
+        return size * nmemb;
     }
     puts("found!");
 
     size_t len = matches[0].rm_eo - matches[0].rm_so;
 
     char *title = (char*) malloc((len + 2) * sizeof(char));
-    strncpy(title, (char*) response + matches[0].rm_so , len);
+    strncpy(title, (char*) response + matches[0].rm_so, len);
+    title[len] = '\0';
 
-    while (title[0] != '>') //till we are on title>
-        title++;
-    title++;
+    size_t title_start = 0;
+    size_t title_end = strlen(title);
 
-    while (title[strlen(title) - 1] != '<')
-        title[strlen(title)-1] = '\0';
-    title[strlen(title)-1] = '\0';
+    for (int i = 0; title[i] != '>'; i++) //till we are on the end of <title>
+        title_start++;
+    title_start++;
 
-    printf("title: %s\n", title);
+    for (int i = strlen(title); title[i - 1] != '<'; i--)
+        title_end--;
+    title_end--;
 
-    printf("target_save: %s\n", target_save);
-    printf("nick_save: %s\n", nick_save);
+    size_t title_len = title_end - title_start;
+    char *new_title = malloc((title_len + 1) * sizeof(char));
 
-    if (target_save[0] == '#')
+    strncpy(new_title, title+title_start, title_len );
+    new_title[title_len] = '\0';
+
+    free(title);
+    title = new_title;
+
+    if (target_save[0] == '#') //In future: Check if target is channel.
         privmsg(title, target_save, srv_save);
     else
         privmsg(title, nick_save, srv_save);
 
     srv_save = NULL;
+
+    free(response);
+    free(title);
 
     return size * nmemb;
 }

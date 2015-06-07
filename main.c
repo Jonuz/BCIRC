@@ -44,7 +44,7 @@ int main()
     char *buffer = NULL;
     while(server_recv(buffer, &server_info) >= 1)
     {
-        //free(buffer);
+        free(buffer);
     }
 
     puts("Connection closed");

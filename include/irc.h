@@ -42,6 +42,6 @@ typedef struct
 
 
 int get_numeric(void **params, int argc);
-int get_privmsg(void **params, int argc);
+int get_privmsg(server *srv, char *buf);
 
 #endif

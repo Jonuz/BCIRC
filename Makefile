@@ -20,5 +20,5 @@ irc:
 
 clean:
 	-rm -f build/plugins/*.so
-	-rf $(PLUGIN_SRC_DIR)/libbcirc.a
+	-rm -f $(PLUGIN_SRC_PATH)/libbcirc.a
 	-rm irc

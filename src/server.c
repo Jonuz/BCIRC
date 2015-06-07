@@ -73,7 +73,6 @@ int server_recv(char *buf, server *srv)
 
 	if (res <= 0)
 	{
-		//free(buf);
 		server_disconnect(srv);
 		return res;
 	}
@@ -91,7 +90,8 @@ int server_recv(char *buf, server *srv)
 	strcpy(buf, tmpbuf);
 	srv->recvd_len += res;
 
-	is_privmsg(srv, buf_copy);
+	get_privmsg(srv, buf_copy);
+	//free(buf_copy);
 
 	char *save = malloc((strlen(buf) + 1) * sizeof(char));
 	char *line = malloc((strlen(buf) + 1) * sizeof(char));

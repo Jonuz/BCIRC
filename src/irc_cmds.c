@@ -6,7 +6,7 @@
 int privmsg(char *msg, char *target, server *srv)
 {
 	//PRIVMSG target :msg
-	char *buf = malloc(( 7 + 1 + strlen(target) + 2 + strlen(msg) + 1) * sizeof(char));
+	char *buf = malloc(( 7 + 1 + strlen(target) + 2 + strlen(msg) + 2 + 1) * sizeof(char));
 	sprintf(buf,"PRIVMSG %s :%s\r\n", target, msg);
 	int res = server_send(buf, srv);
 	free(buf);

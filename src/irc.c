@@ -66,7 +66,7 @@ int get_numeric(void **params, int argc)
     return BCIRC_PLUGIN_OK;
 }
 
-int is_privmsg(server *srv, char *buf)
+int get_privmsg(server *srv, char *buf)
 {
     if (!srv)
         return -1;
@@ -81,11 +81,9 @@ int is_privmsg(server *srv, char *buf)
     char *save = malloc(get_str_size(buf));
     str = strtok_r(buf, ":! ", &save);
 
-    //:Jonuz!~Joona@178.62.198.166 PRIVMSG dadasd :lol oot homo
-
-    for (int i = 0; str != NULL; i++)
+    int i = 0;
+    for (i = 0; str != NULL; i++)
     {
-        //printf("str: %s | i: %d\n", str, i);
         if (i == 0)
         {
             nick = malloc(get_str_size(str));
@@ -95,11 +93,16 @@ int is_privmsg(server *srv, char *buf)
         {
             hostmask =  malloc(get_str_size(str));
             strcpy(hostmask, str);
+
         }
         if (i == 2)
             if (strcmp(str, "PRIVMSG") != 0)
-                return BCIRC_PLUGIN_OK;
+            {
+                free(nick);
+                free(hostmask);
 
+                return BCIRC_PLUGIN_OK;
+            }
         if (i == 3)
         {
             target =  malloc(get_str_size(str));
@@ -109,19 +112,16 @@ int is_privmsg(server *srv, char *buf)
         str = strtok_r(NULL, ":! ", &save);
       }
 
-      if (!nick)
-          return -2;
-      if (!hostmask)
-          return -2;
-      if (!target)
-          return -2;
 
-      char *msg = malloc(get_str_size(save));
-      strcpy(msg, save);
-      msg++;
+      if (i < 3) // In case of PING or something like that.
+      {
+          return -1;
+      }
 
-      int len = strlen(msg);
-      msg[len-2] = '\0';
+
+      char *msg = malloc((strlen(save) - 3 + 1) * sizeof(char));
+      strncpy(msg, save+1, strlen(save) - 3); //Skip : at start and \r\n from end
+      msg[strlen(save) - 3] = '\0';
 
       void **params = malloc(sizeof(void*) * 5);
 
@@ -138,6 +138,11 @@ int is_privmsg(server *srv, char *buf)
       params[4] = (char*) msg;
 
       execute_callbacks(CALLBACK_GOT_PRIVMSG, params, 5);
+
+      free(nick);
+      free(hostmask);
+      free(target);
+      //free(str);
 
       return BCIRC_PLUGIN_OK;
 }
