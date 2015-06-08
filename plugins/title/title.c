@@ -114,6 +114,7 @@ int http_request(char *url, server *srv)
         {
             curl_easy_pause(curl, CURLPAUSE_ALL);
             curl_easy_cleanup(curl);
+            curl_global_cleanup();
             return BCIRC_PLUGIN_OK;
         }
 
@@ -121,10 +122,12 @@ int http_request(char *url, server *srv)
         {
             printf("curl failed: %s\n", curl_easy_strerror(res));
             curl_easy_cleanup(curl);
+            curl_global_cleanup();
             return BCIRC_PLUGIN_CONTINUE;
         }
     }
     curl_easy_cleanup(curl);
+    curl_global_cleanup();
     return BCIRC_PLUGIN_OK;
 }
 
