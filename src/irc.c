@@ -58,6 +58,7 @@ int get_numeric(void **params, int argc)
         execute_callbacks(CALLBACK_GOT_NUMERIC, new_params, 3);
 
         free(numeric);
+        free(new_params);
     }
     return BCIRC_PLUGIN_OK;
 }

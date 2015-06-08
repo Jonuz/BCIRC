@@ -110,6 +110,7 @@ int get_plugins(char *plugin_dir)
                         char *plugin_to_add = malloc( (strlen(plugin_dir) + 1 + strlen(dir->d_name) + 1) * sizeof(char));
                         sprintf(plugin_to_add, "%s/%s", plugin_dir, dir->d_name);
                         load_plugin(plugin_to_add);
+                        free(plugin_to_add);
                     }
                 }
             }
@@ -135,21 +136,7 @@ int pause_plugin(plugin *pluginptr)
 
 int remove_plugin(plugin *pluginptr)
 {
-    plugin **new_list = NULL;
-    new_list = malloc(0);
-    int new_count = 0;
 
-    for (int i = 0; i < plugin_count; i++)
-    {
-        if (plugin_list[i] != pluginptr)
-        {
-            new_list = realloc(new_list, new_count * (sizeof(plugin) / sizeof (new_list)));
-            new_list[new_count] = plugin_list[i];
-            new_count++;
-        }
-    }
-    plugin_list = new_list;
-    plugin_count = new_count;
 
     return 1;
 }

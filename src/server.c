@@ -32,6 +32,7 @@ int server_connect(server *srv)
     void **cb_params = malloc( sizeof(server*) );
     cb_params[0] = (void*) srv;
     execute_callbacks( CALLBACK_SERVER_CONNECTED, cb_params, 1 );
+	free(cb_params);
 
 	//freeaddrinfo(res);
 
@@ -41,8 +42,9 @@ int server_connect(server *srv)
 int server_disconnect(server *srv)
 {
     void **cb_params = malloc( sizeof(server) );
-    cb_params[0] = (void*) srv;
+    cb_params[0] = srv;
     execute_callbacks( CALLBACK_SERVER_DISCONNECTED, cb_params, 1 );
+	free(cb_params);
 
 	return close(srv->s);
 }
@@ -96,7 +98,7 @@ int server_recv(char *buf, server *srv)
 
 	char *save;
 	char *line;
-	
+
 	line = strtok_r(buf, "\r\n", &save);
 
 	while (line != NULL)
@@ -107,12 +109,10 @@ int server_recv(char *buf, server *srv)
 		params[1] = (void*) line;
 
 		execute_callbacks(CALLBACK_SERVER_RECV, params, 2);
-
 		free(params);
 
 		line = strtok_r(NULL, "\r\n", &save);
   	}
-
 
 	return res;
 }

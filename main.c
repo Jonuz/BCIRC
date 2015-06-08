@@ -42,7 +42,7 @@ int main()
 
 
     if (main_register_callback(CALLBACK_SERVER_RECV, get_numeric) != 1)
-      printf("Failed to add callback for get_numeric\n");
+        printf("Failed to add callback for get_numeric\n");
 
     int res;
     if ( (res = server_connect(&server_info) ) != 1)
