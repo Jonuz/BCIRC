@@ -51,7 +51,7 @@ int get_numeric(void **params, int argc)
 
         void **new_params = malloc(sizeof(void*) * 3);
 
-        new_params[0] = (void*) numeric;
+        new_params[0] = (int*) numeric;
         new_params[1] = buffer;
         new_params[2] = srv;
 

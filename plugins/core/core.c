@@ -95,7 +95,9 @@ int got_in(void **params, int argc)
     int *numeric = (int*) params[0];
     server *srv = (server*) params[2];
 
-    if (numeric != RPL_ENDOFMOTD)
+    //printf("numeric: %d\n", numeric);
+
+    if (*numeric != RPL_ENDOFMOTD)
         return BCIRC_PLUGIN_CONTINUE;
 
     printf("Connected to %s!\n", srv->host);
