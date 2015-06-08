@@ -106,8 +106,16 @@ int http_request(char *url, server *srv)
         curl_easy_setopt(curl, CURLOPT_TIMEOUT, 4);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, curl);
 
         res = curl_easy_perform(curl);
+
+        if (res == CURL_WRITEFUNC_PAUSE)
+        {
+            curl_easy_pause(curl, CURLPAUSE_ALL);
+            curl_easy_cleanup(curl);
+            return BCIRC_PLUGIN_OK;
+        }
 
         if (res != CURLE_OK)
         {
@@ -126,6 +134,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     regex_t regex;
     int reti;
     regmatch_t matches[1];
+    CURL *curl = stream;
 
     char *response = (char*) malloc((size * nmemb + 2) * sizeof(char));
     strncpy(response, (char*) ptr, size * nmemb);
@@ -214,5 +223,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     srv_save = NULL;
     free(title);
 
-    return CURL_WRITEFUNC_PAUSE;
+    curl_easy_pause(curl, CURLPAUSE_ALL);
+
+    return size * nmemb;
 }
