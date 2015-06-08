@@ -130,6 +130,8 @@ int get_privmsg(server *srv, char *buf)
 
       execute_callbacks(CALLBACK_GOT_PRIVMSG, params, 5);
 
+      free(params);
+
       free(nick);
       free(hostmask);
       free(target);
