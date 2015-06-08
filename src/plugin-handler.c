@@ -176,7 +176,17 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr)
     new_callback->cb_name = malloc( (strlen(cb_name) + 1) * sizeof(char) );
     new_callback->cb_func = malloc(sizeof(cb_func));
 
-    pluginptr->callback_list = realloc(pluginptr->callback_list, (pluginptr->callback_count + 1) * sizeof(callback));
+    callback **new_list;
+
+    new_list = realloc(pluginptr->callback_list, (pluginptr->callback_count + 1) * sizeof(callback));
+    //pluginptr->callback_list = realloc(pluginptr->callback_list, (pluginptr->callback_count + 1) * sizeof(callback));
+    if (!new_list)
+    {
+        puts("cant realloc!");
+        return -1;
+    }
+    pluginptr->callback_list = new_list;
+
     pluginptr->callback_list[pluginptr->callback_count] = malloc(sizeof(callback*));
 
     new_callback->cb_func = cb_func;

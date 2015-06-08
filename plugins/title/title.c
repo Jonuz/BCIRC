@@ -62,6 +62,7 @@ int check_for_url(void **params, int argv)
     reti = regexec(&regex, msg, 1, matches, 0);
     if (reti != 0)
         return BCIRC_PLUGIN_CONTINUE;
+    regfree(&regex);
 
     puts("found url!");
 
@@ -72,14 +73,9 @@ int check_for_url(void **params, int argv)
     url[len-1] = '\0';
 
     printf("url: %s\n", url);
-    regfree(&regex);
 
-    if (!srv_save)
-        srv_save = malloc(sizeof(server));
-    if (!srv_save)
-        return BCIRC_PLUGIN_CONTINUE;
+    srv_save = srv;
 
-    *srv_save = *srv;
     strcpy(target_save, target);
     strcpy(nick_save, nick);
 
@@ -155,8 +151,9 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 
     char *title = (char*) malloc((len + 2) * sizeof(char));
     strncpy(title, (char*) response + matches[0].rm_so, len);
-    free(response);
     title[len] = '\0';
+
+    free(response);
 
     size_t title_start = 0;
     size_t title_end = strlen(title);
@@ -178,25 +175,16 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     free(title);
     title = new_title;
 
-    for (int i = 0; title[i] != '\0'; i++)
-    {
-        if (title[i] == '\r')
-            title[i] = '-';
-        if (title[i] == '\n')
-            title[i] = '-';
-    }
-
     char *special_entities[] = { "&quot;", "&amp;", "&amp", "&lt;", "&gt;", "&OElig;", "&oelig;", "&Scaron;", "&scaron;", "&Yuml;", "&circ;", "&tilde;", \
                                 "&ensp;", "&emsp;", "&thinsp;", "&zwnj;", "&zwj;", "&lrm;", "&rlm;" "&ndash;", "&mdash;", "&lsquo;", "&rsquo;", "&sbquo;", \
-                                "&ldquo;", "&rdquo;","&bdquo;", "&dagger;", "&Dagger;", "&permil;", "&lsaquo;", "&rsaquo;", "&euro;" };
+                                "&ldquo;", "&rdquo;","&bdquo;", "&dagger;", "&Dagger;", "&permil;", "&lsaquo;", "&rsaquo;", "&euro;", "\r", "\n" };
 
     char *special_entities_clear[] = { "\"", "&", "\\",  "<", ">", "\u0152", "\u0153", "\u0160", "\u0161", "\u0178", "\u02C6", "\u02DC", "\u2002", "\u2003", \
                                     "\u2004", "\u200C", "\u200D", "\u200E", "\u200F", "\u2013", "\u2013", "\u2018", "\u2019", "\u201A", "\u201C", "\u201C", \
-                                     "\u201E", "\u2020", "\u2021", "\u2030", "\u2039", "\u203A", "\u20ac" };
+                                     "\u201E", "\u2020", "\u2021", "\u2030", "\u2039", "\u203A", "\u20ac" , "", "" };
 
 
     size_t entities = sizeof(special_entities) / sizeof(char*);
-
 
     for (int i = 0; i < entities; i++)
     {
@@ -226,5 +214,5 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     srv_save = NULL;
     free(title);
 
-    return size * nmemb;
+    return CURL_WRITEFUNC_PAUSE;
 }
