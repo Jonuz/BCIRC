@@ -75,7 +75,10 @@ int load_plugin(char *path)
     plugin **new_list = NULL;
     new_list = realloc(plugin_list, (plugin_count + 1) * sizeof(plugin*));
     if (plugin_list == NULL)
-      return -4;
+    {
+        puts("cant realloc!");
+        return -4;
+    }
 
     new_list[plugin_count] = malloc(sizeof(plugin));
     new_list[plugin_count] = new_plugin;

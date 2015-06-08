@@ -35,6 +35,7 @@ int part_channel(char *reason, channel *chan)
     char *buf = "PART %s\r\n";
     buf = malloc((strlen(buf) + strlen(chan->name)) * sizeof(char));
     sprintf(buf, buf, chan->name);
-
+	free(buf);
+	
     return server_send(buf, chan->srv);
 }

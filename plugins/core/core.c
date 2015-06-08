@@ -46,7 +46,8 @@ int handle_ping(void **params, int argc)
 
     char *tmp = malloc( (strlen(buf) + 1) * sizeof(char));
     strcpy(tmp, buf);
-    char *maybe_ping = malloc( (strlen(tmp) + 1) * sizeof(char));
+
+    char *maybe_ping;
     maybe_ping = strtok(tmp, " ");
 
     if (strcmp(maybe_ping, "PING") != 0)
@@ -59,6 +60,8 @@ int handle_ping(void **params, int argc)
 
     puts("PONG!");
     server_send(pong, srv);
+
+    free(tmp);
 
     return BCIRC_PLUGIN_OK;
 }
@@ -90,8 +93,7 @@ int handle_registeration(void **params, int argc)
 int got_in(void **params, int argc)
 {
     int *numeric = (int*) params[0];
-    server *srv = malloc(sizeof(server));
-    srv = (server*) params[2];
+    server *srv = (server*) params[2];
 
     if (numeric != RPL_ENDOFMOTD)
         return BCIRC_PLUGIN_CONTINUE;

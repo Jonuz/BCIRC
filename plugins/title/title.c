@@ -42,19 +42,11 @@ int check_for_url(void **params, int argv)
             return BCIRC_PLUGIN_FAIL;
         }
 
-
-    char *nick = malloc(sizeof( get_str_size(params[1]) ));
-    char *hostmask = malloc(sizeof(get_str_size(params[2])));
-    char *target = malloc(sizeof(get_str_size(params[3])));
-    char *msg = malloc(sizeof(get_str_size(params[4])));
-
-    server *srv = malloc(sizeof(server*));
-    srv = params[0];
-
-    nick = params[1];
-    hostmask = params[2];
-    target = params[3];
-    msg = params[4];
+    server *srv = params[0];
+    char *nick = params[1];
+    char *hostmask = params[2];
+    char *target = params[3];
+    char *msg = params[4];
 
     regex_t regex;
     int reti;
@@ -92,13 +84,14 @@ int check_for_url(void **params, int argv)
     strcpy(nick_save, nick);
 
     http_request(url, srv);
+    free(url);
 
     return BCIRC_PLUGIN_OK;
 }
 
 int http_request(char *url, server *srv)
 {
-    CURL *curl = malloc(sizeof(CURL));
+    CURL *curl;
     CURLcode res;
     curl_global_init(CURL_GLOBAL_DEFAULT);
 
@@ -127,6 +120,7 @@ int http_request(char *url, server *srv)
             return BCIRC_PLUGIN_CONTINUE;
         }
     }
+    curl_easy_cleanup(curl);
     return BCIRC_PLUGIN_OK;
 }
 
@@ -140,8 +134,6 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     char *response = (char*) malloc((size * nmemb + 2) * sizeof(char));
     strncpy(response, (char*) ptr, size * nmemb);
     response[size*nmemb] = '\0';
-
-    //puts("title!");
 
     reti = regcomp(&regex, "<title[^>]*>(.*?)</title>", REG_EXTENDED);
     if (reti != 0)
@@ -163,6 +155,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 
     char *title = (char*) malloc((len + 2) * sizeof(char));
     strncpy(title, (char*) response + matches[0].rm_so, len);
+    free(response);
     title[len] = '\0';
 
     size_t title_start = 0;
@@ -204,8 +197,6 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 
     size_t entities = sizeof(special_entities) / sizeof(char*);
 
-    printf("entities: %d\n", entities);
-
 
     for (int i = 0; i < entities; i++)
     {
@@ -227,16 +218,12 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 
     }
 
-
-
     if (target_save[0] == '#') //In future: Check if target is channel.
         privmsg(title, target_save, srv_save);
     else
         privmsg(title, nick_save, srv_save);
 
     srv_save = NULL;
-
-    free(response);
     free(title);
 
     return size * nmemb;

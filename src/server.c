@@ -87,29 +87,33 @@ int server_recv(char *buf, server *srv)
 
 	char *buf_copy = malloc( (strlen(tmpbuf) + 1) * sizeof(char) );
 	strcpy(buf_copy, tmpbuf);
+
 	strcpy(buf, tmpbuf);
 	srv->recvd_len += res;
 
 	get_privmsg(srv, buf_copy);
-	//free(buf_copy);
+	free(buf_copy);
 
-	char *save = malloc((strlen(buf) + 1) * sizeof(char));
-	char *line = malloc((strlen(buf) + 1) * sizeof(char));
+	char *save;
+	char *line;
+	
 	line = strtok_r(buf, "\r\n", &save);
 
 	while (line != NULL)
 	{
 		void **params = malloc(2 * sizeof(void*));
 
-		params[0] = malloc(sizeof(server*));
-		params[1] = malloc( (strlen(line) + 1) * sizeof(char) );
-
 		params[0] = (void*) srv;
 		params[1] = (void*) line;
 
 		execute_callbacks(CALLBACK_SERVER_RECV, params, 2);
+
+		free(params);
+
 		line = strtok_r(NULL, "\r\n", &save);
   	}
+
+
 	return res;
 }
 

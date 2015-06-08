@@ -24,20 +24,17 @@ bool is_fulldigit(char *str)
 
 int get_numeric(void **params, int argc)
 {
-    server *srv = malloc(sizeof(server));
-    char *buffer = malloc(sizeof(get_str_size(params[1])));
 
-
-    srv = (server*) params[0];
-    buffer = (char*) params[1];
+    server *srv = (server*) params[0];
+    char *buffer = (char*) params[1];
 
     if (buffer == NULL)
         return BCIRC_PLUGIN_STOP;
     if (srv == NULL)
         return BCIRC_PLUGIN_STOP;
 
-    char *save = malloc(get_str_size(buffer));
-    char *word = malloc(get_str_size(buffer));
+    char *save;
+    char *word;
 
     word = strtok_r(buffer, " ", &save);
     if (!word)
@@ -49,19 +46,18 @@ int get_numeric(void **params, int argc)
 
     if (is_fulldigit(word))
     {
-        int *numeric = atoi(word);
+        int *numeric = malloc(sizeof(int));
+        *numeric = atoi(word);
 
         void **new_params = malloc(sizeof(void*) * 3);
-
-        new_params[0] = malloc(sizeof(numeric));
-        new_params[1] = malloc(get_str_size(buffer));
-        new_params[2] = malloc(sizeof(server));
 
         new_params[0] = (void*) numeric;
         new_params[1] = buffer;
         new_params[2] = srv;
 
         execute_callbacks(CALLBACK_GOT_NUMERIC, new_params, 3);
+
+        free(numeric);
     }
     return BCIRC_PLUGIN_OK;
 }
@@ -77,8 +73,9 @@ int get_privmsg(server *srv, char *buf)
     char *hostmask = NULL;
     char *target = NULL;
 
-    char *str = malloc(get_str_size(buf));
-    char *save = malloc(get_str_size(buf));
+    char *str;
+    char *save;
+
     str = strtok_r(buf, ":! ", &save);
 
     int i = 0;
@@ -125,12 +122,6 @@ int get_privmsg(server *srv, char *buf)
 
       void **params = malloc(sizeof(void*) * 5);
 
-      params[0] = malloc(sizeof(server));
-      params[1] = malloc(get_str_size(nick));
-      params[2] = malloc(get_str_size(hostmask));
-      params[3] = malloc(get_str_size(target));
-      params[4] = malloc(get_str_size(msg));
-
       params[0] = (server*) srv;
       params[1] = (char*) nick;
       params[2] = (char*) hostmask;
@@ -142,7 +133,7 @@ int get_privmsg(server *srv, char *buf)
       free(nick);
       free(hostmask);
       free(target);
-      //free(str);
+      free(msg);
 
       return BCIRC_PLUGIN_OK;
 }
