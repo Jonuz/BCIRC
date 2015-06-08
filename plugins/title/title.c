@@ -193,6 +193,41 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
             title[i] = '-';
     }
 
+    char *special_entities[] = { "&quot;", "&amp;", "&amp", "&lt;", "&gt;", "&OElig;", "&oelig;", "&Scaron;", "&scaron;", "&Yuml;", "&circ;", "&tilde;", \
+                                "&ensp;", "&emsp;", "&thinsp;", "&zwnj;", "&zwj;", "&lrm;", "&rlm;" "&ndash;", "&mdash;", "&lsquo;", "&rsquo;", "&sbquo;", "&ldquo;", "&rdquo;",  \
+                                "&bdquo;", "&dagger;", "&Dagger;", "&permil;", "&lsaquo;", "&rsaquo;", "&euro;" };
+
+    char *special_entities_clear[] = { "\"", "&", "\\",  "<", ">", "\u0152", "\u0153", "\u0160", "\u0161", "\u0178", "\u02C6", "\u02DC", "\u2002", "\u2003", "\u2004",
+                                    "\u200C", "\u200D", "\u200E", "\u200F", "\u2013", "\u2013", "\u2018", "\u2019", "\u201A", "\u201C", "\u201C", "\u201E", \
+                                    "\u2020", "\u2021", "\u2030", "\u2039", "\u203A", "\u20ac" };
+
+
+    size_t entities = sizeof(special_entities) / sizeof(char*);
+
+    printf("entities: %d\n", entities);
+
+
+    for (int i = 0; i < entities; i++)
+    {
+        for (int y = 0; title[y] != '\0'; y++)
+        {
+            if (strstr(title, special_entities[i]) == title + y)
+            {
+                char *new_title2 = malloc( (strlen(title) - strlen(special_entities[i]) + 1 + 1) * sizeof(char) );
+                strncpy(new_title2, title, y);
+                new_title2[y] = '\0';
+                strncat(new_title2, special_entities_clear[i], 1);
+                strncat(new_title2, title + y + strlen(special_entities[i]), strlen(title) - y - strlen(special_entities[i]));
+
+                free(title);
+                title = new_title2;
+            }
+
+        }
+
+    }
+
+
 
     if (target_save[0] == '#') //In future: Check if target is channel.
         privmsg(title, target_save, srv_save);

@@ -73,7 +73,7 @@ int handle_registeration(void **params, int argc)
 
     char password_msg[] = "PASS passu\r\n";
     char username_msg[] = "USER quest dsd Tositestimies :Tosimies\r\n";
-    char nickname_msg[] = "NICK tosibotti\r\n";
+    char nickname_msg[] = "NICK tosibotti2\r\n";
 
     usleep(100);
 
@@ -99,7 +99,7 @@ int got_in(void **params, int argc)
     printf("Connected to %s!\n", srv->host);
 
     join_channel("#tesm", NULL, srv );
-    join_channel("#tietokone", NULL, srv );
+    //join_channel("#tietokone", NULL, srv );
 
 
     return BCIRC_PLUGIN_OK;

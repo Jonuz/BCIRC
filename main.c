@@ -31,6 +31,7 @@ int main()
 
     get_plugins("/home/joona/Ohjelmointi/Irc/build/plugins");
 
+
     if (main_register_callback(CALLBACK_SERVER_RECV, get_numeric) != 1)
       printf("Failed to add callback for get_numeric\n");
 
