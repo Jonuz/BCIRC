@@ -225,8 +225,8 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
         strncpy(new_title2, title+remove_front, title_len - remove_front - remove_back);
         new_title2[title_len - remove_front - remove_back] = '\0';
 
-        title = new_title2;
         free(title);
+        title = new_title2;
     }
 
     printf("title: %s\n", title);
