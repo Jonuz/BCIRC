@@ -3,6 +3,8 @@
 #include <regex.h>
 #include <sys/types.h>
 
+#include  "entities.h"
+
 #include "../../include/plugin-handler.h"
 #include "../../include/irc.h"
 #include "../../include/irc_cmds.h"
@@ -23,6 +25,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream);
 server *srv_save = NULL;
 char target_save[100];
 char nick_save[100];
+
 
 int plugin_init(plugin *pluginptr)
 {
@@ -61,10 +64,12 @@ int check_for_url(void **params, int argv)
 
     reti = regexec(&regex, msg, 1, matches, 0);
     if (reti != 0)
-        return BCIRC_PLUGIN_CONTINUE;
-    regfree(&regex);
+    {
+        regfree(&regex);
+        return -1;
+    }
 
-    puts("found url!");
+    regfree(&regex);
 
     size_t len = matches[0].rm_eo - matches[0].rm_so + 1;
     char *url = malloc((len + 1) * sizeof(char));
@@ -184,39 +189,47 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     strncpy(new_title, title+title_start, title_len );
     new_title[title_len] = '\0';
 
-    free(title);
+
+    decode_html_entities_utf8(new_title, NULL);
     title = new_title;
 
-    char *special_entities[] = { "&quot;", "&amp;", "&amp", "&lt;", "&gt;", "&OElig;", "&oelig;", "&Scaron;", "&scaron;", "&Yuml;", "&circ;", "&tilde;", \
-                                "&ensp;", "&emsp;", "&thinsp;", "&zwnj;", "&zwj;", "&lrm;", "&rlm;" "&ndash;", "&mdash;", "&lsquo;", "&rsquo;", "&sbquo;", \
-                                "&ldquo;", "&rdquo;","&bdquo;", "&dagger;", "&Dagger;", "&permil;", "&lsaquo;", "&rsaquo;", "&euro;", "\r", "\n" };
 
-    char *special_entities_clear[] = { "\"", "&", "\\",  "<", ">", "\u0152", "\u0153", "\u0160", "\u0161", "\u0178", "\u02C6", "\u02DC", "\u2002", "\u2003", \
-                                    "\u2004", "\u200C", "\u200D", "\u200E", "\u200F", "\u2013", "\u2013", "\u2018", "\u2019", "\u201A", "\u201C", "\u201C", \
-                                     "\u201E", "\u2020", "\u2021", "\u2030", "\u2039", "\u203A", "\u20ac" , "", "" };
+    char *unwanted_chars =  "\r\n\t\b\t";
 
+    int remove_front = 0;
+    int remove_back = 0;
 
-    size_t entities = sizeof(special_entities) / sizeof(char*);
+    title_len = strlen(title);
 
-    for (int i = 0; i < entities; i++)
+    char *ret;
+    while(1)
     {
-        for (int y = 0; title[y] != '\0'; y++)
-        {
-            if (strstr(title, special_entities[i]) == title + y)
-            {
-                char *new_title2 = malloc( (strlen(title) - strlen(special_entities[i]) + 1 + 1) * sizeof(char) );
-                strncpy(new_title2, title, y);
-                new_title2[y] = '\0';
-                strncat(new_title2, special_entities_clear[i], 1);
-                strncat(new_title2, title + y + strlen(special_entities[i]), strlen(title) - y - strlen(special_entities[i]));
-
-                free(title);
-                title = new_title2;
-            }
-
-        }
-
+        ret = strpbrk(title, unwanted_chars);
+        if ( (char) *ret == title[0 + remove_front])
+            remove_front++;
+        else
+            break;
     }
+    while(1)
+    {
+        ret = strpbrk(title, unwanted_chars);
+        if ( (char) *ret == title[title_len-1-remove_back])
+            remove_back++;
+        else
+            break;
+    }
+
+    if ((remove_front != 0) || (remove_back != 0))
+    {
+        char *new_title2 = malloc( (title_len - remove_back - remove_front + 1) * sizeof(char) );
+        strncpy(new_title2, title+remove_front, title_len - remove_front - remove_back);
+        new_title2[title_len - remove_front - remove_back] = '\0';
+
+        title = new_title2;
+        free(title);
+    }
+
+    printf("title: %s\n", title);
 
     if (target_save[0] == '#') //In future: Check if target is channel.
         privmsg(title, target_save, srv_save);

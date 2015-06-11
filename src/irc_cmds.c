@@ -12,7 +12,7 @@ int privmsg(char *msg, char *target, server *srv)
 	free(buf);
 
 	return res;
-}
+}	
 
 int join_channel(char *chan_name, char *chan_pass, server *srv)
 {
