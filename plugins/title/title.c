@@ -115,19 +115,12 @@ int http_request(char *url, server *srv)
 
         res = curl_easy_perform(curl);
 
-        if (res == CURL_WRITEFUNC_PAUSE)
-        {
-            curl_easy_pause(curl, CURLPAUSE_ALL);
-            curl_easy_cleanup(curl);
-            curl_global_cleanup();
-            return BCIRC_PLUGIN_OK;
-        }
-
         if (res != CURLE_OK)
         {
-            printf("curl failed: %s\n", curl_easy_strerror(res));
+            //printf("curl failed: %s\n", curl_easy_strerror(res));
             curl_easy_cleanup(curl);
             curl_global_cleanup();
+
             return BCIRC_PLUGIN_CONTINUE;
         }
     }
@@ -190,9 +183,11 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     new_title[title_len] = '\0';
 
 
-    decode_html_entities_utf8(new_title, NULL);
-    title = new_title;
+    title = realloc(title, (strlen(new_title) + 1) * sizeof(char));
 
+    // http://stackoverflow.com/a/1082191/2279808
+    decode_html_entities_utf8(title, new_title);
+    free(new_title);
 
     char *unwanted_chars =  "\r\n\t\b\t";
 
@@ -205,15 +200,12 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     while(1)
     {
         ret = strpbrk(title, unwanted_chars);
-        if ( (char) *ret == title[0 + remove_front])
-            remove_front++;
-        else
+        if (!ret)
             break;
-    }
-    while(1)
-    {
-        ret = strpbrk(title, unwanted_chars);
-        if ( (char) *ret == title[title_len-1-remove_back])
+
+        if ( (title[0 + remove_front]) == (char) *ret)
+            remove_front++;
+        else if (( title[title_len - remove_back - 1]) == (char) *ret)
             remove_back++;
         else
             break;
