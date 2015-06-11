@@ -73,7 +73,7 @@ int add_to_privmsg_queue(char *msg, char *target, server *srv)
     {
         if ((pthread_create(&thread, NULL, &handle_privmsg_queue, NULL)))
         {
-            puts("Failed to crate thread!");
+            //puts("Failed to crate thread!");
             exit(0);
         }
         pthread_detach(thread);
@@ -114,15 +114,15 @@ void *handle_privmsg_queue()
 
 
         double delay = (avarage_timestamp / time_now) * 1000000;
-        printf("delay: %f\n", delay);
+        //printf("delay: %f\n", delay);
 
         if (delay > 750000)
         {
-            printf("Will sleep!\n");
+            //printf("Will sleep!\n");
             usleep(delay);
         }
-        if (!msg_list[0]->srv)
-            puts("Server is now available anymore.");
+        //if (!msg_list[0]->srv)
+        //    puts("Server is now available anymore.");
 
         privmsg(msg_list[0]->msg, msg_list[0]->target, msg_list[0]->srv);
         msg_count--;
