@@ -40,7 +40,7 @@ typedef struct
 
 	char *plugin_name;
 	char *plugin_version;
-  char *plugin_author;
+    char *plugin_author;
 
     PLUGIN_STATUS status;
 
@@ -52,11 +52,10 @@ typedef struct
 extern plugin **plugin_list;
 extern int plugin_count;
 
-
+int get_plugins(char *dir);
 int load_plugin(char *path);
 int pause_plugin(plugin *pluginptr);
 int remove_plugin(plugin *pluginptr);
-int get_plugins(char *dir);
 
 typedef int(*CALLBACK_FUNC)(void**, int);
 

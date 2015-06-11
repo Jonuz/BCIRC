@@ -78,7 +78,6 @@ int handle_registeration(void **params, int argc)
     char username_msg[] = "USER quest dsd Tositestimies :Tosimies\r\n";
     char nickname_msg[] = "NICK tosibotti2\r\n";
 
-    usleep(100);
 
     server_send(password_msg, srv);
     usleep(1000);

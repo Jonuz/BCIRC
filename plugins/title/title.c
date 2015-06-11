@@ -77,7 +77,7 @@ int check_for_url(void **params, int argv)
     strncpy(url, msg+matches[0].rm_so, len);
     url[len-1] = '\0';
 
-    printf("url: %s\n", url);
+    //printf("url: %s\n", url);
 
     srv_save = srv;
 
@@ -155,7 +155,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
         free(response);
         return size * nmemb;
     }
-    puts("found!");
+    //puts("found!");
 
     size_t len = matches[0].rm_eo - matches[0].rm_so;
 
@@ -185,11 +185,11 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 
     title = realloc(title, (strlen(new_title) + 1) * sizeof(char));
 
-    // http://stackoverflow.com/a/1082191/2279808
+    // http://stackoverflow.com/a/1082191/2279808 <3
     decode_html_entities_utf8(title, new_title);
     free(new_title);
 
-    char *unwanted_chars =  "\r\n\t\b\t";
+    char *unwanted_chars =  "\r\n\t\t ";
 
     int remove_front = 0;
     int remove_back = 0;
@@ -221,17 +221,17 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
         title = new_title2;
     }
 
-    printf("title: %s\n", title);
+    //printf("title: %s\n", title);
 
     if (target_save[0] == '#') //In future: Check if target is channel.
-        privmsg(title, target_save, srv_save);
+        add_to_privmsg_queue(title, target_save, srv_save);
     else
-        privmsg(title, nick_save, srv_save);
+        add_to_privmsg_queue(title, nick_save, srv_save);
 
     srv_save = NULL;
     free(title);
 
-    curl_easy_pause(curl, CURLPAUSE_ALL);
+    //curl_easy_pause(curl, CURLPAUSE_ALL);
 
     return size * nmemb;
 }

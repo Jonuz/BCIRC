@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 
@@ -34,7 +35,7 @@ int server_connect(server *srv)
     execute_callbacks( CALLBACK_SERVER_CONNECTED, cb_params, 1 );
 	free(cb_params);
 
-	//freeaddrinfo(res);
+	freeaddrinfo(res);
 
 	return 1;
 }
@@ -55,10 +56,15 @@ int server_disconnect(server *srv)
 */
 int server_send(char *buf, server *srv)
 {
+	static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+	pthread_mutex_unlock(&mutex);
+	usleep(50);
     int res = send(srv->s, buf, strlen(buf), 0);
     if (res <= 0)
         return res;
     srv->sent_len += res;
+	pthread_mutex_lock(&mutex);
     return res;
 }
 
