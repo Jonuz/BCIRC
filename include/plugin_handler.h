@@ -60,8 +60,6 @@ int remove_plugin(plugin *pluginptr);
 typedef int(*CALLBACK_FUNC)(void**, int);
 
 int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr);
-int main_register_callback(char *cb_name, CALLBACK_FUNC cb_func); /* Because we want also use this in main program */
-
 void execute_callbacks(char *cb_name, void **args, int argc);
 
 

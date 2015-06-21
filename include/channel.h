@@ -6,43 +6,8 @@
 
 #include "server.h"
 
-/*
-    Plugin callbacks
-
-*/
 
 
-#define CHANNEL_JOINED "channel_joined"
-
-/*
-    Params:
-        channel *
-        user *
-
-        Callback to call after someone joined to channel.
-*/
-
-
-#define CHANNEL_PART "channel_part"
-/*
-    Params:
-        channel *
-        char *reason
-
-        Callback to call after someone parted from channel.
-
-*/
-
-
-#define CHANNEL_KICKED
-/*
-    Params:
-        channel *
-        char *reason
-
-        Callback to call after someone kicked from channel.
-
-*/
 
 typedef struct
 {

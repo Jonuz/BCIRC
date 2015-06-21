@@ -1,7 +1,8 @@
 #include <stdio.h>
 
-#include "../../include/plugin-handler.h"
 #include "../../include/server.h"
+#include "../../include/plugin_handler.h"
+#include "../../include/callback_defines.h"
 
 char plugin_name[] = "Logger";
 char plugin_version[] = "0.01";
@@ -11,10 +12,8 @@ int on_server_send(void **paramams, int argc);
 int on_connect(void **params, int argc);
 
 
-
 int plugin_init(plugin *pluginptr)
 {
-
     register_callback( CALLBACK_SERVER_CONNECTED, on_connect, pluginptr);
     register_callback( CALLBACK_SERVER_RECV, on_server_send, pluginptr );
 
@@ -32,11 +31,8 @@ int on_connect(void **params, int argc)
 
 int on_server_send(void **paramams, int argc)
 {
-    server *srv = NULL;
-    char *buf = NULL;
-
-    srv = (server*) paramams[0];
-    buf = (char*) paramams[1];
+    server *srv = (server*) paramams[0];
+    char *buf = (char*) paramams[1];
 
     if ((srv == NULL) || (buf == NULL))
         return BCIRC_PLUGIN_BREAK;

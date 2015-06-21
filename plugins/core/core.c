@@ -4,16 +4,17 @@
 #include <unistd.h>
 
 #include "../../include/irc.h"
-#include "../../include/irc_cmds.h"
 #include "../../include/server.h"
-#include "../../include/plugin-handler.h"
 #include "../../include/numeric.h"
+#include "../../include/irc_cmds.h"
+#include "../../include/plugin_handler.h"
+#include "../../include/callback_defines.h"
+
 
 int handle_ping(void **params, int argc);
 int handle_registeration(void **params, int argc);
 int got_in(void **params, int argc);
 
-int test_numeric(void **params, int argc);
 
 char plugin_name[] = "BCIRC-Core plugin";
 char plugin_author[] = "Joona";
@@ -21,9 +22,31 @@ char plugin_version[] = "0.1";
 
 int plugin_init(plugin *pluginptr)
 {
+    register_callback(CALLBACK_GOT_NUMERIC, got_in, pluginptr);
     register_callback(CALLBACK_SERVER_RECV, handle_ping, pluginptr);
     register_callback(CALLBACK_SERVER_CONNECTED, handle_registeration, pluginptr);
-    register_callback(CALLBACK_GOT_NUMERIC, got_in, pluginptr);
+
+    return BCIRC_PLUGIN_OK;
+}
+
+int got_in(void **params, int argc)
+{
+    int *numeric = (int*) params[0];
+    server *srv = (server*) params[2];
+
+
+    if (srv->motd_sent == 1)
+        return BCIRC_PLUGIN_OK;
+
+
+    if (*numeric != RPL_ENDOFMOTD)
+        return BCIRC_PLUGIN_CONTINUE;
+
+    printf("Connected to %s!\n", srv->host);
+    srv->motd_sent = 1;
+
+    join_channel("#tesm", NULL, srv );
+
 
     return BCIRC_PLUGIN_OK;
 }
@@ -36,7 +59,7 @@ int handle_ping(void **params, int argc)
     char *buf = (char*) params[1];
 
     if ((buf == NULL) || (srv == NULL))
-        return BCIRC_PLUGIN_BREAK;
+        return BCIRC_PLUGIN_CONTINUE;
 
 
     if (strlen(buf) < 7)
@@ -72,6 +95,7 @@ int handle_registeration(void **params, int argc)
 
     if (params[0] == NULL)
         return BCIRC_PLUGIN_BREAK;
+
     server *srv = (server*) params[0];
 
     char password_msg[] = "PASS passu\r\n";
@@ -80,30 +104,8 @@ int handle_registeration(void **params, int argc)
 
 
     server_send(password_msg, srv);
-    usleep(1000);
     server_send(username_msg, srv);
-    usleep(1000);
     server_send(nickname_msg, srv);
-    usleep(1000);
-
-    return BCIRC_PLUGIN_OK;
-}
-
-int got_in(void **params, int argc)
-{
-    int *numeric = (int*) params[0];
-    server *srv = (server*) params[2];
-
-    //printf("numeric: %d\n", numeric);
-
-    if (*numeric != RPL_ENDOFMOTD)
-        return BCIRC_PLUGIN_CONTINUE;
-
-    printf("Connected to %s!\n", srv->host);
-
-    join_channel("#tesm", NULL, srv );
-    //join_channel("#tietokone", NULL, srv );
-
 
     return BCIRC_PLUGIN_OK;
 }

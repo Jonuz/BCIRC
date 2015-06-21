@@ -7,7 +7,7 @@
 #include "./include/server.h"
 #include "./include/channel.h"
 #include "./include/user.h"
-#include "./include/plugin-handler.h"
+#include "./include/plugin_handler.h"
 
 irc_base base_client;
 server server_info;
@@ -20,7 +20,6 @@ int res;
 
 int main()
 {
-
     server_info.host = malloc(strlen(host) + 1 * sizeof(char));
     server_info.port = malloc(strlen(port) + 1 * sizeof(char));
 
@@ -35,14 +34,12 @@ int main()
     char *plugin_path = malloc( (strlen(this_path) + 1 + 5 + 1 + 7 + 1) * sizeof(char));
 
     sprintf(plugin_path, "%s/build/plugins", this_path);
+    //sprintf(plugin_path, "/home/joona/Ohjelmointi/Irc/build/plugins", this_path);
+
     free(this_path);
 
     get_plugins(plugin_path);
     free(plugin_path);
-
-
-    if (main_register_callback(CALLBACK_SERVER_RECV, get_numeric) != 1)
-        printf("Failed to add callback for get_numeric\n");
 
     int res;
     if ( (res = server_connect(&server_info) ) != 1)

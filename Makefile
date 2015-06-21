@@ -1,4 +1,4 @@
-CFLAGS = -Wall -ldl -std=gnu11 -pthread -g
+CFLAGS = -Wall -ldl -std=gnu11 -pthread -Wl,--export-dynamic -g
 CC = gcc
 
 SOURCES = $(wildcard src/*.c) main.c

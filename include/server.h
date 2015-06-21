@@ -7,43 +7,13 @@
 #include <sys/types.h>
 
 
-/*
-    Plugin callbacks
-*/
-/*
-    Params:
-        server *srv
-*/
-#define CALLBACK_SERVER_CONNECTED "server_connected"
-
-
-/*
-    Params:
-        server *srv
-*/
-#define CALLBACK_SERVER_DISCONNECTED "server_disconnected"
-
-/*
-    Params:
-        char *buffer
-        server *srv
-*/
-#define CALLBACK_SERVER_RECV "server_recv"
-
-/*
-    Params:
-        char *buffer
-        server *srv
-*/
-#define CALLBACK_SERVER_SEND "server_send"
-
 typedef struct {
 
 	char *host;
 	char *port;
 	char *pass;
 
-    bool motd_sent;
+    int motd_sent;
 
 	int s;
 

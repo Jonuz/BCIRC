@@ -5,9 +5,13 @@
 
 #include  "entities.h"
 
-#include "../../include/plugin-handler.h"
 #include "../../include/irc.h"
+#include "../../include/server.h"
 #include "../../include/irc_cmds.h"
+#include "../../include/plugin_handler.h"
+#include "../../include/callback_defines.h"
+
+
 
 
 #define get_str_size(str) ( (strlen( (char*) str) + 1) * sizeof(char) )
@@ -15,7 +19,6 @@
 char plugin_name[] = "URL announcer";
 char plugin_version[] = "0.01";
 char plugin_author[] = "Joona";
-
 
 
 int check_for_url(void**, int argc);
@@ -29,7 +32,6 @@ char nick_save[100];
 
 int plugin_init(plugin *pluginptr)
 {
-    puts("title4lyf");
     register_callback(CALLBACK_GOT_PRIVMSG, check_for_url, pluginptr);
 
     return BCIRC_PLUGIN_OK;

@@ -9,7 +9,9 @@
 
 #include "../include/server.h"
 #include "../include/irc.h"
-#include "../include/plugin-handler.h"
+#include "../include/plugin_handler.h"
+#include "../include/callback_defines.h"
+
 
 int server_connect(server *srv)
 {
@@ -29,6 +31,8 @@ int server_connect(server *srv)
 
 	if (connect(*s, res->ai_addr, res->ai_addrlen) != 0)
         return -3;
+
+	srv->motd_sent = 0;
 
     void **cb_params = malloc( sizeof(server*) );
     cb_params[0] = (void*) srv;
@@ -99,9 +103,6 @@ int server_recv(char *buf, server *srv)
 	strcpy(buf, tmpbuf);
 	srv->recvd_len += res;
 
-	get_privmsg(srv, buf_copy);
-	free(buf_copy);
-
 	char *save;
 	char *line;
 
@@ -119,6 +120,7 @@ int server_recv(char *buf, server *srv)
 
 		line = strtok_r(NULL, "\r\n", &save);
   	}
+	free(buf);
 
 	return res;
 }
