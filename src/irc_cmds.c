@@ -42,7 +42,7 @@ int join_channel(char *chan_name, char *chan_pass, server *srv)
 	int len = strlen(buf);
 	char buf_copy[len];
 	strcpy(buf_copy, buf);
-
+	free(buf);
 
 	pthread_mutex_unlock(&mutex);
     return server_send(buf_copy, srv);
