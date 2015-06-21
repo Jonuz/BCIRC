@@ -34,7 +34,6 @@ int main()
     char *plugin_path = malloc( (strlen(this_path) + 1 + 5 + 1 + 7 + 1) * sizeof(char));
 
     sprintf(plugin_path, "%s/build/plugins", this_path);
-    //sprintf(plugin_path, "/home/joona/Ohjelmointi/Irc/build/plugins", this_path);
 
     free(this_path);
 
@@ -51,7 +50,8 @@ int main()
     char *buffer = NULL;
     while(server_recv(buffer, &server_info) >= 1)
     {
-        free(buffer);
+        if (buffer)
+            free(buffer);
     }
 
     puts("Connection closed");

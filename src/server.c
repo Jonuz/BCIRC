@@ -120,7 +120,6 @@ int server_recv(char *buf, server *srv)
 
 		line = strtok_r(NULL, "\r\n", &save);
   	}
-	free(buf);
 
 	return res;
 }
