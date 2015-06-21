@@ -1,4 +1,4 @@
-CFLAGS = -g -Wall -ldl -std=gnu11 -pthread
+CFLAGS = -Wall -ldl -std=gnu11 -pthread -g
 CC = gcc
 
 SOURCES = $(wildcard src/*.c) main.c

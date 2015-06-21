@@ -40,7 +40,7 @@ typedef struct
 
 } irc_base;
 
-int add_to_privmsg_queue(char *msg, char *target, server *srv);
+int add_to_privmsg_queue(char *msg, char *target, server *srv, const int drop);
 void *handle_privmsg_queue();
 int get_numeric(void **params, int argc);
 int get_privmsg(server *srv, char *buf);

@@ -224,9 +224,9 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     //printf("title: %s\n", title);
 
     if (target_save[0] == '#') //In future: Check if target is channel.
-        add_to_privmsg_queue(title, target_save, srv_save);
+        add_to_privmsg_queue(title, target_save, srv_save, 0);
     else
-        add_to_privmsg_queue(title, nick_save, srv_save);
+        add_to_privmsg_queue(title, nick_save, srv_save, 1);
 
     srv_save = NULL;
     free(title);
