@@ -7,8 +7,6 @@
 #include "server.h"
 
 
-
-
 typedef struct
 {
 	char *name;
@@ -24,10 +22,9 @@ typedef struct
 
 extern channel **channel_list;
 
-channel *get_channels();
 channel *get_channel(char *chan_name);
 
-int remove_channel(char *chan_name);
-channel *create_channel(char *chan_name, server *srv);
+int remove_channel(channel *channel_ptr); //Removes channel, return new channel count.
+channel *create_channel(char *chan_name, server *srv); //Creates new channel, adds it to channel list and returns new channel.
 
 #endif

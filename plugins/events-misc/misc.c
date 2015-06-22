@@ -5,10 +5,10 @@
 #include <stdio.h>
 
 #include "misc.h"
-#include "../../include/irc.h"
-#include "../../include/server.h"
-#include "../../include/plugin_handler.h"
-#include "../../include/callback_defines.h"
+#include "../../headers/irc.h"
+#include "../../headers/server.h"
+#include "../../headers/plugin_handler.h"
+#include "../../headers/callback_defines.h"
 
 char plugin_name[] = "BCIRC-Core - Event handler - Misc";
 char plugin_author[] = "Joona";

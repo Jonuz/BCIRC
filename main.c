@@ -3,11 +3,11 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "./include/irc.h"
-#include "./include/server.h"
-#include "./include/channel.h"
-#include "./include/user.h"
-#include "./include/plugin_handler.h"
+#include "./headers/irc.h"
+#include "./headers/server.h"
+#include "./headers/channel.h"
+#include "./headers/user.h"
+#include "./headers/plugin_handler.h"
 
 irc_base base_client;
 server server_info;

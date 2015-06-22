@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#include "../include/irc_cmds.h"
+#include "../headers/irc_cmds.h"
 
 int privmsg(char *msg, char *target, server *srv)
 {

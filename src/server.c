@@ -7,10 +7,10 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#include "../include/server.h"
-#include "../include/irc.h"
-#include "../include/plugin_handler.h"
-#include "../include/callback_defines.h"
+#include "../headers/server.h"
+#include "../headers/irc.h"
+#include "../headers/plugin_handler.h"
+#include "../headers/callback_defines.h"
 
 
 int server_connect(server *srv)

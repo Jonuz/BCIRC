@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "../include/channel.h"
-#include "../include/server.h"
+#include "../headers/channel.h"
+#include "../headers/server.h"
 
 channel **channel_list;
 

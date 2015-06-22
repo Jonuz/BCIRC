@@ -5,13 +5,11 @@
 
 #include  "entities.h"
 
-#include "../../include/irc.h"
-#include "../../include/server.h"
-#include "../../include/irc_cmds.h"
-#include "../../include/plugin_handler.h"
-#include "../../include/callback_defines.h"
-
-
+#include "../../headers/irc.h"
+#include "../../headers/server.h"
+#include "../../headers/irc_cmds.h"
+#include "../../headers/plugin_handler.h"
+#include "../../headers/callback_defines.h"
 
 
 #define get_str_size(str) ( (strlen( (char*) str) + 1) * sizeof(char) )
@@ -68,7 +66,7 @@ int check_for_url(void **params, int argv)
     if (reti != 0)
     {
         regfree(&regex);
-        return -1;
+        return 0;
     }
 
     regfree(&regex);

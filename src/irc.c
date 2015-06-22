@@ -7,9 +7,9 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-#include "../include/irc.h"
-#include "../include/irc_cmds.h"
-#include "../include/plugin_handler.h"
+#include "../headers/irc.h"
+#include "../headers/irc_cmds.h"
+#include "../headers/plugin_handler.h"
 
 #define get_str_size(str) ( (strlen( (char*) str) + 1) * sizeof(char) )
 #define MAX_MSG_COUNT 5

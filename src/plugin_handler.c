@@ -4,9 +4,9 @@
 #include <dlfcn.h>
 #include <dirent.h>
 
-#include "../include/plugin_handler.h"
-#include "../include/irc.h"
-#include "../include/server.h"
+#include "../headers/plugin_handler.h"
+#include "../headers/irc.h"
+#include "../headers/server.h"
 
 #define get_str_size(str) ( (strlen( (char*) str) + 1) * sizeof(char) )
 

@@ -3,12 +3,12 @@
 #include <ctype.h>
 #include <unistd.h>
 
-#include "../../include/irc.h"
-#include "../../include/server.h"
-#include "../../include/numeric.h"
-#include "../../include/irc_cmds.h"
-#include "../../include/plugin_handler.h"
-#include "../../include/callback_defines.h"
+#include "../../headers/irc.h"
+#include "../../headers/server.h"
+#include "../../headers/numeric.h"
+#include "../../headers/irc_cmds.h"
+#include "../../headers/plugin_handler.h"
+#include "../../headers/callback_defines.h"
 
 
 int handle_ping(void **params, int argc);
@@ -100,7 +100,7 @@ int handle_registeration(void **params, int argc)
 
     char password_msg[] = "PASS passu\r\n";
     char username_msg[] = "USER quest dsd Tositestimies :Tosimies\r\n";
-    char nickname_msg[] = "NICK tosibotti2\r\n";
+    char nickname_msg[] = "NICK tosibotti\r\n";
 
 
     server_send(password_msg, srv);
