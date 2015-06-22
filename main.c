@@ -28,7 +28,13 @@ int main()
 
     plugin_list = malloc(sizeof(plugin*));
 
-    get_plugins(getenv("PLUGINS_BIN"));
+    char *plugin_dir = getenv("PLUGINS_BIN");
+    if (!plugin_dir)
+    {
+        printf("Enviroment value \"PLUGINS_BIN\" doesnt exixst\n");
+        exit(EXIT_SUCCESS);
+    }
+    get_plugins(plugin_dir);
 
     int res;
     if ( (res = server_connect(&server_info) ) != 1)
