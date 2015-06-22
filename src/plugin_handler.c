@@ -109,7 +109,8 @@ int get_plugins(char *plugin_dir)
             {
                 if (strlen(dir->d_name) > 3)
                 {
-                    if (strstr(dir->d_name, ".so") != NULL) //fix me
+                    size_t name_len = strlen(dir->d_name);
+                    if (strstr(dir->d_name, ".so") == dir->d_name+name_len-3)
                     {
                         char *plugin_to_add = malloc( (strlen(plugin_dir) + 1 + strlen(dir->d_name) + 1) * sizeof(char));
                         sprintf(plugin_to_add, "%s/%s", plugin_dir, dir->d_name);
