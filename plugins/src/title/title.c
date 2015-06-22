@@ -155,7 +155,6 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
         free(response);
         return size * nmemb;
     }
-    //puts("found!");
 
     size_t len = matches[0].rm_eo - matches[0].rm_so;
 

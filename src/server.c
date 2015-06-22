@@ -80,6 +80,7 @@ int server_send(char *buf, server *srv)
 int server_recv(char *buf, server *srv)
 {
 	char tmpbuf[1024];
+	char *new_buf = NULL;
 	int res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
 	tmpbuf[res] = '\0';
 
@@ -92,13 +93,13 @@ int server_recv(char *buf, server *srv)
 	if (!buf)
 		buf = malloc((strlen(tmpbuf) + 1) * sizeof(char));
 	else
-		buf = realloc(buf, (strlen(tmpbuf) + 1) * sizeof(char));
-
+	{
+		free(buf);
+		new_buf = realloc(buf, (strlen(tmpbuf) + 1) * sizeof(char));
+		buf = new_buf;
+	}
 	if (buf == NULL)
 		return -2;
-
-	char *buf_copy = malloc( (strlen(tmpbuf) + 1) * sizeof(char) );
-	strcpy(buf_copy, tmpbuf);
 
 	strcpy(buf, tmpbuf);
 	srv->recvd_len += res;

@@ -40,7 +40,7 @@ int main()
     if ( (res = server_connect(&server_info) ) != 1)
     {
         printf("Cant connect to %s\n", server_info.host);
-        return -1;
+        exit(EXIT_SUCCESS);
     }
 
     char *buffer = NULL;

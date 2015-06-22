@@ -84,6 +84,7 @@ int handle_ping(void **params, int argc)
     puts("PONG!");
     server_send(pong, srv);
 
+    free(pong);
     free(tmp);
 
     return BCIRC_PLUGIN_OK;
