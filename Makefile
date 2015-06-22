@@ -11,7 +11,7 @@ OBJETCTS = $(*.o)
 #PLUGINS_SRC
 #PLUGINS_BIN
 
-STATIC = $(PLUGIN_DIR)/libbcirc.a
+STATIC = $(PLUGINS_SRC)/libbcirc.a
 
 default: irc
 
