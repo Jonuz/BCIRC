@@ -23,6 +23,6 @@ irc:
 	rm *.o
 
 clean:
-	-rm -f $(PLUGIN_BINS)/*.so
-	-rm -f $(PLUGIN_DIRS)/libbcirc.a
+	-rm -f $(PLUGINS_BIN)/*.so
+	-rm -f $(PLUGINS_DIR)/libbcirc.a
 	-rm $(TARGET_DIR)/irc

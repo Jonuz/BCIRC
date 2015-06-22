@@ -77,8 +77,6 @@ int check_for_url(void **params, int argv)
     strncpy(url, msg+matches[0].rm_so, len);
     url[len-1] = '\0';
 
-    //printf("url: %s\n", url);
-
     srv_save = srv;
 
     strcpy(target_save, target);
@@ -146,6 +144,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     {
         printf("Failed to compile regex!\n");
         free(response);
+        regfree(&regex);
         return size * nmemb;;
     }
 
@@ -153,6 +152,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     if (reti != 0)
     {
         free(response);
+        regfree(&regex);
         return size * nmemb;
     }
 

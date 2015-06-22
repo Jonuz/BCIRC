@@ -34,7 +34,7 @@ int server_connect(server *srv)
 
 	srv->motd_sent = 0;
 
-    void **cb_params = malloc( sizeof(server*) );
+    void **cb_params = malloc( sizeof(void*) );
     cb_params[0] = (void*) srv;
     execute_callbacks( CALLBACK_SERVER_CONNECTED, cb_params, 1 );
 	free(cb_params);
@@ -63,7 +63,6 @@ int server_send(char *buf, server *srv)
 	static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 	pthread_mutex_unlock(&mutex);
-	usleep(50);
     int res = send(srv->s, buf, strlen(buf), 0);
     if (res <= 0)
         return res;
@@ -121,7 +120,6 @@ int server_recv(char *buf, server *srv)
 
 		line = strtok_r(NULL, "\r\n", &save);
   	}
-
 	return res;
 }
 

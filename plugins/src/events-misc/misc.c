@@ -82,8 +82,13 @@ int get_privmsg(void **params, int argc)
     }
 
     if (i < 3) // In case of PING or something like that since loop might end before PRIVMSG check.
-        return BCIRC_PLUGIN_OK;
+    {
 
+        free(nick);
+        free(hostmask)
+
+        return BCIRC_PLUGIN_OK;
+    }
 
     int msg_len = strlen(save);
     char *msg = malloc((msg_len + 1) * sizeof(char) );

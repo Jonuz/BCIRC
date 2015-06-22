@@ -33,6 +33,8 @@ int load_plugin(char *path)
     if ((handle = dlopen(path, RTLD_LAZY )) == NULL)
     {
         printf("%s\n", dlerror());
+        free(new_plugin->callback_list);
+        free(new_plugin);
         return -1;
     }
 
@@ -41,6 +43,8 @@ int load_plugin(char *path)
     {
         printf("Failed to get name of plugin!\n");
         printf("Path: %s\n", path);
+        free(new_plugin->callback_list);
+        free(new_plugin);
         return -2;
     }
 
@@ -49,6 +53,8 @@ int load_plugin(char *path)
     {
         printf("Failed to get author of plugin!\n");
         printf("Path: %s\n", path);
+        free(new_plugin->callback_list);
+        free(new_plugin);
         return -2;
     }
 
@@ -57,6 +63,8 @@ int load_plugin(char *path)
     {
         printf("Failed to get version of plugin!\n");
         printf("Path: %s\n", path);
+        free(new_plugin->callback_list);
+        free(new_plugin);
         return -2;
     }
 
@@ -65,6 +73,9 @@ int load_plugin(char *path)
     {
         printf("Failed to load function for initialization!\n");
         printf("Path: %s\n", path);
+        free(new_plugin->callback_list);
+        free(new_plugin);
+        return -2;
     }
 
 
@@ -72,6 +83,8 @@ int load_plugin(char *path)
     if ((res = init_func(new_plugin)) != BCIRC_PLUGIN_OK)
     {
         printf("Plugin %s returned %d!\n", new_plugin->plugin_name, res);
+        free(new_plugin->callback_list);
+        free(new_plugin);
         return -3;
     }
 

@@ -61,7 +61,6 @@ int handle_ping(void **params, int argc)
     if ((buf == NULL) || (srv == NULL))
         return BCIRC_PLUGIN_CONTINUE;
 
-
     if (strlen(buf) < 7)
     {
         return BCIRC_PLUGIN_CONTINUE;
@@ -74,7 +73,10 @@ int handle_ping(void **params, int argc)
     maybe_ping = strtok(tmp, " ");
 
     if (strcmp(maybe_ping, "PING") != 0)
+    {
+        free(tmp);
         return BCIRC_PLUGIN_CONTINUE;
+    }
 
     char *pong = malloc( ((strlen(buf) + 2 + 1) * sizeof(char)) );
     sprintf(pong, "%s\r\n", buf);
@@ -101,7 +103,7 @@ int handle_registeration(void **params, int argc)
 
     char password_msg[] = "PASS passu\r\n";
     char username_msg[] = "USER quest dsd Tositestimies :Tosimies\r\n";
-    char nickname_msg[] = "NICK tosibotti\r\n";
+    char nickname_msg[] = "NICK tosibotti2\r\n";
 
 
     server_send(password_msg, srv);
