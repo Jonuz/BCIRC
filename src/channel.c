@@ -9,8 +9,9 @@ channel **channel_list;
 int get_channel_count()
 {
     int count = 0;
-    for (count; channel_list[count] != NULL; count++)
-    {}
+    while(channel_list[count]->next_channel)
+        count++;
+
     return count;
 }
 
