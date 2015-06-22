@@ -3,12 +3,12 @@
 #include <ctype.h>
 #include <unistd.h>
 
-#include "../../headers/irc.h"
-#include "../../headers/server.h"
-#include "../../headers/numeric.h"
-#include "../../headers/irc_cmds.h"
-#include "../../headers/plugin_handler.h"
-#include "../../headers/callback_defines.h"
+#include "../headers/irc.h"
+#include "../headers/server.h"
+#include "../headers/numeric.h"
+#include "../headers/irc_cmds.h"
+#include "../headers/plugin_handler.h"
+#include "../headers/callback_defines.h"
 
 
 int handle_ping(void **params, int argc);

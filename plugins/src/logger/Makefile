@@ -1,8 +1,7 @@
 CC = gcc
 CFLAGS = -fPIC -shared -std=gnu11 ../libbcirc.a  -g
 SOURCES = $(wildcard *.c)
-PLUGIN_PATH = ../../build/plugins
-TARGET = $(PLUGIN_PATH)/logger.so
+TARGET = $(PLUGINS_BIN)/logger.so
 
 $(TARGET):
 	$(CC) $(SOURCES) $(CFLAGS) -o $@

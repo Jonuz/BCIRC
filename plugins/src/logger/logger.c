@@ -1,8 +1,8 @@
 #include <stdio.h>
 
-#include "../../headers/server.h"
-#include "../../headers/plugin_handler.h"
-#include "../../headers/callback_defines.h"
+#include "../headers/server.h"
+#include "../headers/plugin_handler.h"
+#include "../headers/callback_defines.h"
 
 char plugin_name[] = "Logger";
 char plugin_version[] = "0.01";

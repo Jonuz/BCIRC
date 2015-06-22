@@ -28,17 +28,7 @@ int main()
 
     plugin_list = malloc(sizeof(plugin*));
 
-    char *this_path = malloc(100 * sizeof(char));
-    this_path = getcwd(NULL, 100);
-    printf("path: %s\n", this_path);
-    char *plugin_path = malloc( (strlen(this_path) + 1 + 5 + 1 + 7 + 1) * sizeof(char));
-
-    sprintf(plugin_path, "%s/build/plugins", this_path);
-
-    free(this_path);
-
-    get_plugins(plugin_path);
-    free(plugin_path);
+    get_plugins(getenv("PLUGINS_BIN"));
 
     int res;
     if ( (res = server_connect(&server_info) ) != 1)

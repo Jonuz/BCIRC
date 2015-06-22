@@ -1,6 +1,6 @@
 make clean
 make
-cd plugins
+cd $PLUGINS_SRC
 for d in */; do
 	cd "$d"
 		make

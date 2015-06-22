@@ -5,9 +5,13 @@ SOURCES = $(wildcard src/*.c) main.c
 HEADERS = $(wildcard include/*.h)
 OBJETCTS = $(*.o)
 
-PLUGIN_SRC_PATH = plugins
+#TARGET_DIR
 
-STATIC = $(PLUGIN_SRC_PATH)/libbcirc.a
+#PLUGIN_DIR
+#PLUGINS_SRC
+#PLUGINS_BIN
+
+STATIC = $(PLUGIN_DIR)/libbcirc.a
 
 default: irc
 
@@ -15,10 +19,10 @@ irc:
 	$(CC) $(SOURCES) $(CFLAGS) -I. -o $@
 	$(CC) $(SOURCES) $(CFLAGS) -fPIC -c
 
-	ar rcs ./plugins/libbcirc.a *.o
+	ar rcs $(STATIC) *.o
 	rm *.o
 
 clean:
-	-rm -f build/plugins/*.so
-	-rm -f $(PLUGIN_SRC_PATH)/libbcirc.a
-	-rm irc
+	-rm -f $(PLUGIN_BIN)/*.so
+	-rm -f $(PLUGIN_DIR)/libbcirc.a
+	-rm $(TARGET_DIR)/irc

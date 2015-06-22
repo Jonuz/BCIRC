@@ -5,11 +5,11 @@
 
 #include  "entities.h"
 
-#include "../../headers/irc.h"
-#include "../../headers/server.h"
-#include "../../headers/irc_cmds.h"
-#include "../../headers/plugin_handler.h"
-#include "../../headers/callback_defines.h"
+#include "../headers/irc.h"
+#include "../headers/server.h"
+#include "../headers/irc_cmds.h"
+#include "../headers/plugin_handler.h"
+#include "../headers/callback_defines.h"
 
 
 #define get_str_size(str) ( (strlen( (char*) str) + 1) * sizeof(char) )
