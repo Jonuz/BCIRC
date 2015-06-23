@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "../headers/irc.h"
 #include "../headers/server.h"
 #include "../headers/plugin_handler.h"
 #include "../headers/callback_defines.h"
@@ -47,12 +48,12 @@ int on_server_send(void **paramams, int argc)
 int test(void **params, int argc)
 {
     server *srv = params[0];
-    char *channel = params[3];
+    char *target = params[3];
     char *msg = params[4];
 
-    if (strcmp(msg, "#tesm") != 0)
+    if (strcmp(target, "#tesm") != 0)
         return BCIRC_PLUGIN_OK;
-        
+
     add_to_privmsg_queue(msg, target, srv, 0);
 
     return BCIRC_PLUGIN_OK;

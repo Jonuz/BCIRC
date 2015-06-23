@@ -85,7 +85,7 @@ int get_privmsg(void **params, int argc)
     {
 
         free(nick);
-        free(hostmask)
+        free(hostmask);
 
         return BCIRC_PLUGIN_OK;
     }
