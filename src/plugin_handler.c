@@ -82,7 +82,7 @@ int load_plugin(char *path)
     int res;
     if ((res = init_func(new_plugin)) != BCIRC_PLUGIN_OK)
     {
-        printf("Plugin %s returned %d!\n", new_plugin->plugin_name, res);
+        printf("Plugin %s returned %d on init!\n", new_plugin->plugin_name, res);
         free(new_plugin->callback_list);
         free(new_plugin);
         return -3;
@@ -103,7 +103,6 @@ int load_plugin(char *path)
     plugin_count++;
 
     printf("Added plugin %s version %s\n", new_plugin->plugin_name, new_plugin->plugin_version);
-
 
     return 1;
 }
