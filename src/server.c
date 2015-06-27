@@ -97,8 +97,6 @@ int server_recv(char *buf, server *srv)
 		new_buf = realloc(buf, (strlen(tmpbuf) + 1) * sizeof(char));
 		buf = new_buf;
 	}
-	if (buf == NULL)
-		return -2;
 
 	strcpy(buf, tmpbuf);
 	srv->recvd_len += res;

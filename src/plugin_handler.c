@@ -14,6 +14,10 @@
 int plugin_count;
 plugin **plugin_list;
 
+callback_index **index_list;
+int index_count;
+
+
 void *execute_function = NULL;
 
 int load_plugin(char *path)
@@ -158,7 +162,7 @@ int remove_plugin(plugin *pluginptr)
     return 1;
 }
 
-int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr)
+int register_callback(char *cb_name, CALLBACK_FUNC cb_func, int priority, plugin *pluginptr)
 {
     if (pluginptr == NULL)
     {
@@ -195,12 +199,104 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr)
 
     new_callback->cb_func = cb_func;
     new_callback->cb_name = cb_name;
+    new_callback->priority = priority;
 
+
+    index_callback(new_callback);
 
     pluginptr->callback_list[pluginptr->callback_count] = new_callback;
     pluginptr->callback_count++;
 
-    printf("Registered callback %s for plugin %s to function_ptr %p\n", cb_name, pluginptr->plugin_name, cb_func);
+    return 1;
+}
+
+int init_index()
+{
+    index_count = 0;
+    index_list = malloc(sizeof(callback_index*));
+    index_list[0] = NULL;
+
+    return 1;
+}
+
+
+int is_callback_indexed(char *cb_name)
+{
+    for (int i = 0; i < index_count; i++)
+    {
+        if (strcmp(index_list[i]->cb_name, cb_name) == 0)
+            return i;
+    }
+    return -1;
+}
+
+int compare_index (const void *a, const void *b)
+{
+    const callback *cb1 = *(callback**) a;
+    const callback *cb2 = *(callback**) b;
+
+    //printf("cb1: %d\n", (int*) cb1->priority);
+
+    return (cb1->priority) < (cb2->priority);
+
+}
+
+int index_callback(callback *callback_ptr)
+{
+    char *cb_name = callback_ptr->cb_name;
+    int index_point = is_callback_indexed(cb_name);
+
+
+    if (index_point >= 0)
+    {
+        int callbacks_count = index_list[index_point]->cb_count;
+        callback **callbacks = index_list[index_point]->callbacks;
+
+        if (callbacks_count > 0)
+            callbacks = realloc(callbacks, sizeof(callback*) * (callbacks_count + 1) );
+        else
+            callbacks = malloc(sizeof(callback*));
+
+        if (!callbacks)
+        {
+            printf("Failed to realloc callback_list(%s)!\n", __PRETTY_FUNCTION__);
+            exit(EXIT_SUCCESS);
+        }
+        callbacks[callbacks_count] = callback_ptr;
+        index_list[index_point]->cb_count++;
+
+        if (callbacks_count > 1)
+            qsort(callbacks, callbacks_count + 1, sizeof(callback*), compare_index);
+
+        index_list[index_point]->callbacks = callbacks;
+
+    }
+    else
+    {
+        callback_index *new_index = malloc(sizeof(callback_index));
+        if (!new_index)
+        {
+            printf("Failed to realloc new_index(%s)\n", __PRETTY_FUNCTION__);
+            exit(EXIT_SUCCESS);
+        }
+
+        new_index->cb_name = cb_name;
+        new_index->next_index = NULL;
+        new_index->cb_count = 1;
+        new_index->callbacks = malloc(sizeof(callback*));
+        new_index->callbacks[0] = callback_ptr;
+
+        index_list = realloc(index_list, (index_count + 1) * sizeof(callback_index*));
+        if (!index_list)
+        {
+            printf("Failed to realloc index_list(%s)\n", __PRETTY_FUNCTION__);
+            exit(EXIT_SUCCESS);
+        }
+
+        index_list[index_count] = new_index;
+        index_count++;
+
+    }
 
     return 1;
 }
@@ -209,33 +305,27 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr)
 void execute_callbacks(char *cb_name, void **args, int argc)
 {
     //printf("cb_name: %s\n", cb_name);
-    for (int i = 0; i < plugin_count; i++)
+    int index_point = is_callback_indexed(cb_name);
+    int cb_count = index_list[index_point]->cb_count;
+
+    for (int i = 0; i < cb_count; i++)
     {
-        for (int y = 0; y < plugin_list[i]->callback_count; y++)
+        int (*cb)(void **, int) = index_list[index_point]->callbacks[i]->cb_func;
+
+        int res;
+        if ( ((res = cb(args, argc)) != BCIRC_PLUGIN_OK))
         {
-            if (plugin_list[i]->status == RUNNING)
-            {
-                if ( strcmp( plugin_list[i]->callback_list[y]->cb_name, cb_name) == 0 )
-                {
-                    int (*cb)(void **, int) = plugin_list[i]->callback_list[y]->cb_func;
+            if (res == BCIRC_PLUGIN_STOP)
+                pause_plugin(plugin_list[i]);
 
-                    int res;
-                    if ( ((res = cb(args, argc)) != BCIRC_PLUGIN_OK))
-                    {
-                        if (res == BCIRC_PLUGIN_STOP)
-                            pause_plugin(plugin_list[i]);
+            else if (res == BCIRC_PLUGIN_FAIL)
+                remove_plugin(plugin_list[i]);
 
-                        else if (res == BCIRC_PLUGIN_FAIL)
-                            remove_plugin(plugin_list[i]);
+            else if (res == BCIRC_PLUGIN_BREAK)
+                break;
 
-                        else if (res == BCIRC_PLUGIN_BREAK)
-                            break;
-
-                        else if (res == BCIRC_PLUGIN_CONTINUE)
-                            continue;
-                    }
-                }
-            }
+            else if (res == BCIRC_PLUGIN_CONTINUE)
+                continue;
         }
     }
     return;

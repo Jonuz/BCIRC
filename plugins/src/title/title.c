@@ -14,7 +14,7 @@
 
 #define get_str_size(str) ( (strlen( (char*) str) + 1) * sizeof(char) )
 
-char plugin_name[] = "URL announcer";
+char plugin_name[] = "Title announcer";
 char plugin_version[] = "0.01";
 char plugin_author[] = "Joona";
 
@@ -30,7 +30,7 @@ char nick_save[100];
 
 int plugin_init(plugin *pluginptr)
 {
-    register_callback(CALLBACK_GOT_PRIVMSG, check_for_url, pluginptr);
+    register_callback(CALLBACK_GOT_PRIVMSG, check_for_url, 0, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
@@ -51,6 +51,8 @@ int check_for_url(void **params, int argv)
     char *target = params[3];
     char *msg = params[4];
 
+    puts("Check for url called!");
+
     regex_t regex;
     int reti;
     regmatch_t matches[1];
@@ -66,7 +68,7 @@ int check_for_url(void **params, int argv)
     if (reti != 0)
     {
         regfree(&regex);
-        return 0;
+        return BCIRC_PLUGIN_CONTINUE;
     }
 
     regfree(&regex);
@@ -156,6 +158,8 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
         return size * nmemb;
     }
 
+    puts("Title found");
+
     size_t len = matches[0].rm_eo - matches[0].rm_so;
 
     char *title = (char*) malloc((len + 2) * sizeof(char));
@@ -187,6 +191,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     // http://stackoverflow.com/a/1082191/2279808 <3
     decode_html_entities_utf8(title, new_title);
     free(new_title);
+    printf("title: %s\n", title);
 
     char *unwanted_chars =  "\r\n\t\t ";
 
@@ -220,7 +225,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
         title = new_title2;
     }
 
-    //printf("title: %s\n", title);
+    printf("title: %s\n", title);
 
     if (target_save[0] == '#') //In future: Check if target is channel.
         add_to_privmsg_queue(title, target_save, srv_save, 0);

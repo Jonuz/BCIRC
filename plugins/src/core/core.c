@@ -22,9 +22,9 @@ char plugin_version[] = "0.1";
 
 int plugin_init(plugin *pluginptr)
 {
-    register_callback(CALLBACK_GOT_NUMERIC, got_in, pluginptr);
-    register_callback(CALLBACK_SERVER_RECV, handle_ping, pluginptr);
-    register_callback(CALLBACK_SERVER_CONNECTED, handle_registeration, pluginptr);
+    register_callback(CALLBACK_GOT_NUMERIC, got_in, 20, pluginptr);
+    register_callback(CALLBACK_SERVER_RECV, handle_ping, 17, pluginptr);
+    register_callback(CALLBACK_SERVER_CONNECTED, handle_registeration, 20, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }

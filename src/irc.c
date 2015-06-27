@@ -132,7 +132,6 @@ void *handle_privmsg_queue()
             privmsg(msg_list[0]->msg, msg_list[0]->target, msg_list[0]->srv);
 
         msg_count--;
-        printf("msg_count after handler privmsg: %d\n", msg_count);
 
         free(msg_list[0]->msg);
         free(msg_list[0]->target);

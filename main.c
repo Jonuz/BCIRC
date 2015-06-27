@@ -27,6 +27,7 @@ int main()
     strcpy(server_info.port, port);
 
     plugin_list = malloc(sizeof(plugin*));
+    init_index();
 
     char *plugin_dir = getenv("PLUGINS_BIN");
     if (!plugin_dir)

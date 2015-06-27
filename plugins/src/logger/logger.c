@@ -16,9 +16,9 @@ int test(void **params, int argc);
 
 int plugin_init(plugin *pluginptr)
 {
-    register_callback( CALLBACK_SERVER_CONNECTED, on_connect, pluginptr);
-    register_callback( CALLBACK_SERVER_RECV, on_server_send, pluginptr );
-    register_callback( CALLBACK_GOT_PRIVMSG, test, pluginptr );
+    register_callback( CALLBACK_SERVER_CONNECTED, on_connect, 0, pluginptr);
+    register_callback( CALLBACK_SERVER_RECV, on_server_send, 0, pluginptr );
+    register_callback( CALLBACK_GOT_PRIVMSG, test, 0, pluginptr );
 
     return BCIRC_PLUGIN_OK;
 }

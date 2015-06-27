@@ -27,8 +27,8 @@ bool is_fulldigit(char *str)
 
 int plugin_init(plugin *pluginptr)
 {
-    register_callback(CALLBACK_SERVER_RECV, get_privmsg, pluginptr);
-    register_callback(CALLBACK_SERVER_RECV, get_numeric, pluginptr);
+    register_callback(CALLBACK_SERVER_RECV, get_privmsg, 0, pluginptr);
+    register_callback(CALLBACK_SERVER_RECV, get_numeric, 19, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }

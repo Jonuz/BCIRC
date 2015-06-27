@@ -32,6 +32,7 @@ typedef struct
 {
     char *cb_name;
     int (*cb_func)(void **, int); //Function to call
+    int priority;
 } callback;
 
 typedef struct
@@ -49,6 +50,18 @@ typedef struct
 
 } plugin;
 
+typedef struct
+{
+    char *cb_name;
+    callback **callbacks;
+    size_t cb_count;
+
+    void *next_index;
+} callback_index;
+
+extern callback_index **index_list;
+extern int index_count;
+
 extern plugin **plugin_list;
 extern int plugin_count;
 
@@ -59,8 +72,12 @@ int remove_plugin(plugin *pluginptr);
 
 typedef int(*CALLBACK_FUNC)(void**, int);
 
-int register_callback(char *cb_name, CALLBACK_FUNC cb_func, plugin *pluginptr);
+int register_callback(char *cb_name, CALLBACK_FUNC cb_func, int priority, plugin *pluginptr);
 void execute_callbacks(char *cb_name, void **args, int argc);
 
+int init_index();
+int index_callback(callback *callback_ptr);
+int get_index_count();
+int is_callback_indexed(char *cb_name);
 
 #endif /* PLUGIN_HANDLER_H_ */
