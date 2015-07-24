@@ -27,8 +27,8 @@ bool is_fulldigit(char *str)
 
 int plugin_init(plugin *pluginptr)
 {
-    register_callback(CALLBACK_SERVER_RECV, get_privmsg, 0, pluginptr);
-    register_callback(CALLBACK_SERVER_RECV, get_numeric, 19, pluginptr);
+    register_callback(CALLBACK_SERVER_RECV, get_privmsg, 20, pluginptr);
+    register_callback(CALLBACK_SERVER_RECV, get_numeric, 20, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
@@ -83,7 +83,6 @@ int get_privmsg(void **params, int argc)
 
     if (i < 3) // In case of PING or something like that since loop might end before PRIVMSG check.
     {
-
         free(nick);
         free(hostmask);
 
@@ -126,25 +125,28 @@ int get_numeric(void **params, int argc)
     strcpy(buffer, params[1]);
 
     if (buffer == NULL)
-        return BCIRC_PLUGIN_CONTINUE;
+        return BCIRC_PLUGIN_OK;
     if (srv == NULL)
-        return BCIRC_PLUGIN_CONTINUE;
+        return BCIRC_PLUGIN_OK;
 
     char *save;
     char *word;
 
     word = strtok_r(buffer, " ", &save);
     if (!word)
-      return BCIRC_PLUGIN_CONTINUE;
+      return BCIRC_PLUGIN_OK;
     word = strtok_r(NULL, " ", &save);
+
     if (!word)
-      return BCIRC_PLUGIN_CONTINUE;
+      return BCIRC_PLUGIN_OK;
+
 
     if (is_fulldigit(word))
     {
         int *numeric = malloc(sizeof(int));
         *numeric = atoi(word);
 
+        strcpy(buffer, params[1]);
         void **new_params = malloc(sizeof(void*) * 3);
 
         new_params[0] = (int*) numeric;

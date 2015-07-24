@@ -58,7 +58,6 @@ int add_to_privmsg_queue(char *msg, char *target, server *srv, const int drop )
     strcpy(new_msg_info->target, target);
     new_msg_info->srv = srv;
 
-
     msg_list = realloc( msg_list, (msg_count + 1) * sizeof (msg_info*) );
     msg_list[msg_count] = new_msg_info;
     if (!msg_list)

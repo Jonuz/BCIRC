@@ -1,28 +1,22 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
-#include "../headers/channel.h"
+#include "../headers/numeric.h"
 #include "../headers/server.h"
+#include "../headers/channel.h"
 
 channel **channel_list;
+int channel_count;
 
-int get_channel_count()
-{
-    int count = 0;
-    while(channel_list[count]->next_channel)
-        count++;
-
-    return count;
-}
 
 channel *create_channel(char *chan_name, server *srv)
 {
     if ((!chan_name) || (!srv))
         return NULL;
 
-    int channel_count = get_channel_count();
-
     channel *new_channel = NULL;
+    new_channel = malloc(sizeof(channel));
 
     new_channel->name = malloc((strlen(chan_name) + 1) * sizeof(char));
     strcpy(new_channel->name, chan_name);
@@ -31,7 +25,6 @@ channel *create_channel(char *chan_name, server *srv)
         return NULL;
 
     new_channel->modes = NULL;
-    new_channel->next_channel = NULL;
     new_channel->users = NULL;
     new_channel->key = NULL;
     new_channel->srv = srv;
@@ -55,11 +48,10 @@ channel *create_channel(char *chan_name, server *srv)
     channel_count++;
 
     channel_list = new_channel_list;
-    channel_list[channel_count]->next_channel = NULL;
 
     return new_channel;
 }
-
+/*
 int remove_channel(channel *channel_ptr)
 {
     if (!channel_ptr)
@@ -93,15 +85,20 @@ int remove_channel(channel *channel_ptr)
     }
     return new_count;
 }
+*/
 
-channel *get_channel(char *chan_name)
+channel *get_channel(char *chan_name, server *srv)
 {
     if (!chan_name)
         return NULL;
-    for (int i = 0; channel_list[i]->next_channel; i++ )
+
+    for (int i = 0; i < channel_count; i++)
     {
-        if ( strcmp( channel_list[i]->name, chan_name) == 0)
+        if ((strcmp(chan_name, channel_list[i]->name) == 0 ) &&
+            (channel_list[i]->srv == srv))
+            
             return channel_list[i];
     }
+
     return NULL;
 }

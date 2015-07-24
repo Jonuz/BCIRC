@@ -5,9 +5,9 @@
 #define CALLBACK_GOT_NUMERIC "got_numeric"
 /*
     Params:
-        aserver *srv
-        char *buffer
         int *numeric
+        char *buffer
+        server *src
 */
 
 #define CALLBACK_GOT_PRIVMSG "got_privmsg"

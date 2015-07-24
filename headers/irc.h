@@ -5,13 +5,11 @@
 #include <time.h>
 
 #include "channel.h"
-#include "user.h"
 #include "server.h"
 
 
 typedef struct
 {
-	struct user *my_info;
 	struct channel **channels_info;
 	struct server *server_info;
 

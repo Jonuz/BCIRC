@@ -28,12 +28,35 @@ char target_save[100];
 char nick_save[100];
 
 
+regex_t regex;
+int reti;
+regmatch_t matches[1];
+
+int comp_regex()
+{
+    static int compiled = 0;
+    if (compiled == 0)
+    {
+        reti = regcomp(&regex, "https?:\/\/[^\ ]+", REG_EXTENDED);
+        if (reti != 0)
+        {
+            printf("Failed to compile regex!\n");
+            regfree(&regex);
+            return BCIRC_PLUGIN_FAIL;
+        }
+        compiled = 1;
+    }
+}
+
+
 int plugin_init(plugin *pluginptr)
 {
     register_callback(CALLBACK_GOT_PRIVMSG, check_for_url, 0, pluginptr);
+    comp_regex();
 
     return BCIRC_PLUGIN_OK;
 }
+
 
 
 int check_for_url(void **params, int argv)
@@ -53,25 +76,10 @@ int check_for_url(void **params, int argv)
 
     puts("Check for url called!");
 
-    regex_t regex;
-    int reti;
-    regmatch_t matches[1];
-
-    reti = regcomp(&regex, "https?:\/\/[^\ ]+", REG_EXTENDED);
-    if (reti != 0)
-    {
-        printf("Failed to compile regex!\n");
-        return BCIRC_PLUGIN_CONTINUE;
-    }
-
     reti = regexec(&regex, msg, 1, matches, 0);
     if (reti != 0)
-    {
-        regfree(&regex);
         return BCIRC_PLUGIN_CONTINUE;
-    }
 
-    regfree(&regex);
 
     size_t len = matches[0].rm_eo - matches[0].rm_so + 1;
     char *url = malloc((len + 1) * sizeof(char));
@@ -191,7 +199,6 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     // http://stackoverflow.com/a/1082191/2279808 <3
     decode_html_entities_utf8(title, new_title);
     free(new_title);
-    printf("title: %s\n", title);
 
     char *unwanted_chars =  "\r\n\t\t ";
 
@@ -224,8 +231,6 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
         free(title);
         title = new_title2;
     }
-
-    printf("title: %s\n", title);
 
     if (target_save[0] == '#') //In future: Check if target is channel.
         add_to_privmsg_queue(title, target_save, srv_save, 0);

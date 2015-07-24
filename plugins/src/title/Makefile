@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -fPIC -shared -std=gnu11 ../libbcirc.a -g -lcurl -g
+CFLAGS = -fPIC -shared -std=gnu11 ../libbcirc.a -g -lcurl -g -O1
 SOURCES = $(wildcard *.c)
 TARGET = $(PLUGINS_BIN)/title.so
 

@@ -6,15 +6,13 @@
 #include "./headers/irc.h"
 #include "./headers/server.h"
 #include "./headers/channel.h"
-#include "./headers/user.h"
 #include "./headers/plugin_handler.h"
 
 irc_base base_client;
 server server_info;
 channel channel_info;
-user user_info;
 
-char host[] = "dreamhack.se.quakenet.org";
+char host[] = "127.0.0.1";
 char port[] = "6667";
 int res;
 

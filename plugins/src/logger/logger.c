@@ -18,7 +18,6 @@ int plugin_init(plugin *pluginptr)
 {
     register_callback( CALLBACK_SERVER_CONNECTED, on_connect, 0, pluginptr);
     register_callback( CALLBACK_SERVER_RECV, on_server_send, 0, pluginptr );
-    register_callback( CALLBACK_GOT_PRIVMSG, test, 0, pluginptr );
 
     return BCIRC_PLUGIN_OK;
 }
@@ -41,20 +40,6 @@ int on_server_send(void **paramams, int argc)
         return BCIRC_PLUGIN_BREAK;
 
     printf("%s\n", buf);
-
-    return BCIRC_PLUGIN_OK;
-}
-
-int test(void **params, int argc)
-{
-    server *srv = params[0];
-    char *target = params[3];
-    char *msg = params[4];
-
-    if (strcmp(target, "#tesm") != 0)
-        return BCIRC_PLUGIN_OK;
-
-    add_to_privmsg_queue(msg, target, srv, 0);
 
     return BCIRC_PLUGIN_OK;
 }

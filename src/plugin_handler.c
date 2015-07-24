@@ -4,6 +4,8 @@
 #include <dlfcn.h>
 #include <dirent.h>
 
+#include <execinfo.h>
+
 #include "../headers/plugin_handler.h"
 #include "../headers/irc.h"
 #include "../headers/server.h"
@@ -173,7 +175,7 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, int priority, plugin
     {
         printf("cb_name is null!\n");
         return -1;
-    }
+    } 
     if (cb_func == NULL)
     {
         printf("cb_func is null!\n");
@@ -187,7 +189,6 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, int priority, plugin
     callback **new_list = NULL;
 
     new_list = realloc(pluginptr->callback_list, (pluginptr->callback_count + 1) * sizeof(callback));
-    //pluginptr->callback_list = realloc(pluginptr->callback_list, (pluginptr->callback_count + 1) * sizeof(callback));
     if (!new_list)
     {
         printf("Failed to realloc new_list (%s)\n", __PRETTY_FUNCTION__);
@@ -246,7 +247,6 @@ int index_callback(callback *callback_ptr)
     char *cb_name = callback_ptr->cb_name;
     int index_point = is_callback_indexed(cb_name);
 
-
     if (index_point >= 0)
     {
         int callbacks_count = index_list[index_point]->cb_count;
@@ -259,7 +259,7 @@ int index_callback(callback *callback_ptr)
 
         if (!callbacks)
         {
-            printf("Failed to realloc callback_list(%s)!\n", __PRETTY_FUNCTION__);
+            printf("Failed to alloc callback_list(%s)!\n", __PRETTY_FUNCTION__);
             exit(EXIT_SUCCESS);
         }
         callbacks[callbacks_count] = callback_ptr;
@@ -295,18 +295,41 @@ int index_callback(callback *callback_ptr)
 
         index_list[index_count] = new_index;
         index_count++;
-
     }
-
     return 1;
 }
 
+/*
+void print_backtrace()
+{
+    int nptrs;
+    #define SIZE 100
+    void *buffers[100];
+    char **strings;
+
+    nptrs = backtrace(buffers, SIZE);
+    strings = backtrace_symbols(buffers, nptrs);
+
+    for (int i = 0; i < nptrs; i++)
+        printf("%s\n", strings[i]);
+    free(strings);
+
+    return;
+}*/
 
 void execute_callbacks(char *cb_name, void **args, int argc)
 {
     //printf("cb_name: %s\n", cb_name);
     int index_point = is_callback_indexed(cb_name);
+
+    if (index_point == -1)
+    {
+        printf("no such a callback!(%s)\n", cb_name);
+        return;
+    }
     int cb_count = index_list[index_point]->cb_count;
+
+    //print_backtrace();
 
     for (int i = 0; i < cb_count; i++)
     {
@@ -323,9 +346,6 @@ void execute_callbacks(char *cb_name, void **args, int argc)
 
             else if (res == BCIRC_PLUGIN_BREAK)
                 break;
-
-            else if (res == BCIRC_PLUGIN_CONTINUE)
-                continue;
         }
     }
     return;
