@@ -15,9 +15,15 @@
 
 int server_connect(server *srv)
 {
+	pthread_mutex_lock(&srv->mutex);
 	int *s = &srv->s;
 	if (s == NULL)
+	{
+		pthread_mutex_unlock(&srv->mutex);
         return -1;
+	}
+	pthread_mutex_unlock(&srv->mutex);
+
 	struct addrinfo hints, *res;
 
 	memset(&hints, 0, sizeof hints);
@@ -25,6 +31,7 @@ int server_connect(server *srv)
 	hints.ai_socktype = SOCK_STREAM;
 
 	getaddrinfo(srv->host, srv->port, &hints, &res);
+	pthread_mutex_lock(&srv->mutex);
 	*s = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (*s == -1)
 		return -2;
@@ -33,6 +40,8 @@ int server_connect(server *srv)
         return -3;
 
 	srv->motd_sent = 0;
+	pthread_mutex_unlock(&srv->mutex);
+
 
     void **cb_params = malloc( sizeof(void*) );
     cb_params[0] = (void*) srv;
@@ -46,12 +55,16 @@ int server_connect(server *srv)
 
 int server_disconnect(server *srv)
 {
-    void **cb_params = malloc( sizeof(server) );
+	pthread_mutex_lock(&srv->mutex);
+	int close_res = close(srv->s);
+	pthread_mutex_unlock(&srv->mutex);
+
+	void **cb_params = malloc( sizeof(server) );
     cb_params[0] = srv;
     execute_callbacks( CALLBACK_SERVER_DISCONNECTED, cb_params, 1 );
 	free(cb_params);
 
-	return close(srv->s);
+	return close_res;
 }
 
 
@@ -60,14 +73,17 @@ int server_disconnect(server *srv)
 */
 int server_send(char *buf, server *srv)
 {
-	static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
-	pthread_mutex_unlock(&mutex);
+	pthread_mutex_lock(&srv->mutex);
     int res = send(srv->s, buf, strlen(buf), 0);
+	pthread_mutex_unlock(&srv->mutex);
+
     if (res <= 0)
         return res;
+
+	pthread_mutex_lock(&srv->mutex);
     srv->sent_len += res;
-	pthread_mutex_lock(&mutex);
+	pthread_mutex_unlock(&srv->mutex);
+
     return res;
 }
 
@@ -78,9 +94,13 @@ int server_send(char *buf, server *srv)
 */
 int server_recv(char *buf, server *srv)
 {
+
 	char tmpbuf[1024];
-	char *new_buf = NULL;
+
+	pthread_mutex_unlock(&srv->mutex);
 	int res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
+	pthread_mutex_unlock(&srv->mutex);
+
 	tmpbuf[res] = '\0';
 
 	if (res <= 0)
@@ -93,13 +113,14 @@ int server_recv(char *buf, server *srv)
 		buf = malloc((strlen(tmpbuf) + 1) * sizeof(char));
 	else
 	{
-		free(buf);
-		new_buf = realloc(buf, (strlen(tmpbuf) + 1) * sizeof(char));
-		buf = new_buf;
+		buf = realloc(buf, (strlen(tmpbuf) + 1) * sizeof(char));
 	}
 
 	strcpy(buf, tmpbuf);
+
+	pthread_mutex_lock(&srv->mutex);
 	srv->recvd_len += res;
+	pthread_mutex_unlock(&srv->mutex);
 
 	char *save;
 	char *line;
@@ -125,7 +146,10 @@ int server_recv(char *buf, server *srv)
 
 void server_set_timeout(time_t sec, time_t usec, server *srv)
 {
+	pthread_mutex_lock(&srv->mutex);
 	srv->tv->tv_sec = sec;
 	srv->tv->tv_usec = usec;
+	pthread_mutex_unlock(&srv->mutex);
+
 	return;
 }
