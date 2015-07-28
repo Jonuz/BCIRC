@@ -40,8 +40,8 @@ Params:
 #define CALLBACK_SERVER_RECV "server_recv"
 /*
 Params:
-    char *buffer
     server *srv
+    char *buffer
 */
 
 
@@ -56,24 +56,32 @@ Params:
 
 
 
-#define CHANNEL_JOINED "channel_joined"
+#define CALLBACK_CHANNEL_JOIN "channel_joined"
 /*
     Params:
         channel *
-        user *
 
-        Callback to call after someone joined to channel.
 */
 
 
-#define CHANNEL_PART "channel_part"
+#define CALLBACK_CHANNEL_PART "channel_part"
 /*
     Params:
         channel *
+        char *nick
+        char *hostmask
         char *reason
 
-        Callback to call after someone parted from channel.
-
 */
+
+#define CALLBACK_CHANNEL_KICK "channel_kick"
+/*
+    Params:
+        channel *
+        char *nick
+        char *hostmask
+        char *reason
+*/
+
 
 #endif

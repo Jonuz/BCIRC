@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 #include <stdbool.h>
+#include <pthread.h>
 #include <sys/types.h>
 
 
@@ -22,6 +23,8 @@ typedef struct {
 
 	time_t timeout_sec;
 	time_t timeout_usec;
+
+	pthread_mutex_t mutex;
 
 	struct timeval *tv;
 

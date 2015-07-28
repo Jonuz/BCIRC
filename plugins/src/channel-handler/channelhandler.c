@@ -19,10 +19,14 @@ int get_channel_title(channel *chan, char *buffer);
 int get_channel_title_info(channel *chan, char *buffer);
 int get_channel_users(channel *chan, char *buffer);
 
+int remove_user(void **params, int argc);
+
 
 int plugin_init(plugin *pluginptr)
 {
     register_callback(CALLBACK_GOT_NUMERIC, get_channel_info, 10, pluginptr);
+    register_callback(CALLBACK_CHANNEL_KICK, remove_user, 10, pluginptr);
+    register_callback(CALLBACK_CHANNEL_PART, remove_user, 10, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
@@ -94,16 +98,19 @@ int get_channel_info(void **params, int argcv)
             break;
     }
 
-    return BCIRC_PLUGIN_OK;
+    return BCIRC_PLUGIN_FAIL ;
 }
 
 int joinded_channel(channel *chan, char *buffer)
 {
 
     printf("\nJoined to channel %s\n", chan->name);
-    printf("Channel topic: %s\n", chan->topic);
-    printf("Topic created %d by %s\n", chan->topic_created_time, chan->topic_creator);
-    printf("Channel users: %s\n\n", chan->users);
+    if (chan->topic)
+        printf("Channel topic: %s\n", chan->topic);
+    if (chan->topic_created_time)
+        printf("Topic created %d by %s\n", chan->topic_created_time, chan->topic_creator);
+    if (chan->users)
+        printf("Channel users: %s\n\n", chan->users);
 
     return BCIRC_PLUGIN_OK;
 }
@@ -182,11 +189,47 @@ int get_channel_users(channel *chan, char *buffer)
     char *users = memchr(buffer + 1, ':', strlen(buffer));
     *users++;
 
-    size_t users_len = strlen(users);
+    size_t users_len = strlen(users) + strlen(chan->users);
 
     chan->users = realloc(chan->users, (users_len + 1) * sizeof(char));
-    strcpy(chan->users, users);
+    strcat(chan->users, users);
 
+    return BCIRC_PLUGIN_OK;
+}
+
+int remove_user(void **params, int arcv)
+{
+    channel *chan = params[0];
+    char *nick = params[1];
+
+    if ((!chan) || (!nick))
+        return BCIRC_PLUGIN_BREAK;
+
+    char *new_users = NULL;
+
+    char *token, *save;
+
+    token = strtok_r(chan->users, " ", &save);
+
+    while (token != NULL)
+    {
+        if (strcmp(token, nick) == 0)
+            continue;
+
+        size_t new_size = (strlen(new_users) + strlen(token) + 2) * sizeof(char);
+        new_users = realloc(new_users, new_size);
+        if (new_users == NULL)
+        {
+            printf("failed to realloc new_users at %s\n", __PRETTY_FUNCTION__);
+            exit(EXIT_FAILURE);
+        }
+        strcat(new_users, " ");
+        strcat(new_users, token);
+
+        token = strtok_r(NULL; " ", &save);
+    }
+    free(chan->users);
+    chan->users = new_users;
 
     return BCIRC_PLUGIN_OK;
 }

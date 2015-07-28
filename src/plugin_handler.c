@@ -175,7 +175,7 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, int priority, plugin
     {
         printf("cb_name is null!\n");
         return -1;
-    } 
+    }
     if (cb_func == NULL)
     {
         printf("cb_func is null!\n");
@@ -238,7 +238,7 @@ int compare_index (const void *a, const void *b)
 
     //printf("cb1: %d\n", (int*) cb1->priority);
 
-    return (cb1->priority) < (cb2->priority);
+    return (cb1->priority) > (cb2->priority);
 
 }
 

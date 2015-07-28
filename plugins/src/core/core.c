@@ -102,8 +102,8 @@ int handle_registeration(void **params, int argc)
     server *srv = (server*) params[0];
 
     char password_msg[] = "PASS passu\r\n";
-    char username_msg[] = "USER quest dsd Tositestimies :Tosimies\r\n";
-    char nickname_msg[] = "NICK tosibotti2\r\n";
+    char username_msg[] = "USER Tosibotti 8 * :https://github.com/Jonuz/BCIRC\r\n";
+    char nickname_msg[] = "NICK Tosibotti\r\n";
 
 
     server_send(password_msg, srv);
