@@ -82,8 +82,8 @@ int get_channel_info(void **params, int argcv)
 
     switch(*numeric)
     {
-        case RPL_ENDOFNAMES:
-            return joinded_channel(this_channel, buffer);
+        //case RPL_ENDOFNAMES:
+        //    return joinded_channel(this_channel, buffer);
 
         case RPL_TOPIC:
             return get_channel_title(this_channel, buffer);
@@ -189,7 +189,9 @@ int get_channel_users(channel *chan, char *buffer)
     char *users = memchr(buffer + 1, ':', strlen(buffer));
     *users++;
 
-    size_t users_len = strlen(users) + strlen(chan->users);
+    size_t users_len = strlen(users);
+    if (chan->users)
+        users_len += strlen(chan->users);
 
     chan->users = realloc(chan->users, (users_len + 1) * sizeof(char));
     strcat(chan->users, users);
@@ -226,7 +228,7 @@ int remove_user(void **params, int arcv)
         strcat(new_users, " ");
         strcat(new_users, token);
 
-        token = strtok_r(NULL; " ", &save);
+        token = strtok_r(NULL, " ", &save);
     }
     free(chan->users);
     chan->users = new_users;

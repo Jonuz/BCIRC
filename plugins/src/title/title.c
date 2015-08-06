@@ -27,32 +27,9 @@ server *srv_save = NULL;
 char target_save[100];
 char nick_save[100];
 
-
-regex_t regex;
-int reti;
-regmatch_t matches[1];
-
-int comp_regex()
-{
-    static int compiled = 0;
-    if (compiled == 0)
-    {
-        reti = regcomp(&regex, "https?:\/\/[^\ ]+", REG_EXTENDED);
-        if (reti != 0)
-        {
-            printf("Failed to compile regex!\n");
-            regfree(&regex);
-            return BCIRC_PLUGIN_FAIL;
-        }
-        compiled = 1;
-    }
-}
-
-
 int plugin_init(plugin *pluginptr)
 {
     register_callback(CALLBACK_GOT_PRIVMSG, check_for_url, 0, pluginptr);
-    comp_regex();
 
     return BCIRC_PLUGIN_OK;
 }
@@ -76,10 +53,24 @@ int check_for_url(void **params, int argv)
 
     puts("Check for url called!");
 
-    reti = regexec(&regex, msg, 1, matches, 0);
-    if (reti != 0)
-        return BCIRC_PLUGIN_CONTINUE;
+    regex_t regex;
+    int reti;
+    regmatch_t matches[1];
 
+    reti = regcomp(&regex, "https?:\/\/[^\ ]+", REG_EXTENDED);
+    if (reti != 0)
+    {
+        printf("Failed to compile regex!\n");
+        regfree(&regex);
+        return BCIRC_PLUGIN_FAIL;
+    }
+
+    reti = regexec(&regex, msg, 1, matches, 0);
+    regfree(&regex);
+    if (reti != 0)
+    {
+        return BCIRC_PLUGIN_CONTINUE;
+    }
 
     size_t len = matches[0].rm_eo - matches[0].rm_so + 1;
     char *url = malloc((len + 1) * sizeof(char));
@@ -116,7 +107,7 @@ int http_request(char *url, server *srv)
         }
 
         curl_easy_setopt(curl, CURLOPT_URL, url);
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 4);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, curl);
@@ -125,7 +116,7 @@ int http_request(char *url, server *srv)
 
         if (res != CURLE_OK)
         {
-            //printf("curl failed: %s\n", curl_easy_strerror(res));
+            printf("curl failed: %s\n", curl_easy_strerror(res));
             curl_easy_cleanup(curl);
             curl_global_cleanup();
 
@@ -159,10 +150,10 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     }
 
     reti = regexec(&regex, response, 1, matches, 0);
+    regfree(&regex);
     if (reti != 0)
     {
         free(response);
-        regfree(&regex);
         return size * nmemb;
     }
 
@@ -200,7 +191,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     decode_html_entities_utf8(title, new_title);
     free(new_title);
 
-    char *unwanted_chars =  "\r\n\t\t ";
+    char *unwanted_chars =  "\r\n\t\a\b\f\r\v ";
 
     int remove_front = 0;
     int remove_back = 0;
