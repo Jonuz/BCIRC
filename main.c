@@ -12,7 +12,7 @@ irc_base base_client;
 server server_info;
 channel channel_info;
 
-char host[] = "127.0.0.1";
+char host[] = "dreamhack.se.quakenet.org";
 char port[] = "6667";
 int res;
 

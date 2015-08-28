@@ -189,11 +189,17 @@ int get_channel_users(channel *chan, char *buffer)
     char *users = memchr(buffer + 1, ':', strlen(buffer));
     *users++;
 
+    //users[strlen(users)] = '\0';
+
     size_t users_len = strlen(users);
     if (chan->users)
         users_len += strlen(chan->users);
 
-    chan->users = realloc(chan->users, (users_len + 1) * sizeof(char));
+    if (chan->users)
+        chan->users = realloc(chan->users, (users_len + 1) * sizeof(char));
+    else
+        chan->users = malloc((users_len + 1) * sizeof(char));
+
     strcat(chan->users, users);
 
     return BCIRC_PLUGIN_OK;
