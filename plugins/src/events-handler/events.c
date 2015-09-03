@@ -27,9 +27,9 @@ bool is_fulldigit(char *str)
 
 int plugin_init(plugin *pluginptr)
 {
-    register_callback(CALLBACK_SERVER_RECV, get_privmsg, 20, pluginptr);
-    register_callback(CALLBACK_SERVER_RECV, get_numeric, 20, pluginptr);
-    register_callback(CALLBACK_SERVER_RECV, get_chan_event, 15, pluginptr);
+    register_callback(CALLBACK_SERVER_RECV, get_privmsg, 5, pluginptr);
+    register_callback(CALLBACK_SERVER_RECV, get_numeric, 5, pluginptr);
+    register_callback(CALLBACK_SERVER_RECV, get_chan_event, 5, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
@@ -250,11 +250,11 @@ int get_chan_event(void **params, int argv)
         execute_callbacks(CALLBACK_CHANNEL_PART, params, 4);
 
 
-    free(str);
-    free(params2);
-    free(nick);
-    free(hostmask);
-    free(reason);
+   // free(str);
+   // free(params2);
+   // free(nick);
+   // free(hostmask);
+   // free(reason);
 
     return BCIRC_PLUGIN_OK;
 }

@@ -178,6 +178,7 @@ int get_channel_title_info(channel *chan, char *buffer)
 }
 
 
+
 int get_channel_users(channel *chan, char *buffer)
 {
     if (!buffer)
@@ -186,19 +187,25 @@ int get_channel_users(channel *chan, char *buffer)
         return BCIRC_PLUGIN_OK;
     }
 
-    char *users = memchr(buffer + 1, ':', strlen(buffer));
-    *users++;
 
-    //users[strlen(users)] = '\0';
+	char *users = NULL;
+	size_t users_len = 0;
 
-    size_t users_len = strlen(users);
-    if (chan->users)
-        users_len += strlen(chan->users);
+	users = strstr(buffer+1, ":");
+	users++;
 
-    if (chan->users)
-        chan->users = realloc(chan->users, (users_len + 1) * sizeof(char));
-    else
-        chan->users = malloc((users_len + 1) * sizeof(char));
+	printf("user_start: %s\n", users);
+
+	if (chan->users)
+		chan->users = realloc(chan->users, (strlen(chan->users) +  strlen(users) + 1) * sizeof(char));
+	else
+		chan->users = malloc((strlen(users) + 1) * sizeof(char));
+
+	if (!chan->users)
+	{
+		printf("Failed to realloc chan->users(%s)\n", __PRETTY_FUNCTION__);
+		exit(EXIT_FAILURE);
+	}
 
     strcat(chan->users, users);
 

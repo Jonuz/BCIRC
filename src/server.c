@@ -97,7 +97,7 @@ int server_recv(char *buf, server *srv)
 
 	char tmpbuf[1024];
 
-	pthread_mutex_unlock(&srv->mutex);
+	pthread_mutex_lock(&srv->mutex);
 	int res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
 	pthread_mutex_unlock(&srv->mutex);
 

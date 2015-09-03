@@ -29,7 +29,7 @@ char nick_save[100];
 
 int plugin_init(plugin *pluginptr)
 {
-    register_callback(CALLBACK_GOT_PRIVMSG, check_for_url, 0, pluginptr);
+    register_callback(CALLBACK_GOT_PRIVMSG, check_for_url, 10, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
