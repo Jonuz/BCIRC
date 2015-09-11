@@ -11,23 +11,44 @@ char plugin_author[] = "Joona";
 
 int on_server_send(void **paramams, int argc);
 int on_connect(void **params, int argc);
-int test(void **params, int argc);
 
+int on_privmsg(void **params, int argc);
+
+int on_join(void **params, int argc);
+int on_part(void **params, int argc);
+int on kick(void **params, int argc);
 
 int plugin_init(plugin *pluginptr)
 {
     register_callback( CALLBACK_SERVER_CONNECTED, on_connect, 20, pluginptr);
-    register_callback( CALLBACK_SERVER_RECV, on_server_send, 3, pluginptr );
+	register_callback( CALLBACK_GOT_PRIVMSG, on_privmsg, 20, pluginptr);
+
+	register_callback (CALLBACK_CHANNEL_JOIN, on join, 20, pluginptr);
+	register_callback (CALLBACK_CHANNEL_PART, on part, 20, pluginptr);
+	register_callback (CALLBACK_CHANNEL_KICK, on kick, 20, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
 
+
+int on_privmsg(void **params, int argc)
+{
+
+	char *nick = params[1];
+	char *target = params[3];
+	char *msg = params[4];
+
+	printf("%s <%s>: %s\n", target, nick, msg);
+
+	return BCIRC_PLUGIN_OK;
+}
 
 int on_connect(void **params, int argc)
 {
     printf("on_connect..\n");
     server *srv = (server*) params[0];
     printf("Connected to %s:%s\n", srv->host, srv->port);
+
     return BCIRC_PLUGIN_OK;
 }
 
@@ -42,4 +63,13 @@ int on_server_send(void **paramams, int argc)
     printf("%s\n", buf);
 
     return BCIRC_PLUGIN_OK;
+}
+
+
+int on_join(void **params, int argc);
+{
+
+	
+
+	return BCIRC_PLUGIN_OK;
 }
