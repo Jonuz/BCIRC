@@ -14,6 +14,8 @@ char plugin_version[] = "0.1";
 
 int get_channel_info(void **params, int argcv);
 
+int get_channel_event(void **params, int argc);
+
 int joinded_channel(channel *chan, char *buffer);
 int get_channel_title(channel *chan, char *buffer);
 int get_channel_title_info(channel *chan, char *buffer);
@@ -36,12 +38,13 @@ int plugin_init(plugin *pluginptr)
 
 int get_channel_event(void **params, int argc)
 {
-	char *str = malloc(strlen(argc[0] + 1) * sizeof(char));
+
+	char *str = malloc(strlen( (char*) params[0] + 1) * sizeof(char));
 	strcpy(str, params[0]);
 	server *srv = params[1];
 
 	char *event, *channel_str, *reason, *nick;
-	channel channel_ptr = NULL;
+	channel *channel_ptr = NULL;
 
 	char *token, *save;
 	event = strtok_r(str, " ", &save);
@@ -50,8 +53,12 @@ int get_channel_event(void **params, int argc)
 
 	channel_ptr = get_channel(channel_str, srv);
 
-	void **params = malloc(4 * sizeof(void*));
-	params[0] = channel_ptr;
+	void **params2 = malloc(4 * sizeof(void*));
+	params2[0] = channel_ptr;
+
+
+	free(params2);
+	free(str);
 
 	return BCIRC_PLUGIN_OK;
 }
