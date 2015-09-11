@@ -10,10 +10,13 @@
 
 typedef struct
 {
-	struct channel **channels_info;
-	struct server *server_info;
+	char *nick;
+	char *hostmask;
 
-} irc_base;
+	server *srv;
+} user;
+
+user *get_user(char *str, server *srv);
 
 int add_to_privmsg_queue(char *msg, char *target, server *srv, const int drop);
 void *handle_privmsg_queue();

@@ -33,7 +33,8 @@ channel *create_channel(char *chan_name, server *srv)
     new_channel->topic = NULL;
     new_channel->topic_creator = NULL;
     new_channel->topic_created_time = 0;
-    //new_channel->mutex = PTHREAD_MUTEX_INITIALIZER;
+
+	pthread_mutex_init(&new_channel->mutex, NULL);
 
     pthread_mutex_lock(&channel_global_mutex);
     channel **new_channel_list = realloc(channel_list, (channel_count + 1) * sizeof(channel*) );

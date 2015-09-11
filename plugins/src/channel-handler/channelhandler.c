@@ -24,12 +24,38 @@ int remove_user(void **params, int argc);
 
 int plugin_init(plugin *pluginptr)
 {
+	register_callback(CALLBACK_SERVER_RECV, get_channel_event, 5, pluginptr); //Takes care of parts, joins and kicks
+
     register_callback(CALLBACK_GOT_NUMERIC, get_channel_info, 10, pluginptr);
     register_callback(CALLBACK_CHANNEL_KICK, remove_user, 10, pluginptr);
     register_callback(CALLBACK_CHANNEL_PART, remove_user, 10, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
+
+
+int get_channel_event(void **params, int argc)
+{
+	char *str = malloc(strlen(argc[0] + 1) * sizeof(char));
+	strcpy(str, params[0]);
+	server *srv = params[1];
+
+	char *event, *channel_str, *reason, *nick;
+	channel channel_ptr = NULL;
+
+	char *token, *save;
+	event = strtok_r(str, " ", &save);
+	channel_str = strtok_r(NULL, " ", &save);
+	reason = save;
+
+	channel_ptr = get_channel(channel_str, srv);
+
+	void **params = malloc(4 * sizeof(void*));
+	params[0] = channel_ptr;
+
+	return BCIRC_PLUGIN_OK;
+}
+
 
 int get_channel_info(void **params, int argcv)
 {
@@ -104,7 +130,7 @@ int get_channel_info(void **params, int argcv)
 int joinded_channel(channel *chan, char *buffer)
 {
 
-    printf("\nJoined to channel %s\n", chan->name);
+    //printf("\nJoined to channel %s\n", chan->name);
     if (chan->topic)
         printf("Channel topic: %s\n", chan->topic);
     if (chan->topic_created_time)
@@ -132,7 +158,7 @@ int get_channel_title(channel *chan, char *buffer)
     chan->topic = malloc((title_len + 1) * sizeof(char));
 
     memmove(chan->topic, title_start+1, title_len);
-    printf("%s\n", chan->topic);
+   // printf("%s\n", chan->topic);
 
     return BCIRC_PLUGIN_OK;
 }
@@ -194,7 +220,7 @@ int get_channel_users(channel *chan, char *buffer)
 	users = strstr(buffer+1, ":");
 	users++;
 
-	printf("user_start: %s\n", users);
+	//printf("user_start: %s\n", users);
 
 	if (chan->users)
 		chan->users = realloc(chan->users, (strlen(chan->users) +  strlen(users) + 1) * sizeof(char));
