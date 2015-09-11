@@ -8,9 +8,9 @@
 #include "./headers/channel.h"
 #include "./headers/plugin_handler.h"
 
-irc_base base_client;
-server server_info;
-channel channel_info;
+
+pthread_t **server_threads;
+int server_count;
 
 char host[] = "dreamhack.se.quakenet.org";
 char port[] = "6667";
@@ -18,11 +18,15 @@ int res;
 
 int main()
 {
-    server_info.host = malloc(strlen(host) + 1 * sizeof(char));
-    server_info.port = malloc(strlen(port) + 1 * sizeof(char));
+	server *srv = malloc(sizeof(server));
 
-    strcpy(server_info.host, host);
-    strcpy(server_info.port, port);
+    srv->host = malloc(strlen(host) + 1 * sizeof(char));
+    srv->port = malloc(strlen(port) + 1 * sizeof(char));
+
+	pthread_mutex_init(&srv->mutex, NULL);
+
+    strcpy(srv->host, host);
+    strcpy(srv->port, port);
 
     plugin_list = malloc(sizeof(plugin*));
     init_index();
@@ -36,19 +40,25 @@ int main()
     get_plugins(plugin_dir);
 
     int res;
-    if ( (res = server_connect(&server_info) ) != 1)
+    if ( (res = server_connect(srv) ) != 1)
     {
-        printf("Cant connect to %s\n", server_info.host);
+        printf("Cant connect to %s\n", srv->host);
         exit(EXIT_SUCCESS);
     }
 
-    char *buffer = NULL;
+	add_to_serverpool(srv);
+
+	while(1)
+	{}
+
+
+/*    char *buffer = NULL;
     while(server_recv(buffer, &server_info) >= 1)
     {
         if (buffer)
             free(buffer);
     }
-
+*/
     puts("Connection closed");
 
 	return 0;

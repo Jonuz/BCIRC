@@ -13,6 +13,10 @@
 #include "../headers/callback_defines.h"
 
 
+pthread_t **server_threads;
+int thread_count;
+
+
 int server_connect(server *srv)
 {
 	pthread_mutex_lock(&srv->mutex);
@@ -49,6 +53,7 @@ int server_connect(server *srv)
 	free(cb_params);
 
 	freeaddrinfo(res);
+
 
 	return 1;
 }
@@ -92,10 +97,13 @@ int server_send(char *buf, server *srv)
  todo:
 	timout handling
 */
-int server_recv(char *buf, server *srv)
+void *server_recv(void *srv_void)
 {
 
 	char tmpbuf[1024];
+	char *buf = NULL;
+
+	server *srv = (server*) srv_void;
 
 	pthread_mutex_lock(&srv->mutex);
 	int res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
@@ -106,7 +114,7 @@ int server_recv(char *buf, server *srv)
 	if (res <= 0)
 	{
 		server_disconnect(srv);
-		return res;
+		return NULL;
 	}
 
 	if (!buf)
@@ -139,9 +147,26 @@ int server_recv(char *buf, server *srv)
 
 		line = strtok_r(NULL, "\r\n", &save);
   	}
-	return res;
+	return server_recv(srv);
 }
 
+
+int add_to_serverpool(server *srv)
+{
+	if (!srv)
+		printf("srv is null!\n");
+
+	int ret = pthread_create(&srv->thread, NULL, server_recv, (void*) srv);
+
+	if (ret)
+	{
+		printf("pthread_create failed, %d\n", ret);
+		return -2;
+	}
+	pthread_detach(srv->thread);
+
+	return 1;
+}
 
 
 void server_set_timeout(time_t sec, time_t usec, server *srv)
