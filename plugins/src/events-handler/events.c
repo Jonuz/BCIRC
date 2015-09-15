@@ -27,9 +27,9 @@ bool is_fulldigit(char *str)
 
 int plugin_init(plugin *pluginptr)
 {
-    register_callback(CALLBACK_SERVER_RECV, get_privmsg, 5, pluginptr);
-    register_callback(CALLBACK_SERVER_RECV, get_numeric, 5, pluginptr);
-    register_callback(CALLBACK_SERVER_RECV, get_chan_event, 5, pluginptr);
+    register_callback(CALLBACK_SERVER_RECV, get_privmsg, 3, pluginptr);
+    register_callback(CALLBACK_SERVER_RECV, get_numeric, 3, pluginptr);
+    register_callback(CALLBACK_SERVER_RECV, get_chan_event, 3, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
@@ -37,7 +37,6 @@ int plugin_init(plugin *pluginptr)
 
 int get_privmsg(void **params, int argc)
 {
-
     char *srv = params[0];
     char buf[strlen(params[1])];
     strcpy(buf, params[1]);
@@ -94,8 +93,6 @@ int get_privmsg(void **params, int argc)
     char *msg = malloc((msg_len + 1) * sizeof(char) );
     strncpy(msg, save+1, msg_len);
     msg[msg_len] = '\0';
-
-    printf("msg: %s\n", (char*) msg);
 
     void **new_params = malloc(sizeof(void*) * 5);
 
@@ -173,6 +170,9 @@ int get_chan_event(void **params, int argv)
     server *srv = params[0];
     char *buffer = params[1];
 
+    if (srv->motd_sent == 0)
+        return 0;
+
     char *str = malloc((strlen(buffer) + 1) * sizeof(char));
     strcpy(str, buffer);
 
@@ -218,22 +218,24 @@ int get_chan_event(void **params, int argv)
             memmove(hostmask, buffer + nick_len + 2, mask_len);
             hostmask[mask_len] = '\0';
 
-            printf("nick: %s\n", nick);
-            printf("mask: %s\n", hostmask);
+            //printf("nick: %s\n", nick);
+            //printf("mask: %s\n", hostmask);
 
         }
         if (i == 2)
-            chan = get_channel(token+1, srv);
+            chan = get_channel(token, srv);
 
         if (i == 3)
         {
-            reason = malloc((strlen(token) + 1) * sizeof(char));
-            memmove(reason, token+1, strlen(token));
-            reason[strlen(token)] = '\0';
+            reason = malloc(( strlen(token) + strlen(save) + 1) * sizeof(char));
+            strcpy(reason, token+1);
+            strcat(reason, save);
+
             break;
         }
         token = strtok_r(NULL, " ", &save);
     }
+
 
     void **params2 = malloc(4 * sizeof(void*));
     params2[0] = chan;
@@ -243,18 +245,17 @@ int get_chan_event(void **params, int argv)
 
 
     if (event_type == CHAN_JOIN)
-        execute_callbacks(CALLBACK_CHANNEL_JOIN, params, 4);
+        execute_callbacks(CALLBACK_CHANNEL_JOIN, params2, 4);
     else if (event_type == CHAN_KICK)
-        execute_callbacks(CALLBACK_CHANNEL_KICK, params, 4);
+        execute_callbacks(CALLBACK_CHANNEL_KICK, params2, 4);
     else if (event_type == CHAN_PART)
-        execute_callbacks(CALLBACK_CHANNEL_PART, params, 4);
+        execute_callbacks(CALLBACK_CHANNEL_PART, params2, 4);
 
-
-   // free(str);
-   // free(params2);
-   // free(nick);
-   // free(hostmask);
-   // free(reason);
+    free(str);
+    free(params2);
+    free(nick);
+    free(hostmask);
+    free(reason);
 
     return BCIRC_PLUGIN_OK;
 }

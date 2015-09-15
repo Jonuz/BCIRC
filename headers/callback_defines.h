@@ -53,14 +53,12 @@ Params:
 */
 
 
-
-
-
-#define CALLBACK_CHANNEL_JOIN "channel_joined"
+#define CALLBACK_CHANNEL_JOIN "channel_join"
 /*
     Params:
         channel *
-
+        char *nick
+        char *hostmask
 */
 
 

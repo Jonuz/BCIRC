@@ -12,12 +12,16 @@
 pthread_t **server_threads;
 int server_count;
 
+int channel_count;
+
 char host[] = "dreamhack.se.quakenet.org";
 char port[] = "6667";
 int res;
 
 int main()
 {
+	channel_count = 0;
+
 	server *srv = malloc(sizeof(server));
 
     srv->host = malloc(strlen(host) + 1 * sizeof(char));

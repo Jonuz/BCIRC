@@ -16,7 +16,6 @@ typedef struct
 	server *srv;
 } user;
 
-user *get_user(char *str, server *srv);
 
 int add_to_privmsg_queue(char *msg, char *target, server *srv, const int drop);
 void *handle_privmsg_queue();

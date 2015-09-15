@@ -51,7 +51,7 @@ int check_for_url(void **params, int argv)
     char *target = params[3];
     char *msg = params[4];
 
-    puts("Check for url called!");
+    //puts("Check for url called!");
 
     regex_t regex;
     int reti;

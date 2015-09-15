@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "../headers/irc.h"
 #include "../headers/numeric.h"
 #include "../headers/server.h"
 #include "../headers/plugin_handler.h"
@@ -14,8 +15,6 @@ char plugin_version[] = "0.1";
 
 int get_channel_info(void **params, int argcv);
 
-int get_channel_event(void **params, int argc);
-
 int joinded_channel(channel *chan, char *buffer);
 int get_channel_title(channel *chan, char *buffer);
 int get_channel_title_info(channel *chan, char *buffer);
@@ -26,41 +25,11 @@ int remove_user(void **params, int argc);
 
 int plugin_init(plugin *pluginptr)
 {
-	register_callback(CALLBACK_SERVER_RECV, get_channel_event, 5, pluginptr); //Takes care of parts, joins and kicks
-
     register_callback(CALLBACK_GOT_NUMERIC, get_channel_info, 10, pluginptr);
     register_callback(CALLBACK_CHANNEL_KICK, remove_user, 10, pluginptr);
     register_callback(CALLBACK_CHANNEL_PART, remove_user, 10, pluginptr);
 
     return BCIRC_PLUGIN_OK;
-}
-
-
-int get_channel_event(void **params, int argc)
-{
-
-	char *str = malloc(strlen( (char*) params[0] + 1) * sizeof(char));
-	strcpy(str, params[0]);
-	server *srv = params[1];
-
-	char *event, *channel_str, *reason, *nick;
-	channel *channel_ptr = NULL;
-
-	char *token, *save;
-	event = strtok_r(str, " ", &save);
-	channel_str = strtok_r(NULL, " ", &save);
-	reason = save;
-
-	channel_ptr = get_channel(channel_str, srv);
-
-	void **params2 = malloc(4 * sizeof(void*));
-	params2[0] = channel_ptr;
-
-
-	free(params2);
-	free(str);
-
-	return BCIRC_PLUGIN_OK;
 }
 
 
@@ -134,20 +103,6 @@ int get_channel_info(void **params, int argcv)
     return BCIRC_PLUGIN_FAIL ;
 }
 
-int joinded_channel(channel *chan, char *buffer)
-{
-
-    //printf("\nJoined to channel %s\n", chan->name);
-    if (chan->topic)
-        printf("Channel topic: %s\n", chan->topic);
-    if (chan->topic_created_time)
-        printf("Topic created %d by %s\n", chan->topic_created_time, chan->topic_creator);
-    if (chan->users)
-        printf("Channel users: %s\n\n", chan->users);
-
-    return BCIRC_PLUGIN_OK;
-}
-
 
 int get_channel_title(channel *chan, char *buffer)
 {
@@ -157,9 +112,7 @@ int get_channel_title(channel *chan, char *buffer)
         return BCIRC_PLUGIN_OK;
     }
 
-
     char *title_start = memchr(buffer + 1, ':', strlen(buffer));
-
     size_t title_len = strlen(buffer) - strlen(title_start);
 
     chan->topic = malloc((title_len + 1) * sizeof(char));
@@ -206,78 +159,6 @@ int get_channel_title_info(channel *chan, char *buffer)
 
         token = strtok_r(NULL, " ", &save);
     }
-
-    return BCIRC_PLUGIN_OK;
-}
-
-
-
-int get_channel_users(channel *chan, char *buffer)
-{
-    if (!buffer)
-    {
-        puts("buffers is null!");
-        return BCIRC_PLUGIN_OK;
-    }
-
-
-	char *users = NULL;
-	size_t users_len = 0;
-
-	users = strstr(buffer+1, ":");
-	users++;
-
-	//printf("user_start: %s\n", users);
-
-	if (chan->users)
-		chan->users = realloc(chan->users, (strlen(chan->users) +  strlen(users) + 1) * sizeof(char));
-	else
-		chan->users = malloc((strlen(users) + 1) * sizeof(char));
-
-	if (!chan->users)
-	{
-		printf("Failed to realloc chan->users(%s)\n", __PRETTY_FUNCTION__);
-		exit(EXIT_FAILURE);
-	}
-
-    strcat(chan->users, users);
-
-    return BCIRC_PLUGIN_OK;
-}
-
-int remove_user(void **params, int arcv)
-{
-    channel *chan = params[0];
-    char *nick = params[1];
-
-    if ((!chan) || (!nick))
-        return BCIRC_PLUGIN_BREAK;
-
-    char *new_users = NULL;
-
-    char *token, *save;
-
-    token = strtok_r(chan->users, " ", &save);
-
-    while (token != NULL)
-    {
-        if (strcmp(token, nick) == 0)
-            continue;
-
-        size_t new_size = (strlen(new_users) + strlen(token) + 2) * sizeof(char);
-        new_users = realloc(new_users, new_size);
-        if (new_users == NULL)
-        {
-            printf("failed to realloc new_users at %s\n", __PRETTY_FUNCTION__);
-            exit(EXIT_FAILURE);
-        }
-        strcat(new_users, " ");
-        strcat(new_users, token);
-
-        token = strtok_r(NULL, " ", &save);
-    }
-    free(chan->users);
-    chan->users = new_users;
 
     return BCIRC_PLUGIN_OK;
 }

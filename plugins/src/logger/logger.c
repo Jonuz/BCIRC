@@ -23,8 +23,8 @@ int plugin_init(plugin *pluginptr)
     register_callback(CALLBACK_SERVER_CONNECTED, on_connect, 20, pluginptr);
 	register_callback(CALLBACK_GOT_PRIVMSG, on_privmsg, 20, pluginptr);
 
-	//register_callback(CALLBACK_CHANNEL_JOIN, on_join, 20, pluginptr);
-	//register_callback(CALLBACK_CHANNEL_PART, on_part, 20, pluginptr);
+	register_callback(CALLBACK_CHANNEL_JOIN, on_join, 20, pluginptr);
+	register_callback(CALLBACK_CHANNEL_PART, on_part, 20, pluginptr);
 	//register_callback(CALLBACK_CHANNEL_KICK, on_kick, 20, pluginptr);
 
     return BCIRC_PLUGIN_OK;
@@ -68,8 +68,32 @@ int on_server_send(void **paramams, int argc)
 
 int on_join(void **params, int argc)
 {
+    channel *chan = params[0];
+    char *nick = params[1];
 
+    if ((!chan) || (!nick))
+    {
+        puts("wut");
+        return BCIRC_PLUGIN_BREAK;
+    }
 
+    printf("User %s joined channel %s\n", nick, chan->name);
 
 	return BCIRC_PLUGIN_OK;
+}
+
+int on_part(void **params, int argc)
+{
+    channel *chan = params[0];
+    char *nick = params[1];
+
+    if ((!chan) || (!nick))
+    {
+        puts("wut");
+        return BCIRC_PLUGIN_BREAK;
+    }
+
+    printf("User %s left channel %s\n", nick, chan->name);
+
+    return BCIRC_PLUGIN_OK;
 }

@@ -99,7 +99,6 @@ int server_send(char *buf, server *srv)
 */
 void *server_recv(void *srv_void)
 {
-
 	char tmpbuf[1024];
 	char *buf = NULL;
 
@@ -113,7 +112,10 @@ void *server_recv(void *srv_void)
 
 	if (res <= 0)
 	{
+		pthread_mutex_lock(&srv->mutex);
 		server_disconnect(srv);
+		pthread_mutex_unlock(&srv->mutex);
+
 		return NULL;
 	}
 
@@ -154,8 +156,10 @@ void *server_recv(void *srv_void)
 int add_to_serverpool(server *srv)
 {
 	if (!srv)
+	{
 		printf("srv is null!\n");
-
+		return -1;
+	}
 	int ret = pthread_create(&srv->thread, NULL, server_recv, (void*) srv);
 
 	if (ret)

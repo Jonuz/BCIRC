@@ -59,61 +59,115 @@ channel *create_channel(char *chan_name, server *srv)
 
     return new_channel;
 }
-/*
-int remove_channel(channel *channel_ptr)
-{
-    if (!channel_ptr)
-        return -1;
 
-    channel **new_list = NULL;
-    channel *last_chan = NULL;
-
-    size_t new_count = 0;
-
-    for (int i = 0; channel_list[i]->next_channel; i++)
-    {
-        if (channel_list[i] == channel_ptr)
-        {
-            if (realloc(new_list, (new_count + 1) * sizeof(channel*)) == NULL )
-            {
-                printf("realloc() failed at %s\n", __PRETTY_FUNCTION__ );
-                exit(EXIT_FAILURE);
-            }
-            new_list[new_count] = malloc(sizeof(channel));
-
-            new_list[new_count] = channel_list[i];
-            new_list[new_count]->next_channel = NULL;
-
-            last_chan->next_channel = new_list[new_count];
-            last_chan = new_list[new_count];
-
-
-            new_count++;
-        }
-    }
-    return new_count;
-}
-*/
 
 channel *get_channel(char *chan_name, server *srv)
 {
     if (!chan_name)
         return NULL;
 
-    pthread_mutex_lock(&channel_global_mutex);
-    pthread_mutex_lock(&srv->mutex);
-
     for (int i = 0; i < channel_count; i++)
     {
+        pthread_mutex_lock(&channel_global_mutex);
         if ((strcmp(chan_name, channel_list[i]->name) == 0 )
-            && (channel_list[i]->srv == srv))
+            &&
+            (channel_list[i]->srv == srv))
         {
             pthread_mutex_unlock(&channel_global_mutex);
-            pthread_mutex_unlock(&srv->mutex);
             return channel_list[i];
         }
+        pthread_mutex_unlock(&channel_global_mutex);
     }
-    pthread_mutex_unlock(&channel_global_mutex);
-    pthread_mutex_unlock(&srv->mutex);
     return NULL;
+}
+
+int remove_user(void **params, int arcv)
+{
+    channel *chan = params[0];
+    char *nick = params[1];
+
+    if ((!chan) || (!nick))
+        return BCIRC_PLUGIN_BREAK;
+
+    char *new_users = NULL;
+
+    char *token, *save;
+
+    token = strtok_r(chan->users, " ", &save);
+    size_t len = 0;
+
+    while (token != NULL)
+    {
+        if (strcmp(token, nick) == 0)
+        {
+            len += strlen(token);
+            continue;
+        }
+        else
+        {
+            size_t new_len = 0;
+
+            if (chan->users)
+                new_len = strlen(chan->users) -  strlen(token);
+            else
+                new_len = strlen(token);
+
+            if (new_len == 0)
+            {
+                free(chan->users);
+                chan->users = 0;
+                return BCIRC_PLUGIN_OK;
+            }
+
+            size_t second_start = len + 1 + strlen(token);
+            new_users = malloc(new_len * sizeof(char));
+
+
+            strncpy(new_users, chan->users, len);
+            strncat(new_users, chan->users+second_start, strlen(chan->users - second_start));
+
+            printf("new_users: %s\n", new_users);
+
+        }
+
+        token = strtok_r(NULL, " ", &save);
+    }
+    free(chan->users);
+    chan->users = new_users;
+
+    return BCIRC_PLUGIN_OK;
+}
+
+
+int get_channel_users(channel *chan, char *buffer)
+{
+    if (!buffer)
+    {
+        puts("buffers is null!");
+        return BCIRC_PLUGIN_OK;
+    }
+
+
+	char *users = NULL;
+	size_t users_len = 0;
+
+	users = strstr(buffer+1, ":");
+	users++;
+
+	//printf("user_start: %s\n", users);
+
+	if (chan->users)
+		chan->users = realloc(chan->users, (strlen(chan->users) +  strlen(users) + 1) * sizeof(char));
+	else
+		chan->users = malloc((strlen(users) + 1) * sizeof(char));
+
+	if (!chan->users)
+	{
+		printf("Failed to realloc chan->users(%s)\n", __PRETTY_FUNCTION__);
+		exit(EXIT_FAILURE);
+	}
+
+    strcat(chan->users, users);
+
+    return BCIRC_PLUGIN_OK;
 }
