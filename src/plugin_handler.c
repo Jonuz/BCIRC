@@ -265,8 +265,7 @@ int index_callback(callback *callback_ptr)
         callbacks[callbacks_count] = callback_ptr;
         index_list[index_point]->cb_count++;
 
-        if (callbacks_count > 1)
-            qsort(callbacks, callbacks_count + 1, sizeof(callback*), compare_index);
+        qsort(callbacks, callbacks_count + 1, sizeof(callback*), compare_index);
 
         index_list[index_point]->callbacks = callbacks;
 
@@ -276,7 +275,7 @@ int index_callback(callback *callback_ptr)
         callback_index *new_index = malloc(sizeof(callback_index));
         if (!new_index)
         {
-            printf("Failed to realloc new_index(%s)\n", __PRETTY_FUNCTION__);
+            printf("Failed to malloc new_index(%s)\n", __PRETTY_FUNCTION__);
             exit(EXIT_SUCCESS);
         }
 
@@ -317,15 +316,14 @@ void print_backtrace()
     return;
 }*/
 
-void execute_callbacks(char *cb_name, void **args, int argc)
+int execute_callbacks(char *cb_name, void **args, int argc)
 {
-    //printf("cb_name: %s\n", cb_name);
     int index_point = is_callback_indexed(cb_name);
 
     if (index_point == -1)
     {
         printf("no such a callback!(%s)\n", cb_name);
-        return;
+        return BCIRC_PLUGIN_OK;
     }
     int cb_count = index_list[index_point]->cb_count;
 
@@ -345,8 +343,8 @@ void execute_callbacks(char *cb_name, void **args, int argc)
                 remove_plugin(plugin_list[i]);
 
             else if (res == BCIRC_PLUGIN_BREAK)
-                break;
+                return BCIRC_PLUGIN_FAIL;
         }
     }
-    return;
+    return BCIRC_PLUGIN_OK;
 }

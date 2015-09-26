@@ -9,7 +9,7 @@
 #include "../headers/plugin_handler.h"
 #include "../headers/callback_defines.h"
 
-char plugin_name[] = "BCIRC-Core - Channel handler";
+char plugin_name[] = "BCIRC - Channel handler";
 char plugin_author[] = "Joona";
 char plugin_version[] = "0.1";
 

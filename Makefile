@@ -5,13 +5,8 @@ SOURCES = $(wildcard src/*.c) main.c
 HEADERS = $(wildcard include/*.h)
 OBJETCTS = $(*.o)
 
-#TARGET_DIR
 
-#PLUGIN_DIR
-#PLUGINS_SRC
-#PLUGINS_BIN
-
-STATIC = $(PLUGINS_SRC)/libbcirc.a
+STATIC = $(BCIRC_PLUGINS_SRC)/libbcirc.a
 
 default: irc
 
@@ -23,6 +18,6 @@ irc:
 	rm *.o
 
 clean:
-	-rm -f $(PLUGINS_BIN)/*.so
-	-rm -f $(PLUGINS_DIR)/libbcirc.a
-	-rm $(TARGET_DIR)/irc
+	-rm -f $(BCIRC_PLUGINS_BIN)/*.so
+	-rm -f $(BCIRC_PLUGINS_DIR)/libbcirc.a
+	-rm $(BCIRC_TARGET_DIR)/irc

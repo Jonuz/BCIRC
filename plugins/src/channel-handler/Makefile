@@ -1,10 +1,10 @@
 CC = gcc
 CFLAGS = -fPIC -shared -std=gnu11 ../libbcirc.a -g
 SOURCES = $(wildcard *.c)
-TARGET = $(PLUGINS_BIN)/channel.so
+TARGET = $(BCIRC_PLUGINS_BIN)/channel.so
 
 $(TARGET):
-	$(CC) $(SOURCES) $(CFLAGS) -o $@
+	$(CC) $(BCIRC_SOURCES) $(CFLAGS) -o $@
 
 clean:
 	rm -rf ${TARGET}

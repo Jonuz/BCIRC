@@ -79,7 +79,19 @@ int server_disconnect(server *srv)
 int server_send(char *buf, server *srv)
 {
 	pthread_mutex_lock(&srv->mutex);
-    int res = send(srv->s, buf, strlen(buf), 0);
+
+	void **params = malloc(2* sizeof(void*));
+	params[0] = srv;
+	params[1] = buf;
+
+	if (execute_callbacks(CALLBACK_SERVER_SEND, params, 2) != BCIRC_PLUGIN_OK)
+	{
+		free(params);
+		return -2;
+	}
+	free(params);
+
+	int res = send(srv->s, buf, strlen(buf), 0);
 	pthread_mutex_unlock(&srv->mutex);
 
     if (res <= 0)
@@ -88,6 +100,7 @@ int server_send(char *buf, server *srv)
 	pthread_mutex_lock(&srv->mutex);
     srv->sent_len += res;
 	pthread_mutex_unlock(&srv->mutex);
+
 
     return res;
 }
@@ -99,57 +112,61 @@ int server_send(char *buf, server *srv)
 */
 void *server_recv(void *srv_void)
 {
-	char tmpbuf[1024];
+	char tmpbuf[2048];
 	char *buf = NULL;
 
 	server *srv = (server*) srv_void;
 
-	pthread_mutex_lock(&srv->mutex);
-	int res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
-	pthread_mutex_unlock(&srv->mutex);
-
-	tmpbuf[res] = '\0';
-
-	if (res <= 0)
+	if (!srv)
 	{
-		pthread_mutex_lock(&srv->mutex);
-		server_disconnect(srv);
-		pthread_mutex_unlock(&srv->mutex);
-
+		puts("srv is null!");
 		return NULL;
 	}
 
-	if (!buf)
-		buf = malloc((strlen(tmpbuf) + 1) * sizeof(char));
-	else
+	//pthread_mutex_lock(&srv->mutex); 
+
+	int res;
+	while( ( res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0) ) > 0 )
 	{
-		buf = realloc(buf, (strlen(tmpbuf) + 1) * sizeof(char));
+		tmpbuf[res] = '\0';
+
+		if (res <= 0)
+		{
+			server_disconnect(srv);
+
+			return NULL;
+		}
+
+		if (!buf)
+			buf = malloc((strlen(tmpbuf) + 1) * sizeof(char));
+		else
+			buf = realloc(buf, (strlen(tmpbuf) + 1) * sizeof(char));
+
+		strcpy(buf, tmpbuf);
+
+		pthread_mutex_lock(&srv->mutex);
+		srv->recvd_len += res;
+		pthread_mutex_unlock(&srv->mutex);
+
+		char *save;
+		char *line;
+
+		line = strtok_r(buf, "\r\n", &save);
+
+		while (line != NULL)
+		{
+			void **params = malloc(2 * sizeof(void*));
+
+			params[0] = (void*) srv;
+			params[1] = (void*) line;
+
+			execute_callbacks(CALLBACK_SERVER_RECV, params, 2);
+			free(params);
+
+			line = strtok_r(NULL, "\r\n", &save);
+	  	}
 	}
-
-	strcpy(buf, tmpbuf);
-
-	pthread_mutex_lock(&srv->mutex);
-	srv->recvd_len += res;
-	pthread_mutex_unlock(&srv->mutex);
-
-	char *save;
-	char *line;
-
-	line = strtok_r(buf, "\r\n", &save);
-
-	while (line != NULL)
-	{
-		void **params = malloc(2 * sizeof(void*));
-
-		params[0] = (void*) srv;
-		params[1] = (void*) line;
-
-		execute_callbacks(CALLBACK_SERVER_RECV, params, 2);
-		free(params);
-
-		line = strtok_r(NULL, "\r\n", &save);
-  	}
-	return server_recv(srv);
+	return NULL;
 }
 
 

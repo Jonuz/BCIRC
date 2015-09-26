@@ -45,7 +45,7 @@ int got_in(void **params, int argc)
     printf("Connected to %s!\n", srv->host);
     srv->motd_sent = 1;
 
-    join_channel("#tesm", NULL, srv );
+    join_channel("#tesmia", NULL, srv );
 
 
     return BCIRC_PLUGIN_OK;

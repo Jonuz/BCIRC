@@ -35,7 +35,7 @@ int main()
     plugin_list = malloc(sizeof(plugin*));
     init_index();
 
-    char *plugin_dir = getenv("PLUGINS_BIN");
+    char *plugin_dir = getenv("BCIRC_PLUGINS_BIN");
     if (!plugin_dir)
     {
         printf("Enviroment value \"PLUGINS_BIN\" doesnt exixst\n");
@@ -55,14 +55,6 @@ int main()
 	while(1)
 	{}
 
-
-/*    char *buffer = NULL;
-    while(server_recv(buffer, &server_info) >= 1)
-    {
-        if (buffer)
-            free(buffer);
-    }
-*/
     puts("Connection closed");
 
 	return 0;

@@ -6,6 +6,9 @@
 #include "../headers/numeric.h"
 #include "../headers/server.h"
 #include "../headers/channel.h"
+#include "../headers/plugin_handler.h"
+#include "../headers/callback_defines.h"
+
 
 channel **channel_list;
 int channel_count;
