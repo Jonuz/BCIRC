@@ -18,6 +18,13 @@ char host[] = "dreamhack.se.quakenet.org";
 char port[] = "6667";
 int res;
 
+void get_input()
+{
+	char asd[50];
+	fgets(asd, 50, stdin);
+	get_input();
+}
+
 int main()
 {
 	channel_count = 0;
@@ -52,8 +59,7 @@ int main()
 
 	add_to_serverpool(srv);
 
-	while(1)
-	{}
+	get_input();
 
     puts("Connection closed");
 
