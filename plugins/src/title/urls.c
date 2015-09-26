@@ -26,11 +26,9 @@ int get_urls()
     urlstxt = fopen(url_file, "a");
     if (urlstxt == NULL)
     {
-        printf("Failed to open %s\n", urlstxt);
+        printf("Failed to open %s\n", url_file);
         if (urls)
             free(urls);
-        urls = NULL;
-        fclose(urlstxt);
         return 0;
     }
 
