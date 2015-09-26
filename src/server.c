@@ -106,9 +106,50 @@ int server_send(char *buf, server *srv)
 }
 
 
+
 /*
- todo:
-	timout handling
+void server_recv2(server *srv)
+{
+	pthread_mutex_lock(&srv->mutex);
+	res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
+
+	tmpbuf[res] = '\0';
+
+	if (res <= 0)
+	{
+		pthread_mutex_unlock(&srv->mutex);
+		server_disconnect(srv);
+		return NULL;
+	}
+
+	if (!buf)
+		buf = malloc((strlen(tmpbuf) + 1) * sizeof(char));
+	else
+		buf = realloc(buf, (strlen(tmpbuf) + 1) * sizeof(char));
+
+	strcpy(buf, tmpbuf);
+
+	srv->recvd_len += res;
+
+	char *save;
+	char *line;
+
+	line = strtok_r(buf, "\r\n", &save);
+
+	pthread_mutex_unlock(&srv->mutex);
+	while (line != NULL)
+	{
+		void **params = malloc(2 * sizeof(void*));
+
+		params[0] = (void*) srv;
+		params[1] = (void*) line;
+
+		execute_callbacks(CALLBACK_SERVER_RECV, params, 2);
+		free(params);
+
+		line = strtok_r(NULL, "\r\n", &save);
+	  }
+}
 */
 void *server_recv(void *srv_void)
 {
@@ -123,17 +164,38 @@ void *server_recv(void *srv_void)
 		return NULL;
 	}
 
-	//pthread_mutex_lock(&srv->mutex); 
+	struct timeval tv;
+	fd_set readfs;
 
-	int res;
-	while( ( res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0) ) > 0 )
+	int n;
+
+	tv.tv_sec = 0;
+	tv.tv_usec = 2500000;
+
+
+	for (;;)
 	{
+
+		FD_ZERO(&readfs);
+		FD_SET(srv->s, &readfs);
+
+		n = select(srv->s+1, &readfs, NULL, NULL, &tv);
+
+		if (n == 2) //timeout
+		{
+			usleep(10000);
+			continue;
+		}
+		int res;
+		pthread_mutex_lock(&srv->mutex);
+		res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
+		pthread_mutex_unlock(&srv->mutex);
+
 		tmpbuf[res] = '\0';
 
 		if (res <= 0)
 		{
 			server_disconnect(srv);
-
 			return NULL;
 		}
 
@@ -144,15 +206,12 @@ void *server_recv(void *srv_void)
 
 		strcpy(buf, tmpbuf);
 
-		pthread_mutex_lock(&srv->mutex);
 		srv->recvd_len += res;
-		pthread_mutex_unlock(&srv->mutex);
 
 		char *save;
 		char *line;
 
 		line = strtok_r(buf, "\r\n", &save);
-
 		while (line != NULL)
 		{
 			void **params = malloc(2 * sizeof(void*));
@@ -164,10 +223,12 @@ void *server_recv(void *srv_void)
 			free(params);
 
 			line = strtok_r(NULL, "\r\n", &save);
-	  	}
+		  }
 	}
 	return NULL;
 }
+
+
 
 
 int add_to_serverpool(server *srv)
