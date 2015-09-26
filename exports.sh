@@ -1,6 +1,8 @@
 #!/bin/sh
-export TARGET_DIR=$(pwd)
+export BCIRC_TARGET_DIR=$(pwd)
 
-export PLUGIN_DIR=$(pwd)/plugins
-export PLUGINS_SRC=$PLUGIN_DIR/src
-export PLUGINS_BIN=$PLUGIN_DIR/bin
+export BCIRC_BASE_DIR=$(pwd)
+export BCIRC_CONFIG_DIR=$(pwd)/configs
+export BCIRC_PLUGIN_DIR=$(pwd)/plugins
+export BCIRC_PLUGINS_SRC=$BCIRC_PLUGIN_DIR/src
+export BCIRC_PLUGINS_BIN=$BCIRC_PLUGIN_DIR/bin
