@@ -19,6 +19,9 @@ char plugin_version[] = "0.01";
 char plugin_author[] = "Joona";
 
 
+int add_url(void **, int);
+
+
 int check_for_url(void**, int argc);
 int http_request(char *url, server *srv);
 size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream);
@@ -27,9 +30,14 @@ server *srv_save = NULL;
 char target_save[100];
 char nick_save[100];
 
+int has_filter = 0; // 1 if true
+
 int plugin_init(plugin *pluginptr)
 {
-    register_callback(CALLBACK_GOT_PRIVMSG, check_for_url, 10, pluginptr);
+    has_filter = get_urls();
+
+    register_callback(CALLBACK_GOT_PRIVMSG, check_for_url, 20, pluginptr);
+    register_callback(CALLBACK_GOT_PRIVMSG, add_url, 20, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
@@ -82,6 +90,10 @@ int check_for_url(void **params, int argv)
 
     strcpy(target_save, target);
     strcpy(nick_save, nick);
+
+    if (has_filter == 1)
+        if (check_url(url) == 0)
+            return BCIRC_PLUGIN_OK;
 
     http_request(url, srv);
     free(url);
