@@ -28,16 +28,7 @@ void get_input()
 int main()
 {
 	channel_count = 0;
-
-	server *srv = malloc(sizeof(server));
-
-    srv->host = malloc(strlen(host) + 1 * sizeof(char));
-    srv->port = malloc(strlen(port) + 1 * sizeof(char));
-
-	pthread_mutex_init(&srv->mutex, NULL);
-
-    strcpy(srv->host, host);
-    strcpy(srv->port, port);
+	server_count = 0;
 
     plugin_list = malloc(sizeof(plugin*));
     init_index();
@@ -50,18 +41,15 @@ int main()
     }
     get_plugins(plugin_dir);
 
-    int res;
-    if ( (res = server_connect(srv) ) != 1)
-    {
-        printf("Cant connect to %s\n", srv->host);
-        exit(EXIT_SUCCESS);
-    }
+	char *configdir = getenv("BCIRC_CONFIG_DIR");
+	char *serverfile = malloc( (strlen(configdir) + 13 + 1) * sizeof(char) );
 
-	add_to_serverpool(srv);
+	sprintf(serverfile, "%s/servers.conf", configdir);
+	load_servers(serverfile);
+	free(serverfile);
+	
 
 	get_input();
-
-    puts("Connection closed");
 
 	return 0;
 }

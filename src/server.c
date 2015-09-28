@@ -4,6 +4,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <libconfig.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 
@@ -13,8 +14,10 @@
 #include "../headers/callback_defines.h"
 
 
-pthread_t **server_threads;
-int thread_count;
+server **server_list;
+int server_count;
+
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 
 
 int server_connect(server *srv)
@@ -101,56 +104,9 @@ int server_send(char *buf, server *srv)
     srv->sent_len += res;
 	pthread_mutex_unlock(&srv->mutex);
 
-
     return res;
 }
 
-
-
-/*
-void server_recv2(server *srv)
-{
-	pthread_mutex_lock(&srv->mutex);
-	res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
-
-	tmpbuf[res] = '\0';
-
-	if (res <= 0)
-	{
-		pthread_mutex_unlock(&srv->mutex);
-		server_disconnect(srv);
-		return NULL;
-	}
-
-	if (!buf)
-		buf = malloc((strlen(tmpbuf) + 1) * sizeof(char));
-	else
-		buf = realloc(buf, (strlen(tmpbuf) + 1) * sizeof(char));
-
-	strcpy(buf, tmpbuf);
-
-	srv->recvd_len += res;
-
-	char *save;
-	char *line;
-
-	line = strtok_r(buf, "\r\n", &save);
-
-	pthread_mutex_unlock(&srv->mutex);
-	while (line != NULL)
-	{
-		void **params = malloc(2 * sizeof(void*));
-
-		params[0] = (void*) srv;
-		params[1] = (void*) line;
-
-		execute_callbacks(CALLBACK_SERVER_RECV, params, 2);
-		free(params);
-
-		line = strtok_r(NULL, "\r\n", &save);
-	  }
-}
-*/
 void *server_recv(void *srv_void)
 {
 	char tmpbuf[2048];
@@ -170,22 +126,19 @@ void *server_recv(void *srv_void)
 	int n;
 
 	tv.tv_sec = 0;
-	tv.tv_usec = 2500000;
+	tv.tv_usec = 25000;
 
 
 	for (;;)
 	{
-
 		FD_ZERO(&readfs);
 		FD_SET(srv->s, &readfs);
 
 		n = select(srv->s+1, &readfs, NULL, NULL, &tv);
 
 		if (n == 2) //timeout
-		{
-			usleep(10000);
 			continue;
-		}
+
 		int res;
 		pthread_mutex_lock(&srv->mutex);
 		res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
@@ -223,12 +176,10 @@ void *server_recv(void *srv_void)
 			free(params);
 
 			line = strtok_r(NULL, "\r\n", &save);
-		  }
+		}
 	}
 	return NULL;
 }
-
-
 
 
 int add_to_serverpool(server *srv)
@@ -238,6 +189,15 @@ int add_to_serverpool(server *srv)
 		printf("srv is null!\n");
 		return -1;
 	}
+
+	if (server_list)
+		server_list = realloc(server_list, (server_count + 1) * sizeof(server*));
+	else
+		server_list = malloc(sizeof(server*));
+
+	server_list[server_count] = srv;
+	server_count++;
+
 	int ret = pthread_create(&srv->thread, NULL, server_recv, (void*) srv);
 
 	if (ret)
@@ -250,13 +210,69 @@ int add_to_serverpool(server *srv)
 	return 1;
 }
 
-
-void server_set_timeout(time_t sec, time_t usec, server *srv)
+int load_servers(char *config)
 {
-	pthread_mutex_lock(&srv->mutex);
-	srv->tv->tv_sec = sec;
-	srv->tv->tv_usec = usec;
-	pthread_mutex_unlock(&srv->mutex);
+	config_t cfg;
+	config_setting_t *setting;
+	config_init(&cfg);
 
-	return;
+	if (!config_read_file(&cfg, config))
+	{
+		printf("Failed to load config!\n");
+		printf("%d\n%s\n", config_error_line(&cfg), config_error_text(&cfg));
+		config_destroy(&cfg);
+
+		return -2;
+	}
+
+
+	if (! (setting = config_lookup(&cfg, "servers")))
+	{
+		printf("Failed to load setting \"servers\".(%s)\n", config);
+		return -1;
+	}
+
+	server *srv = malloc(sizeof(server));
+	if (!srv)
+	{
+		puts("failed to malloc server");
+		exit(EXIT_FAILURE);
+	}
+	pthread_mutex_init(&srv->mutex, NULL);
+
+	unsigned int server_count = config_setting_length(setting);
+	printf("server_count: %d\n", server_count);
+
+	for (int i = 0; i < server_count; i++)
+	{
+		config_setting_t *srv_setting = config_setting_get_elem(setting, i);
+
+		if(!config_setting_lookup_string(srv_setting ,"network_name", &srv->network_name))
+			return -1;
+		if(!config_setting_lookup_string(srv_setting, "server_host", &srv->host))
+			return -1;
+		if(!config_setting_lookup_string(srv_setting, "server_port", &srv->port))
+			return -1;
+		if(!config_setting_lookup_string(srv_setting, "realname", &srv->realname))
+			return -1;
+		if(!config_setting_lookup_string(srv_setting, "username", &srv->username))
+			return -1;
+		if(!config_setting_lookup_string(srv_setting, "nick", &srv->nick))
+			return -1;
+		if(!config_setting_lookup_string(srv_setting, "alt_nick", &srv->alt_nick))
+			return -1;
+		config_setting_lookup_string(srv_setting, "server_pass", &srv->pass);
+
+
+
+		if (server_connect(srv) != 1)
+		{
+			printf("Failed connect to %s\n", srv->host);
+			return 0;
+		}
+
+		add_to_serverpool(srv);
+	}
+
+	return 1;
 }

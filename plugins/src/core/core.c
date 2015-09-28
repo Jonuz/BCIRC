@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <libconfig.h>
 
 #include "../headers/irc.h"
 #include "../headers/server.h"
@@ -14,6 +15,7 @@
 int handle_ping(void **params, int argc);
 int handle_registeration(void **params, int argc);
 int got_in(void **params, int argc);
+void autojoin_channels();
 
 
 char plugin_name[] = "BCIRC-Core plugin";
@@ -29,6 +31,67 @@ int plugin_init(plugin *pluginptr)
     return BCIRC_PLUGIN_OK;
 }
 
+void autojoin_channels(server *srv)
+{
+    config_t cfg;
+	config_init(&cfg);
+
+    char config[256];
+    sprintf(config, "%s/servers.conf", getenv("BCIRC_CONFIG_DIR"));
+
+    if (!config_read_file(&cfg, config))
+	{
+		printf("Failed to load config!\n");
+		printf("%d\n%s\n", config_error_line(&cfg), config_error_text(&cfg));
+		config_destroy(&cfg);
+
+		return;
+	}
+
+    config_setting_t *servers_setting;
+    if (!(servers_setting = config_lookup(&cfg, "servers")))
+	{
+		printf("Failed to load setting \"servers\"(%s).\n", config);
+		return;
+	}
+
+    unsigned int server_count = config_setting_length(servers_setting);
+
+    for (int i = 0; i < server_count; i++)
+    {
+        config_setting_t *srv_setting = config_setting_get_elem(servers_setting, i);
+
+        config_setting_t *chans_setting;
+
+        if (!(chans_setting = config_lookup(&srv_setting, "channels")))
+        {
+            printf("No channels found.\n");
+            return;
+        }
+        unsigned int channel_count = config_setting_length(chans_setting);
+
+        for (int y = 0; y < channel_count; y++)
+        {
+            config_setting_t *chan_setting = config_setting_get_elem(chans_setting, y);
+
+            const char *chan_str;
+            char *key_str;
+
+            config_setting_lookup_string(chan_setting, "chan_name", &chan_str);
+
+            if (!config_setting_lookup_string(chan_setting, "chan_key", &key_str))
+                key_str = NULL;
+
+            printf("chan %s\nkey: %s\n", chan_str, key_str);
+
+            join_channel(chan_str, key_str, srv);
+
+        }
+
+    }
+
+}
+
 int got_in(void **params, int argc)
 {
     int *numeric = (int*) params[0];
@@ -38,15 +101,13 @@ int got_in(void **params, int argc)
     if (srv->motd_sent == 1)
         return BCIRC_PLUGIN_OK;
 
-
     if (*numeric != RPL_ENDOFMOTD)
         return BCIRC_PLUGIN_CONTINUE;
 
     printf("Connected to %s!\n", srv->host);
     srv->motd_sent = 1;
 
-    join_channel("#tesmia", NULL, srv );
-
+    autojoin_channels(srv);
 
     return BCIRC_PLUGIN_OK;
 }
@@ -101,14 +162,20 @@ int handle_registeration(void **params, int argc)
 
     server *srv = (server*) params[0];
 
-    char password_msg[] = "PASS passu\r\n";
-    char username_msg[] = "USER Tosibotti 8 * :https://github.com/Jonuz/BCIRC\r\n";
-    char nickname_msg[] = "NICK kokkobotti\r\n";
+    char key_buf[512];
+    char username_buf[512];
+    char nickname_buf[512];
 
+    if (srv->pass)
+        sprintf(key_buf, "PASS %s\r\n", srv->pass);
+    else
+        sprintf(key_buf, "PASS %s\r\n", "adasdasda");
+    sprintf(username_buf, "USER %s 8 * :%s\r\n", srv->realname, srv->username);
+    sprintf(nickname_buf, "NICK %s\r\n", srv->nick);
 
-    server_send(password_msg, srv);
-    server_send(username_msg, srv);
-    server_send(nickname_msg, srv);
+    server_send(key_buf, srv);
+    server_send(username_buf, srv);
+    server_send(nickname_buf, srv);
 
     return BCIRC_PLUGIN_OK;
 }
