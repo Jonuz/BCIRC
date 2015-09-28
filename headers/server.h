@@ -8,11 +8,18 @@
 #include <sys/types.h>
 
 
-typedef struct {
+typedef struct server
+{
+	char *network_name;
 
 	char *host;
 	char *port;
 	char *pass;
+
+	char *realname;
+	char *username;
+	char *nick;
+	char *alt_nick;
 
     int motd_sent;
 
@@ -33,10 +40,6 @@ typedef struct {
 } server;
 
 
-//extern int thread_count;
-//extern pthread_t **server_threads;
-
-
 extern server **server_list;
 extern int server_count;
 
@@ -49,8 +52,7 @@ int server_set_info(server *srv);
 void *server_recv(void *srv);
 int server_send(char *buf, server *srv);
 
-void server_set_timeout(time_t sec, time_t usec , server *srv);
-
+int load_servers(char *);
 
 
 #endif
