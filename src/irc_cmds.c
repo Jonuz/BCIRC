@@ -3,27 +3,22 @@
 #include <pthread.h>
 #include <unistd.h>
 
+#include "../headers/server.h"
+#include "../headers/channel.h"
 #include "../headers/irc_cmds.h"
 
 int privmsg(char *msg, char *target, server *srv)
 {
-	static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
-	pthread_mutex_lock(&mutex);
 	char *buf = malloc(( 7 + 1 + strlen(target) + 2 + strlen(msg) + 2 + 1) * sizeof(char));
 	sprintf(buf,"PRIVMSG %s :%s\r\n", target, msg);
 	int res = server_send(buf, srv);
 	free(buf);
-	pthread_mutex_unlock(&mutex);
 
 	return res;
 }
 
 int join_channel(char *chan_name, char *chan_pass, server *srv)
 {
-	static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
-	pthread_mutex_lock(&mutex);
 	char *buf = NULL;
 	if (chan_pass == NULL)
 	{
@@ -43,18 +38,14 @@ int join_channel(char *chan_name, char *chan_pass, server *srv)
 	strcpy(buf_copy, buf);
 	free(buf);
 
-	pthread_mutex_unlock(&mutex);
 	return server_send(buf_copy, srv);
 }
 
 
 int part_channel(char *reason, channel *chan)
 {
-	static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
-	pthread_mutex_lock(&mutex);
 	char *buf = "PART %s\r\n";
-	buf = malloc((strlen(buf) + strlen(chan->name)) * sizeof(char));
+	buf = malloc((strlen(buf) + strlen(chan->name) + 1) * sizeof(char));
 	sprintf(buf, buf, chan->name);
 
 	int len = strlen(buf);
@@ -62,7 +53,5 @@ int part_channel(char *reason, channel *chan)
 	strcpy(buf_copy, buf);
 	free(buf);
 
-	pthread_mutex_unlock(&mutex);
-
-	return server_send(buf_copy, chan->srv);
+	return server_send(buf_copy, (server*) chan->srv);
 }

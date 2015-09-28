@@ -22,7 +22,6 @@ int get_urls()
 
     sprintf(url_file, "%s/urls.txt", getenv("BCIRC_CONFIG_DIR"));
 
-
     urlstxt = fopen(url_file, "a");
     if (urlstxt == NULL)
     {
@@ -103,7 +102,6 @@ int add_url(void **params, int argc)
         return BCIRC_PLUGIN_CONTINUE;
     }
 
-    puts("oink");
     if (strstr(msg, "!addurl") != msg) //TODO: Make actual system for adding commands and permission system.
     {
         return BCIRC_PLUGIN_CONTINUE;
@@ -115,6 +113,9 @@ int add_url(void **params, int argc)
     char url[255];
     strtok(url, msg+8);
     strncpy(url, msg+8, strlen(msg) - 8);
+
+    //if (check_url(url) == 1)
+    //    return BCIRC_PLUGIN_CONTINUE;
 
     size_t new_size = (strlen(url) + 1) * sizeof(char);
     if (urls)
@@ -128,6 +129,7 @@ int add_url(void **params, int argc)
         urls = malloc(new_size);
         strcpy(urls, url);
     }
+
 
     FILE *urlstxt = NULL;
     char url_file[512];

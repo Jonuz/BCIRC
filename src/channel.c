@@ -15,7 +15,7 @@ int channel_count;
 
 pthread_mutex_t channel_global_mutex;
 
-channel *create_channel(char *chan_name, server *srv)
+channel *create_channel(char *chan_name, struct server *srv)
 {
     if ((!chan_name) || (!srv))
         return NULL;
@@ -64,7 +64,7 @@ channel *create_channel(char *chan_name, server *srv)
 }
 
 
-channel *get_channel(char *chan_name, server *srv)
+channel *get_channel(char *chan_name, struct server *srv)
 {
     if (!chan_name)
         return NULL;

@@ -223,7 +223,7 @@ int get_chan_event(void **params, int argv)
 
         }
         if (i == 2)
-            chan = get_channel(token, srv);
+            chan = (channel*) get_channel(token, (server*) srv);
 
         if (i == 3)
         {

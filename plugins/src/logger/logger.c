@@ -20,7 +20,6 @@ int on_kick(void **params, int argc);
 
 int plugin_init(plugin *pluginptr)
 {
-    register_callback(CALLBACK_SERVER_CONNECTED, on_connect, 15, pluginptr);
 	register_callback(CALLBACK_GOT_PRIVMSG, on_privmsg, 10, pluginptr);
 
 	register_callback(CALLBACK_CHANNEL_JOIN, on_join, 15, pluginptr);
@@ -41,15 +40,6 @@ int on_privmsg(void **params, int argc)
 	printf("%s <%s>: %s\n", target, nick, msg);
 
 	return BCIRC_PLUGIN_OK;
-}
-
-int on_connect(void **params, int argc)
-{
-    printf("on_connect..\n");
-    server *srv = (server*) params[0];
-    printf("Connected to %s:%s\n", srv->host, srv->port);
-
-    return BCIRC_PLUGIN_OK;
 }
 
 int on_server_send(void **paramams, int argc)

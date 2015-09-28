@@ -1,4 +1,4 @@
-CFLAGS = -Wall -ldl -std=gnu11 -pthread -Wl,--export-dynamic -g
+CFLAGS = -Wall -ldl -std=gnu11 -pthread -Wl,--export-dynamic -g `pkg-config --cflags libconfig` `pkg-config --libs libconfig`
 CC = gcc
 
 SOURCES = $(wildcard src/*.c) main.c

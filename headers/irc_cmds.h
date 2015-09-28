@@ -1,9 +1,11 @@
 #ifndef IRC_CMDS_H_
 #define IRC_CMDS_H_
 
-#include "irc.h"
-#include "server.h"
-#include "channel.h"
+#include <string.h>
+
+#include "../headers/server.h"
+#include "../headers/channel.h"
+#include "../headers/irc_cmds.h"
 
 int privmsg(char *msg, char *target, server *srv);
 int join_channel(char *chan_name, char *chan_pass, server *srv);
