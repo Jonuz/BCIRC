@@ -80,10 +80,7 @@ int server_disconnect(server *srv)
 */
 int server_send(char *buf, server *srv)
 {
-<<<<<<< HEAD
-=======
 
->>>>>>> school
 	void **params = malloc(2* sizeof(void*));
 	params[0] = srv;
 	params[1] = buf;
@@ -119,7 +116,7 @@ void *server_recv(void *srv_void)
 		puts("srv is null!");
 		return NULL;
 	}
-/*
+
 	struct timeval tv;
 	fd_set readfs;
 
@@ -138,16 +135,9 @@ void *server_recv(void *srv_void)
 
 		if (n == 2) //timeout
 			continue;
-<<<<<<< HEAD
-*/
-	int res;
-	while( (res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0) ) >= 0 )
-	{
-=======
 
 		int res;
 		res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
->>>>>>> school
 
 		tmpbuf[res] = '\0';
 
@@ -177,16 +167,11 @@ void *server_recv(void *srv_void)
 			params[0] = (void*) srv;
 			params[1] = (void*) line;
 
-			puts("asd");
-			printf("%s\n", srv->network_name);
 			execute_callbacks(CALLBACK_SERVER_RECV, params, 2);
-			printf("%s\n", srv->network_name);
-			puts("das");
 			free(params);
 
 			line = strtok_r(NULL, "\r\n", &save);
 		}
-		puts("end");
 	}
 	return NULL;
 }
