@@ -63,9 +63,7 @@ int server_connect(server *srv)
 
 int server_disconnect(server *srv)
 {
-	pthread_mutex_lock(&srv->mutex);
 	int close_res = close(srv->s);
-	pthread_mutex_unlock(&srv->mutex);
 
 	void **cb_params = malloc( sizeof(server) );
     cb_params[0] = srv;
@@ -81,8 +79,6 @@ int server_disconnect(server *srv)
 */
 int server_send(char *buf, server *srv)
 {
-	pthread_mutex_lock(&srv->mutex);
-
 	void **params = malloc(2* sizeof(void*));
 	params[0] = srv;
 	params[1] = buf;
@@ -95,7 +91,6 @@ int server_send(char *buf, server *srv)
 	free(params);
 
 	int res = send(srv->s, buf, strlen(buf), 0);
-	pthread_mutex_unlock(&srv->mutex);
 
     if (res <= 0)
         return res;
@@ -119,7 +114,7 @@ void *server_recv(void *srv_void)
 		puts("srv is null!");
 		return NULL;
 	}
-
+/*
 	struct timeval tv;
 	fd_set readfs;
 
@@ -138,11 +133,10 @@ void *server_recv(void *srv_void)
 
 		if (n == 2) //timeout
 			continue;
-
-		int res;
-		pthread_mutex_lock(&srv->mutex);
-		res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
-		pthread_mutex_unlock(&srv->mutex);
+*/
+	int res;
+	while( (res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0) ) >= 0 )
+	{
 
 		tmpbuf[res] = '\0';
 
@@ -172,42 +166,18 @@ void *server_recv(void *srv_void)
 			params[0] = (void*) srv;
 			params[1] = (void*) line;
 
+			puts("asd");
+			printf("%s\n", srv->network_name);
 			execute_callbacks(CALLBACK_SERVER_RECV, params, 2);
+			printf("%s\n", srv->network_name);
+			puts("das");
 			free(params);
 
 			line = strtok_r(NULL, "\r\n", &save);
 		}
+		puts("end");
 	}
 	return NULL;
-}
-
-
-int add_to_serverpool(server *srv)
-{
-	if (!srv)
-	{
-		printf("srv is null!\n");
-		return -1;
-	}
-
-	if (server_list)
-		server_list = realloc(server_list, (server_count + 1) * sizeof(server*));
-	else
-		server_list = malloc(sizeof(server*));
-
-	server_list[server_count] = srv;
-	server_count++;
-
-	int ret = pthread_create(&srv->thread, NULL, server_recv, (void*) srv);
-
-	if (ret)
-	{
-		printf("pthread_create failed, %d\n", ret);
-		return -2;
-	}
-	pthread_detach(srv->thread);
-
-	return 1;
 }
 
 int load_servers(char *config)
@@ -263,16 +233,45 @@ int load_servers(char *config)
 			return -1;
 		config_setting_lookup_string(srv_setting, "server_pass", &srv->pass);
 
-
-
 		if (server_connect(srv) != 1)
 		{
 			printf("Failed connect to %s\n", srv->host);
 			return 0;
 		}
-
+		puts("oink");
 		add_to_serverpool(srv);
 	}
+
+	return 1;
+}
+
+
+int add_to_serverpool(server *srv)
+{
+	if (!srv)
+	{
+		printf("srv is null!\n");
+		return -1;
+	}
+
+	if (server_list)
+		server_list = realloc(server_list, (server_count + 1) * sizeof(server*));
+	else
+		server_list = malloc(sizeof(server*));
+
+	server_list[server_count] = malloc(sizeof(server*));
+	server_list[server_count] = srv;
+
+	server_count++;
+
+	int ret = pthread_create(&srv->thread, NULL, server_recv, (void*) srv);
+
+	if (ret)
+	{
+		printf("pthread_create failed, %d\n", ret);
+		return -2;
+	}
+	pthread_detach(srv->thread);
 
 	return 1;
 }
