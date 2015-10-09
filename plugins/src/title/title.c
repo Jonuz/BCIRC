@@ -36,6 +36,7 @@ int plugin_init(plugin *pluginptr)
 {
     has_filter = get_urls();
 
+
     register_callback(CALLBACK_GOT_PRIVMSG, check_for_url, 20, pluginptr);
     register_callback(CALLBACK_GOT_PRIVMSG, add_url, 20, pluginptr);
 

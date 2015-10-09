@@ -38,6 +38,7 @@ int server_connect(server *srv)
 	hints.ai_socktype = SOCK_STREAM;
 
 	getaddrinfo(srv->host, srv->port, &hints, &res);
+
 	pthread_mutex_lock(&srv->mutex);
 	*s = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (*s == -1)
@@ -63,9 +64,7 @@ int server_connect(server *srv)
 
 int server_disconnect(server *srv)
 {
-	pthread_mutex_lock(&srv->mutex);
 	int close_res = close(srv->s);
-	pthread_mutex_unlock(&srv->mutex);
 
 	void **cb_params = malloc( sizeof(server) );
     cb_params[0] = srv;
@@ -81,7 +80,6 @@ int server_disconnect(server *srv)
 */
 int server_send(char *buf, server *srv)
 {
-	pthread_mutex_lock(&srv->mutex);
 
 	void **params = malloc(2* sizeof(void*));
 	params[0] = srv;
@@ -95,7 +93,6 @@ int server_send(char *buf, server *srv)
 	free(params);
 
 	int res = send(srv->s, buf, strlen(buf), 0);
-	pthread_mutex_unlock(&srv->mutex);
 
     if (res <= 0)
         return res;
@@ -140,9 +137,7 @@ void *server_recv(void *srv_void)
 			continue;
 
 		int res;
-		pthread_mutex_lock(&srv->mutex);
 		res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
-		pthread_mutex_unlock(&srv->mutex);
 
 		tmpbuf[res] = '\0';
 

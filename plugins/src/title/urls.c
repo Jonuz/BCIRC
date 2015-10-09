@@ -22,10 +22,10 @@ int get_urls()
 
     sprintf(url_file, "%s/urls.txt", getenv("BCIRC_CONFIG_DIR"));
 
-    urlstxt = fopen(url_file, "a");
+    urlstxt = fopen(url_file, "r");
     if (urlstxt == NULL)
     {
-        printf("Failed to open %s\n", url_file);
+        printf("Failed to open %s", url_file);
         if (urls)
             free(urls);
         return 0;
@@ -37,17 +37,11 @@ int get_urls()
     char *line = NULL;
     while ( (read = getline(&line, &len, urlstxt)) != -1 )
     {
-        size_t new_size = 0;
         if (urls)
-        {
-            new_size = (strlen(urls) + strlen(line) + 1) * sizeof(char);
-            urls = realloc(urls, new_size);
-        }
+            urls = realloc(urls, (strlen(urls) + len + 1) * sizeof(char) );
         else
-        {
-            new_size = strlen(line) + 1;
-            urls = malloc(new_size);
-        }
+            urls = malloc((len + 1) * sizeof(char));
+
         strcat(urls, line);
     }
     fclose(urlstxt);
@@ -56,37 +50,23 @@ int get_urls()
 
 int check_url(char *url) // 1 if true, othetwise 0.
 {
-
-    if (!url)
+    if ((!url) || (!urls))
     {
-        printf("Url is NULL!\n");
         return 0;
     }
 
     char *token, *save;
 
-    token = strtok_r(url, "\n", &save);
+    printf("urls: %s\n", urls);
 
+    token = strtok_r(urls, "\n", &save);
     while( token != NULL )
     {
-        if (strcmp(token, url) == 0) //url.com
-        {
+        printf("token: %s\n", token);
+        if (strstr(url, token) != NULL)
             return 1;
-        }
-        if (strcmp(token+4, url) == 0) //www.url.com
-        {
-            return 1;
-        }
-        if (strcmp(token+7, url) == 0) //http://www.url.com
-        {
-            return 1;
-        }
-        if (strcmp(token+8, url) == 0) //https://www.url.com
-        {
-            return 1;
-        }
 
-        strtok_r(NULL, "\n", &save);
+        token = strtok_r(NULL, "\n", &save);
     }
     return 0;
 }
@@ -102,7 +82,7 @@ int add_url(void **params, int argc)
         return BCIRC_PLUGIN_CONTINUE;
     }
 
-    if (strstr(msg, "!addurl") != msg) //TODO: Make actual system for adding commands and permission system.
+    if (strstr(msg, "!addurl ") != msg) //TODO: Make actual system for adding commands with permission system.
     {
         return BCIRC_PLUGIN_CONTINUE;
     }
@@ -110,26 +90,12 @@ int add_url(void **params, int argc)
     if (strlen(msg) > 255)
         return BCIRC_PLUGIN_CONTINUE;
 
-    char url[255];
-    strtok(url, msg+8);
-    strncpy(url, msg+8, strlen(msg) - 8);
+    char str[255];
+    strncpy(str, msg+8, strlen(msg) - 8);
+    str[ strlen(msg) - 8 ] = '\0';
 
-    //if (check_url(url) == 1)
-    //    return BCIRC_PLUGIN_CONTINUE;
-
-    size_t new_size = (strlen(url) + 1) * sizeof(char);
-    if (urls)
-    {
-        new_size += strlen(urls) * sizeof(char);
-        urls = realloc(urls, new_size);
-        strcat(urls, url);
-    }
-    else
-    {
-        urls = malloc(new_size);
-        strcpy(urls, url);
-    }
-
+    if (check_url(str) == 1)
+        return BCIRC_PLUGIN_CONTINUE;
 
     FILE *urlstxt = NULL;
     char url_file[512];
@@ -144,8 +110,14 @@ int add_url(void **params, int argc)
         return BCIRC_PLUGIN_FAIL;
     }
 
-    fprintf(urlstxt, "%s\n", url);
+    fprintf(urlstxt, "%s\n", str);
     fclose(urlstxt);
+
+
+    free(urls);
+    urls = NULL;
+
+    get_urls();
 
     return BCIRC_PLUGIN_OK;
 }
