@@ -19,16 +19,21 @@ char plugin_version[] = "0.01";
 char plugin_author[] = "Joona";
 
 
+typedef struct ark
+{
+    server *srv_save;
+    char target_save[100];
+    char nick_save[100];
+} ark;
+
+
 int add_url(void **, int);
 
-
 int check_for_url(void**, int argc);
-int http_request(char *url, server *srv);
+int http_request(char *url, ark *arkptr);
 size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream);
 
-server *srv_save = NULL;
-char target_save[100];
-char nick_save[100];
+
 
 int has_filter = 0; // 1 if true
 
@@ -86,22 +91,26 @@ int check_for_url(void **params, int argv)
     strncpy(url, msg+matches[0].rm_so, len);
     url[len-1] = '\0';
 
-    srv_save = srv;
+    ark *new_ark = malloc(sizeof(ark));
 
-    strcpy(target_save, target);
-    strcpy(nick_save, nick);
+    new_ark->srv_save = srv;
+    strcpy(new_ark->target_save, target);
+    strcpy(new_ark->nick_save, nick);
+
+
 
     if (has_filter == 1)
         if (check_url(url) == 0)
             return BCIRC_PLUGIN_OK;
 
-    http_request(url, srv);
+    http_request(url, new_ark);
     free(url);
+    free(new_ark);
 
     return BCIRC_PLUGIN_OK;
 }
 
-int http_request(char *url, server *srv)
+int http_request(char *url, ark *arkptr)
 {
     CURL *curl;
     CURLcode res;
@@ -122,6 +131,7 @@ int http_request(char *url, server *srv)
         curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+        curl_easy_setopt(curl, CURLOPT_READDATA, arkptr);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, curl);
 
         res = curl_easy_perform(curl);
@@ -141,12 +151,13 @@ int http_request(char *url, server *srv)
 }
 
 
-size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
+size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
 {
     regex_t regex;
     int reti;
     regmatch_t matches[1];
-    CURL *curl = stream;
+
+    ark *arkptr = (ark*) ark_param;
 
     char *response = (char*) malloc((size * nmemb + 2) * sizeof(char));
     strncpy(response, (char*) ptr, size * nmemb);
@@ -235,12 +246,11 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
         title = new_title2;
     }
 
-    if (target_save[0] == '#') //In future: Check if target is channel.
-        add_to_privmsg_queue(title, target_save, srv_save, 0);
+    if (arkptr->target_save[0] == '#') //In future: Check if target is channel.
+        add_to_privmsg_queue(title, arkptr->target_save, arkptr->srv_save, 0);
     else
-        add_to_privmsg_queue(title, nick_save, srv_save, 1);
+        add_to_privmsg_queue(title, arkptr->nick_save, arkptr->srv_save, 1);
 
-    srv_save = NULL;
     free(title);
 
     //curl_easy_pause(curl, CURLPAUSE_ALL);
