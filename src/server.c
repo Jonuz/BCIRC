@@ -123,7 +123,7 @@ void *server_recv(void *srv_void)
 	int n;
 
 	tv.tv_sec = 0;
-	tv.tv_usec = 25000;
+	tv.tv_usec = 2500;
 
 
 	for (;;)
