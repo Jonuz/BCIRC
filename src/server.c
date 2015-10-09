@@ -38,6 +38,7 @@ int server_connect(server *srv)
 	hints.ai_socktype = SOCK_STREAM;
 
 	getaddrinfo(srv->host, srv->port, &hints, &res);
+
 	pthread_mutex_lock(&srv->mutex);
 	*s = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (*s == -1)
@@ -79,6 +80,10 @@ int server_disconnect(server *srv)
 */
 int server_send(char *buf, server *srv)
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> school
 	void **params = malloc(2* sizeof(void*));
 	params[0] = srv;
 	params[1] = buf;
@@ -121,7 +126,7 @@ void *server_recv(void *srv_void)
 	int n;
 
 	tv.tv_sec = 0;
-	tv.tv_usec = 25000;
+	tv.tv_usec = 2500;
 
 
 	for (;;)
@@ -133,10 +138,16 @@ void *server_recv(void *srv_void)
 
 		if (n == 2) //timeout
 			continue;
+<<<<<<< HEAD
 */
 	int res;
 	while( (res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0) ) >= 0 )
 	{
+=======
+
+		int res;
+		res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
+>>>>>>> school
 
 		tmpbuf[res] = '\0';
 
