@@ -198,19 +198,21 @@ int load_servers(char *config)
 		return -1;
 	}
 
-	server *srv = malloc(sizeof(server));
-	if (!srv)
-	{
-		puts("failed to malloc server");
-		exit(EXIT_FAILURE);
-	}
-	pthread_mutex_init(&srv->mutex, NULL);
 
-	unsigned int server_count = config_setting_length(setting);
-	printf("server_count: %d\n", server_count);
 
 	for (int i = 0; i < server_count; i++)
 	{
+		server *srv = malloc(sizeof(server));
+		if (!srv)
+		{
+			puts("failed to malloc server");
+			exit(EXIT_FAILURE);
+		}
+		pthread_mutex_init(&srv->mutex, NULL);
+
+		unsigned int server_count = config_setting_length(setting);
+		printf("server_count: %d\n", server_count);
+
 		config_setting_t *srv_setting = config_setting_get_elem(setting, i);
 
 		if(!config_setting_lookup_string(srv_setting ,"network_name", &srv->network_name))
