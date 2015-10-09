@@ -13,6 +13,31 @@ int get_urls();
 int check_url(char *);
 int add_url(void **, int);
 
+int check_url(char *str) // 1 if true, othetwise 0.
+{
+    if ((!str) || (!urls))
+    {
+        return 0;
+    }
+
+    char *token, *save;
+    char *urls_save[strlen(urls)];
+    strcpy(urls_save, urls);
+
+    token = strtok_r(urls, "\n", &save);
+    while( token != NULL )
+    {
+        //printf("token: %s\n", token);
+        if (strstr(str, token) != NULL)
+        {
+            strcpy(urls, urls_save);
+            return 1;
+        }
+        token = strtok_r(NULL, "\n", &save);
+    }
+    strcpy(urls, urls_save);
+    return 0;
+}
 
 
 int get_urls()
@@ -38,38 +63,20 @@ int get_urls()
     while ( (read = getline(&line, &len, urlstxt)) != -1 )
     {
         if (urls)
+        {
             urls = realloc(urls, (strlen(urls) + len + 1) * sizeof(char) );
+            strcat(urls, line);
+        }
         else
+        {
             urls = malloc((len + 1) * sizeof(char));
-
-        strcat(urls, line);
+            strcpy(urls, line);
+        }
     }
     fclose(urlstxt);
     return 1;
 }
 
-int check_url(char *url) // 1 if true, othetwise 0.
-{
-    if ((!url) || (!urls))
-    {
-        return 0;
-    }
-
-    char *token, *save;
-
-    printf("urls: %s\n", urls);
-
-    token = strtok_r(urls, "\n", &save);
-    while( token != NULL )
-    {
-        printf("token: %s\n", token);
-        if (strstr(url, token) != NULL)
-            return 1;
-
-        token = strtok_r(NULL, "\n", &save);
-    }
-    return 0;
-}
 
 int add_url(void **params, int argc)
 {

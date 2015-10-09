@@ -34,8 +34,7 @@ int has_filter = 0; // 1 if true
 
 int plugin_init(plugin *pluginptr)
 {
-    has_filter = get_urls();
-
+    has_filter = get_urls(); //1 if urls in urls.txt
 
     register_callback(CALLBACK_GOT_PRIVMSG, check_for_url, 20, pluginptr);
     register_callback(CALLBACK_GOT_PRIVMSG, add_url, 20, pluginptr);
