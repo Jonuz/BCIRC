@@ -199,9 +199,13 @@ int load_servers(char *config)
 	}
 
 
+	unsigned int server_count = config_setting_length(setting);
+	printf("server_count: %d\n", server_count);
+
 
 	for (int i = 0; i < server_count; i++)
 	{
+
 		server *srv = malloc(sizeof(server));
 		if (!srv)
 		{
@@ -210,8 +214,6 @@ int load_servers(char *config)
 		}
 		pthread_mutex_init(&srv->mutex, NULL);
 
-		unsigned int server_count = config_setting_length(setting);
-		printf("server_count: %d\n", server_count);
 
 		config_setting_t *srv_setting = config_setting_get_elem(setting, i);
 
