@@ -170,6 +170,7 @@ int handle_registeration(void **params, int argc)
         sprintf(key_buf, "PASS %s\r\n", srv->pass);
     else
         sprintf(key_buf, "PASS %s\r\n", "adasdasda");
+
     sprintf(username_buf, "USER %s 8 * :%s\r\n", srv->realname, srv->username);
     sprintf(nickname_buf, "NICK %s\r\n", srv->nick);
 

@@ -9,9 +9,7 @@
 #include "./headers/plugin_handler.h"
 
 
-pthread_t **server_threads;
 int server_count;
-
 int channel_count;
 
 char host[] = "dreamhack.se.quakenet.org";
@@ -47,7 +45,7 @@ int main()
 	sprintf(serverfile, "%s/servers.conf", configdir);
 	load_servers(serverfile);
 	free(serverfile);
-	
+
 
 	get_input();
 

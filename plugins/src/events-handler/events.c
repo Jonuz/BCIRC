@@ -191,7 +191,6 @@ int get_chan_event(void **params, int argv)
     {
         if (i == 1)
         {
-
             if (strcmp(token, "JOIN") == 0)
                 event_type = CHAN_JOIN;
             else if (strcmp(token, "KICK") == 0)

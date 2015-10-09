@@ -5,21 +5,25 @@
 #include "../headers/plugin_handler.h"
 #include "../headers/callback_defines.h"
 
-char plugin_name[] = "Logger";
 char plugin_version[] = "0.01";
 char plugin_author[] = "Joona";
+char plugin_name[] = "Logger";
+
 
 int on_server_send(void **paramams, int argc);
 int on_connect(void **params, int argc);
 
 int on_privmsg(void **params, int argc);
 
+int on_recv(void **params, int argc);
 int on_join(void **params, int argc);
 int on_part(void **params, int argc);
 int on_kick(void **params, int argc);
 
 int plugin_init(plugin *pluginptr)
 {
+	//register_callback(CALLBACK_SERVER_RECV, on_recv, 15, pluginptr);
+
 	register_callback(CALLBACK_GOT_PRIVMSG, on_privmsg, 10, pluginptr);
 
 	register_callback(CALLBACK_CHANNEL_JOIN, on_join, 15, pluginptr);
@@ -29,6 +33,23 @@ int plugin_init(plugin *pluginptr)
     return BCIRC_PLUGIN_OK;
 }
 
+
+int on_recv(void **params, int argc)
+{
+	server *srv = params[0];
+	char *buffer = params[1];
+
+	if ((!srv) || (!buffer))
+		return BCIRC_PLUGIN_CONTINUE;
+
+	if (srv->motd_sent == 1)
+		return BCIRC_PLUGIN_CONTINUE;
+
+	printf("%s\n", buffer);
+
+
+	return BCIRC_PLUGIN_OK;
+}
 
 int on_privmsg(void **params, int argc)
 {

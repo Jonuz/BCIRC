@@ -44,20 +44,20 @@ int load_plugin(char *path)
         return -1;
     }
 
-    new_plugin->plugin_name = (char*) dlsym(handle, "plugin_name");
-    if (new_plugin->plugin_name == NULL)
+    new_plugin->plugin_author = (char*) dlsym(handle, "plugin_author");
+    if (new_plugin->plugin_author == NULL)
     {
-        printf("Failed to get name of plugin!\n");
+        printf("Failed to get author of plugin!\n");
         printf("Path: %s\n", path);
         free(new_plugin->callback_list);
         free(new_plugin);
         return -2;
     }
 
-    new_plugin->plugin_author = (char*) dlsym(handle, "plugin_author");
-    if (new_plugin->plugin_author == NULL)
+    new_plugin->plugin_name = (char*) dlsym(handle, "plugin_name");
+    if (new_plugin->plugin_name == NULL)
     {
-        printf("Failed to get author of plugin!\n");
+        printf("Failed to get name of plugin!\n");
         printf("Path: %s\n", path);
         free(new_plugin->callback_list);
         free(new_plugin);
