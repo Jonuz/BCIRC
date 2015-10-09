@@ -146,10 +146,10 @@ int get_numeric(void **params, int argc)
 
         strcpy(buffer, params[1]);
         void **new_params = malloc(sizeof(void*) * 3);
-
-        new_params[0] = (int*) numeric;
-        new_params[1] = buffer;
-        new_params[2] = srv;
+        
+        new_params[0] = srv;
+        new_params[1] = (int*) numeric;
+        new_params[2] = buffer;
 
         execute_callbacks(CALLBACK_GOT_NUMERIC, new_params, 3);
 

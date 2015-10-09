@@ -20,6 +20,9 @@ int on_join(void **params, int argc);
 int on_part(void **params, int argc);
 int on_kick(void **params, int argc);
 
+
+int on_numeric(void **params, int arc);
+
 int plugin_init(plugin *pluginptr)
 {
 	//register_callback(CALLBACK_SERVER_RECV, on_recv, 15, pluginptr);
@@ -29,6 +32,8 @@ int plugin_init(plugin *pluginptr)
 	register_callback(CALLBACK_CHANNEL_JOIN, on_join, 15, pluginptr);
 	register_callback(CALLBACK_CHANNEL_PART, on_part, 15, pluginptr);
 	//register_callback(CALLBACK_CHANNEL_KICK, on_kick, 20, pluginptr);
+
+	register_callback(CALLBACK_GOT_NUMERIC, on_numeric, 6, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
@@ -49,6 +54,14 @@ int on_recv(void **params, int argc)
 
 
 	return BCIRC_PLUGIN_OK;
+}
+
+int on_numeric(void **params, int arc)
+{
+	void *srv = params[1];
+
+
+	return BCIRC_PLUGIN_STOP;
 }
 
 int on_privmsg(void **params, int argc)

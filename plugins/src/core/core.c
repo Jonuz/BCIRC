@@ -94,8 +94,8 @@ void autojoin_channels(server *srv)
 
 int got_in(void **params, int argc)
 {
-    int *numeric = (int*) params[0];
-    server *srv = (server*) params[2];
+    server *srv = (server*) params[0];
+    int *numeric = (int*) params[1];
 
 
     if (srv->motd_sent == 1)

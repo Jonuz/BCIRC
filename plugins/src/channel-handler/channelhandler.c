@@ -35,11 +35,11 @@ int plugin_init(plugin *pluginptr)
 
 int get_channel_info(void **params, int argcv)
 {
-    int *numeric = (int*) params[0];
-    char buffer[strlen(params[1])];
-    server *srv = params[2];
+    server *srv = params[0];
+    int *numeric = (int*) params[1];
+    char buffer[strlen(params[2])];
 
-    strcpy(buffer, params[1]);
+    strcpy(buffer, params[2]);
 
     if (!buffer)
     {
