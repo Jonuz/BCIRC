@@ -22,8 +22,8 @@ char plugin_author[] = "Joona";
 typedef struct ark
 {
     server *srv_save;
-    char target_save[100];
-    char nick_save[100];
+    char *target_save;
+    char *nick_save;
 } ark;
 
 
@@ -94,7 +94,10 @@ int check_for_url(void **params, int argv)
     ark *new_ark = malloc(sizeof(ark));
 
     new_ark->srv_save = srv;
+
+    new_ark->target_save = malloc(strlen(target) + 1);
     strcpy(new_ark->target_save, target);
+    new_ark->nick_save = malloc(strlen(nick) + 1);
     strcpy(new_ark->nick_save, nick);
 
 
@@ -131,8 +134,7 @@ int http_request(char *url, ark *arkptr)
         curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
-        curl_easy_setopt(curl, CURLOPT_READDATA, arkptr);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, curl);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, arkptr);
 
         res = curl_easy_perform(curl);
 
@@ -246,10 +248,18 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
         title = new_title2;
     }
 
+    char *target = malloc((strlen(arkptr->target_save)+1) * sizeof(char));
+    char *nick = malloc(( strlen(arkptr->nick_save)+1) * sizeof(char));
+
+    strcpy(target, arkptr->target_save);
+    strcpy(nick, arkptr->nick_save);
+
+    printf("target: %s\n", target);
+
     if (arkptr->target_save[0] == '#') //In future: Check if target is channel.
-        add_to_privmsg_queue(title, arkptr->target_save, arkptr->srv_save, 0);
+        add_to_privmsg_queue(title, target, arkptr->srv_save, 0);
     else
-        add_to_privmsg_queue(title, arkptr->nick_save, arkptr->srv_save, 1);
+        add_to_privmsg_queue(title, nick, arkptr->srv_save, 0);
 
     free(title);
 
