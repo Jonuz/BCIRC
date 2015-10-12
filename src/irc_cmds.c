@@ -59,6 +59,12 @@ int nick(char *nick, server *srv)
 	buf = malloc(( strlen(BUF_BASE) + 1 + strlen(nick) + 3) * sizeof(char));
 	sprintf(buf, BUF_BASE, nick);
 
+	if (srv->last_tried_nick)
+		free(srv->last_tried_nick);
+
+	srv->last_tried_nick = malloc((strlen(nick) + 1) * sizeof(char));
+	strcpy(srv->last_tried_nick, nick);
+
 	int res = (buf, srv);
 	free(buf);
 
