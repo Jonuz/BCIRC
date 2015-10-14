@@ -32,40 +32,44 @@ int join_channel(char *chan_name, char *chan_pass, server *srv)
 	}
 
 	sprintf(buf, buf, chan_name);
-	int res = server_send(buf, srv);
+
+	int len = strlen(buf);
+	char buf_copy[len];
+	strcpy(buf_copy, buf);
 	free(buf);
 
-	return res;
+	return server_send(buf_copy, srv);
 }
 
 
 int part_channel(char *reason, channel *chan)
 {
-	#define BUF_BASE "PART %s\r\n"
-	char *buf = NULL;
-	buf = malloc((strlen(BUF_BASE) + 1 + strlen(chan->name) + 3) * sizeof(char));
-	sprintf(buf, BUF_BASE, chan->name);
+	char *buf = "PART %s\r\n";
+	buf = malloc((strlen(buf) + strlen(chan->name) + 1) * sizeof(char));
+	sprintf(buf, buf, chan->name);
 
-	int res = server_send(buf, (server*) chan->srv);
+	int len = strlen(buf);
+	char buf_copy[len];
+	strcpy(buf_copy, buf);
 	free(buf);
 
-	return res;
+	return server_send(buf_copy, (server*) chan->srv);
 }
+
 
 int nick(char *nick, server *srv)
 {
 	#define BUF_BASE "NICK %s\r\n"
 	char *buf = NULL;
 	buf = malloc(( strlen(BUF_BASE) + 1 + strlen(nick) + 3) * sizeof(char));
+
 	sprintf(buf, BUF_BASE, nick);
+	printf("buf: %s", buf);
+		
+	srv->nick = malloc((strlen(nick)+1) * sizeof(char));
+	strcpy(srv->nick, nick);
 
-	if (srv->last_tried_nick)
-		free(srv->last_tried_nick);
-
-	srv->last_tried_nick = malloc((strlen(nick) + 1) * sizeof(char));
-	strcpy(srv->last_tried_nick, nick);
-
-	int res = (buf, srv);
+	int res = server_send(buf, srv);
 	free(buf);
 
 	return res;
