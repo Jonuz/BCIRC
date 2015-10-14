@@ -58,7 +58,6 @@ int server_connect(server *srv)
 
 	freeaddrinfo(res);
 
-
 	return 1;
 }
 
@@ -212,6 +211,16 @@ int load_servers(char *config)
 			puts("failed to malloc server");
 			exit(EXIT_FAILURE);
 		}
+
+		srv->network_name = NULL;
+		srv->host = NULL;
+		srv->port = NULL;
+		srv->pass = NULL;
+
+		srv->nick = NULL;
+		srv->realname = NULL;
+		srv->username = NULL;
+
 		pthread_mutex_init(&srv->mutex, NULL);
 
 
@@ -232,6 +241,7 @@ int load_servers(char *config)
 		if(!config_setting_lookup_string(srv_setting, "alt_nick", &srv->alt_nick))
 			return -1;
 		config_setting_lookup_string(srv_setting, "server_pass", &srv->pass);
+
 
 		if (server_connect(srv) != 1)
 		{

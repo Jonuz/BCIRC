@@ -17,6 +17,7 @@ int handle_registeration(void **params, int argc);
 int got_in(void **params, int argc);
 void autojoin_channels();
 
+int handle_nick(void **params, int argc); //This function handles usage alternative nick.
 
 char plugin_name[] = "BCIRC-Core plugin";
 char plugin_author[] = "Joona";
@@ -27,9 +28,11 @@ int plugin_init(plugin *pluginptr)
     register_callback(CALLBACK_GOT_NUMERIC, got_in, 5, pluginptr);
     register_callback(CALLBACK_SERVER_RECV, handle_ping, 5, pluginptr);
     register_callback(CALLBACK_SERVER_CONNECTED, handle_registeration, 5, pluginptr);
+    register_callback(CALLBACK_GOT_NUMERIC, handle_nick, 5, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
+
 
 void autojoin_channels(server *srv)
 {
@@ -166,17 +169,64 @@ int handle_registeration(void **params, int argc)
     char username_buf[512];
     char nickname_buf[512];
 
+    if (!srv)
+    {
+        printf("srv is null!\n");
+        return BCIRC_PLUGIN_CONTINUE;
+    }
+
     if (srv->pass)
         sprintf(key_buf, "PASS %s\r\n", srv->pass);
     else
         sprintf(key_buf, "PASS %s\r\n", "adasdasda");
 
     sprintf(username_buf, "USER %s 8 * :%s\r\n", srv->realname, srv->username);
-    sprintf(nickname_buf, "NICK %s\r\n", srv->nick);
 
     server_send(key_buf, srv);
     server_send(username_buf, srv);
-    server_send(nickname_buf, srv);
+    nick(srv->nick, srv);
+
+    return BCIRC_PLUGIN_OK;
+}
+
+int handle_nick(void **params, int argc)
+{
+/*
+    for (int i = 0; i < argc; i++)
+        if (params[i] == NULL);
+            return BCIRC_PLUGIN_CONTINUE;
+*/
+    server *srv = (server*) params[0];
+    int *numeric = (int*) params[1];
+    char buf[strlen(params[2])+1];
+    strcpy(buf, params[2]);
+
+
+    int numerics[]= { ERR_NONICKNAMEGIVEN, ERR_ERRONEUSNICKNAME , ERR_NICKNAMEINUSE, ERR_NICKCOLLISION, ERR_UNAVAILRESOURCE };
+    size_t numerics_count = sizeof(numerics) / sizeof(int);
+
+    for (int i = 0;i < numerics_count; i++)
+    {
+        if (*numeric == numerics[i])
+            break;
+        if (i == numerics_count-1)
+            return BCIRC_PLUGIN_OK;
+    }
+
+    printf("%s\n", buf);
+
+
+    if (strcmp(srv->nick, srv->alt_nick) != 0)
+        nick(srv->alt_nick, srv);
+    else
+    {
+        char *new_nick = malloc(strlen(srv->nick + 2));
+        strcpy(new_nick, srv->nick);
+        strcat(new_nick, "_");
+
+        nick(new_nick, srv);
+        free(new_nick);
+    }
 
     return BCIRC_PLUGIN_OK;
 }

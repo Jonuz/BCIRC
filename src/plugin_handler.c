@@ -322,7 +322,7 @@ int execute_callbacks(char *cb_name, void **args, int argc)
 
     if (index_point == -1)
     {
-        printf("no such a callback!(%s)\n", cb_name);
+        //printf("no such a callback!(%s)\n", cb_name);
         return BCIRC_PLUGIN_OK;
     }
     int cb_count = index_list[index_point]->cb_count;

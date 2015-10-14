@@ -21,7 +21,7 @@ int on_part(void **params, int argc);
 int on_kick(void **params, int argc);
 
 
-int on_numeric(void **params, int arc);
+int on_numeric(void **params, int argc);
 
 int plugin_init(plugin *pluginptr)
 {
@@ -33,7 +33,7 @@ int plugin_init(plugin *pluginptr)
 	register_callback(CALLBACK_CHANNEL_PART, on_part, 15, pluginptr);
 	//register_callback(CALLBACK_CHANNEL_KICK, on_kick, 20, pluginptr);
 
-	register_callback(CALLBACK_GOT_NUMERIC, on_numeric, 6, pluginptr);
+	//register_callback(CALLBACK_GOT_NUMERIC, on_numeric, 20, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
@@ -52,14 +52,25 @@ int on_recv(void **params, int argc)
 
 	printf("%s\n", buffer);
 
-
 	return BCIRC_PLUGIN_OK;
 }
 
-int on_numeric(void **params, int arc)
+int on_numeric(void **params, int argc)
 {
-	void *srv = params[1];
 
+	for (int i = 0; i < argc; i++)
+		if (params[i] == NULL)
+			return BCIRC_PLUGIN_CONTINUE;
+
+	server *srv = params[0];
+	char *buf = params[2];
+
+	if (!srv->motd_sent == 1)
+		return BCIRC_PLUGIN_OK;
+
+	if (!srv->network_name)
+		return BCIRC_PLUGIN_OK;
+	printf("%s: %s\n", srv->network_name, buf);
 
 	return BCIRC_PLUGIN_STOP;
 }

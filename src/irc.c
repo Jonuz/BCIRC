@@ -12,7 +12,7 @@
 #include "../headers/plugin_handler.h"
 
 #define get_str_size(str) ( (strlen( (char*) str) + 1) * sizeof(char) )
-#define MAX_MSG_COUNT 5
+#define MAX_MSG_COUNT 9
 
 
 typedef struct
@@ -116,7 +116,7 @@ void *handle_privmsg_queue()
         gettimeofday(&tv, NULL);
         time_now = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
 
-        if (time_now - avarage_timestamp <= 100000)
+        if (time_now - avarage_timestamp <= 300000) //TODO: Do this better
         {
             if (!msg_list[0]->drop)
             {
