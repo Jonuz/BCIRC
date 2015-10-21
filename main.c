@@ -34,7 +34,7 @@ int main()
     char *plugin_dir = getenv("BCIRC_PLUGINS_BIN");
     if (!plugin_dir)
     {
-        printf("Enviroment value \"PLUGINS_BIN\" doesnt exixst\n");
+        printf("Enviroment value \"PLUGINS_BIN\" doesnt exist.\n");
         exit(EXIT_SUCCESS);
     }
     get_plugins(plugin_dir);
