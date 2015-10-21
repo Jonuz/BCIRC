@@ -191,11 +191,6 @@ int handle_registeration(void **params, int argc)
 
 int handle_nick(void **params, int argc)
 {
-/*
-    for (int i = 0; i < argc; i++)
-        if (params[i] == NULL);
-            return BCIRC_PLUGIN_CONTINUE;
-*/
     server *srv = (server*) params[0];
     int *numeric = (int*) params[1];
     char buf[strlen(params[2])+1];
@@ -214,7 +209,6 @@ int handle_nick(void **params, int argc)
     }
 
     printf("%s\n", buf);
-
 
     if (strcmp(srv->nick, srv->alt_nick) != 0)
         nick(srv->alt_nick, srv);
