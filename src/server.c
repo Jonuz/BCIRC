@@ -42,24 +42,32 @@ int server_connect(server *srv)
 	pthread_mutex_lock(&srv->mutex);
 	*s = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (*s == -1)
+	{
+		pthread_mutex_unlock(&srv->mutex);
 		return -2;
+	}
 
 	if (connect(*s, res->ai_addr, res->ai_addrlen) != 0)
-        return -3;
-
+    {
+		pthread_mutex_unlock(&srv->mutex);
+	    return -3;
+	}
 	srv->motd_sent = 0;
+	srv->connected = 1;
 	pthread_mutex_unlock(&srv->mutex);
-
 
     void **cb_params = malloc( sizeof(void*) );
     cb_params[0] = (void*) srv;
     execute_callbacks( CALLBACK_SERVER_CONNECTED, cb_params, 1 );
 	free(cb_params);
 
+
 	freeaddrinfo(res);
 
 	return 1;
 }
+
+
 
 int server_disconnect(server *srv)
 {
@@ -108,6 +116,8 @@ void *server_recv(void *srv_void)
 	char tmpbuf[2048];
 	char *buf = NULL;
 
+	int dc_reason = SERVER_INTENTIONAL_DC;
+
 	server *srv = (server*) srv_void;
 
 	if (!srv)
@@ -133,7 +143,9 @@ void *server_recv(void *srv_void)
 		n = select(srv->s+1, &readfs, NULL, NULL, &tv);
 
 		if (n == 2) //timeout
+		{
 			continue;
+		}
 
 		int res;
 		res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
@@ -142,8 +154,9 @@ void *server_recv(void *srv_void)
 
 		if (res <= 0)
 		{
-			server_disconnect(srv);
-			return NULL;
+			dc_reason = SERVER_CLOSED_CONNECTION;
+			close(srv->s);
+			break;
 		}
 
 		if (!buf)
@@ -172,6 +185,21 @@ void *server_recv(void *srv_void)
 			line = strtok_r(NULL, "\r\n", &save);
 		}
 	}
+
+	srv->connected = 0;
+
+	int *reason = malloc(sizeof(int));
+	*reason = dc_reason;
+
+	void **params = malloc(2 * sizeof(void*));
+	params[0] = (void*) srv;
+	params[1] = (void*) reason;
+
+	execute_callbacks(CALLBACK_SERVER_DISCONNECTED, params, 2);
+
+	free(reason);
+	free(params);
+
 	return NULL;
 }
 
@@ -231,6 +259,8 @@ int load_servers(char *config)
 		if(!config_setting_lookup_string(srv_setting, "server_host", &srv->host))
 			return -1;
 		if(!config_setting_lookup_string(srv_setting, "server_port", &srv->port))
+			return -1;
+		if(!config_setting_lookup_int(srv_setting, "autorejoin", &srv->autorejoin))
 			return -1;
 		if(!config_setting_lookup_string(srv_setting, "realname", &srv->realname))
 			return -1;

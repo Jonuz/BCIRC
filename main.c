@@ -12,8 +12,6 @@
 int server_count;
 int channel_count;
 
-char host[] = "dreamhack.se.quakenet.org";
-char port[] = "6667";
 int res;
 
 void get_input()

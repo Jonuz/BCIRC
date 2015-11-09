@@ -16,6 +16,8 @@ int handle_ping(void **params, int argc);
 int handle_registeration(void **params, int argc);
 int got_in(void **params, int argc);
 void autojoin_channels();
+int server_rejoin(void **params, int);
+
 
 int handle_nick(void **params, int argc); //This function handles usage alternative nick.
 
@@ -29,6 +31,7 @@ int plugin_init(plugin *pluginptr)
     register_callback(CALLBACK_SERVER_RECV, handle_ping, 5, pluginptr);
     register_callback(CALLBACK_SERVER_CONNECTED, handle_registeration, 5, pluginptr);
     register_callback(CALLBACK_GOT_NUMERIC, handle_nick, 5, pluginptr);
+    register_callback(CALLBACK_SERVER_DISCONNECTED, server_rejoin, 5, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
@@ -220,6 +223,45 @@ int handle_nick(void **params, int argc)
 
         nick(new_nick, srv);
         free(new_nick);
+    }
+
+    return BCIRC_PLUGIN_OK;
+}
+
+
+void *try_rejoin(void *srv_void)
+{
+    server *srv = srv_void;
+    int res;
+    while( (res = server_connect(srv)) != 1337) //i had to
+    {
+        if (res == 1)
+            break;
+        sleep(30);
+    }
+    add_to_serverpool(srv);
+    printf("Reconnected to %s\n", srv->host);
+
+    return NULL;
+}
+
+int server_rejoin(void **params, int argc)
+{
+    server *srv = params[0];
+    int *reason = (int*) params[1];
+
+    if (*reason == SERVER_INTENTIONAL_DC)
+        return BCIRC_PLUGIN_OK;
+
+    pthread_t thread;
+    if (pthread_create(&srv->thread, NULL, server_recv, (void*) srv) == 0)
+    {
+        try_rejoin( (void*) srv);
+    }
+    else
+    {
+        printf("Failed to create thread");
+        return BCIRC_PLUGIN_FAIL;
     }
 
     return BCIRC_PLUGIN_OK;

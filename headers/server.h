@@ -8,6 +8,11 @@
 #include <sys/types.h>
 
 
+#define SERVER_INTENTIONAL_DC 0
+#define SERVER_CLOSED_CONNECTION 1
+#define SERVER_TIMEOUT 2
+
+
 typedef struct server
 {
 	char *network_name;
@@ -15,6 +20,8 @@ typedef struct server
 	char *host;
 	char *port;
 	char *pass;
+
+	int autorejoin; //1 or 0
 
 	char *realname;
 	char *username;
@@ -34,6 +41,8 @@ typedef struct server
 	pthread_t thread;
 	pthread_mutex_t mutex;
 
+
+	int connected;
 
 	struct timeval *tv;
 

@@ -34,6 +34,7 @@ Params:
 /*
 Params:
     server *srv
+    int reason, SERVER_INTENTIONAL_DC or SERVER_TIMEOUT
 */
 
 
