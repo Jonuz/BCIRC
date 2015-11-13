@@ -35,7 +35,31 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream);
 
 
 
+CURL *curl;
 int has_filter = 0; // 1 if true
+
+
+int init_curl()
+{
+    CURLcode res;
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+
+    curl = curl_easy_init();
+    if (!curl)
+    {
+        printf("Failed to initalize curl!\n");
+        return BCIRC_PLUGIN_STOP;
+    }
+
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+
+    return BCIRC_PLUGIN_OK;
+}
 
 int plugin_init(plugin *pluginptr)
 {
@@ -44,7 +68,7 @@ int plugin_init(plugin *pluginptr)
     register_callback(CALLBACK_GOT_PRIVMSG, check_for_url, 20, pluginptr);
     register_callback(CALLBACK_GOT_PRIVMSG, add_url, 20, pluginptr);
 
-    return BCIRC_PLUGIN_OK;
+    return init_curl();
 }
 
 
@@ -115,40 +139,23 @@ int check_for_url(void **params, int argv)
 
 int http_request(char *url, ark *arkptr)
 {
-    CURL *curl;
     CURLcode res;
-    curl_global_init(CURL_GLOBAL_DEFAULT);
 
-    curl = curl_easy_init();
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, arkptr);
 
-    if (curl)
+
+    res = curl_easy_perform(curl);
+
+    if (res != CURLE_OK)
     {
+        printf("curl failed: %s\n", curl_easy_strerror(res));
+        curl_easy_cleanup(curl);
+        curl_global_cleanup();
 
-        if (strstr(url, "https") == url)
-        {
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-        }
-
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, arkptr);
-
-        res = curl_easy_perform(curl);
-
-        if (res != CURLE_OK)
-        {
-            printf("curl failed: %s\n", curl_easy_strerror(res));
-            curl_easy_cleanup(curl);
-            curl_global_cleanup();
-
-            return BCIRC_PLUGIN_CONTINUE;
-        }
+        return BCIRC_PLUGIN_CONTINUE;
     }
-    curl_easy_cleanup(curl);
-    curl_global_cleanup();
+
     return BCIRC_PLUGIN_OK;
 }
 
@@ -253,8 +260,6 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
 
     strcpy(target, arkptr->target_save);
     strcpy(nick, arkptr->nick_save);
-
-    printf("target: %s\n", target);
 
     if (arkptr->target_save[0] == '#') //In future: Check if target is channel.
         add_to_privmsg_queue(title, target, arkptr->srv_save, 0);
