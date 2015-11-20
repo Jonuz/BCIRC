@@ -17,6 +17,8 @@
 server **server_list;
 int server_count;
 
+pthread_mutex_t servers_global_mutex;
+
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 
 
@@ -290,10 +292,11 @@ int add_to_serverpool(server *srv)
 {
 	if (!srv)
 	{
-		printf("srv is null!\n");
+		printf("srv in null!(%s)\n", __PRETTY_FUNCTION__);
 		return -1;
 	}
 
+	pthread_mutex_lock(&servers_global_mutex);
 	if (server_list)
 		server_list = realloc(server_list, (server_count + 1) * sizeof(server*));
 	else
@@ -301,6 +304,7 @@ int add_to_serverpool(server *srv)
 
 	server_list[server_count] = malloc(sizeof(server*));
 	server_list[server_count] = srv;
+	pthread_mutex_unlock(&servers_global_mutex);
 
 	server_count++;
 
@@ -312,6 +316,63 @@ int add_to_serverpool(server *srv)
 		return -2;
 	}
 	pthread_detach(srv->thread);
+
+	return 1;
+}
+
+int remove_from_serverpool(server *srv)
+{
+	if (!srv)
+	{
+		printf("srv in null!(%s)\n", __PRETTY_FUNCTION__);
+		return -1;
+	}
+
+	if (srv->thread)
+		pthread_exit(&srv->thread);
+
+
+	server **new_list = NULL;
+	int new_count = 0;
+	pthread_mutex_lock(&servers_global_mutex);
+
+	for (int i = 0; i < server_count; i++)
+	{
+		if (server_list[i] != srv)
+		{
+			new_list = realloc(new_list, (new_count + 1) * sizeof(server*));
+			new_list[new_count] = server_list[i];
+			new_count++;
+		}
+	}
+
+	server_list = new_list;
+	server_count = new_count;
+
+	pthread_mutex_unlock(&servers_global_mutex);
+
+	return 1;
+}
+
+int free_server(server *srv)
+{
+	if (!srv)
+	{
+		printf("srv in null!(%s)\n", __PRETTY_FUNCTION__);
+		return -1;
+	}
+
+	free(srv->network_name);
+	free(srv->host);
+	free(srv->port);
+	free(srv->pass);
+
+	free(srv->realname);
+	free(srv->username);
+	free(srv->nick);
+	free(srv->alt_nick);
+
+	pthread_mutex_destroy(srv->mutex);
 
 	return 1;
 }
