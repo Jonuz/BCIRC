@@ -88,8 +88,6 @@ int check_for_url(void **params, int argv)
     char *target = params[3];
     char *msg = params[4];
 
-    //puts("Check for url called!");
-
     regex_t regex;
     int reti;
     regmatch_t matches[1];
@@ -125,13 +123,14 @@ int check_for_url(void **params, int argv)
     strcpy(new_ark->nick_save, nick);
 
 
-
     if (has_filter == 1)
         if (check_url(url) == 0)
             return BCIRC_PLUGIN_OK;
 
     http_request(url, new_ark);
     free(url);
+    free(new_ark->target_save);
+    free(new_ark->nick_save);
     free(new_ark);
 
     return BCIRC_PLUGIN_OK;
