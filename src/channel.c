@@ -152,8 +152,7 @@ int get_channel_users(channel *chan, char *buffer)
 
 
 	char *users = NULL;
-	size_t users_len = 0;
-
+    
 	users = strstr(buffer+1, ":");
 	users++;
 
