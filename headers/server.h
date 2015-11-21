@@ -52,6 +52,8 @@ typedef struct server
 extern server **server_list;
 extern int server_count;
 
+extern pthread_mutex_t servers_global_mutex;
+
 int add_to_serverpool();
 
 int server_disconnect(server *srv);
