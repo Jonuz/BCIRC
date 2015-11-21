@@ -372,7 +372,7 @@ int free_server(server *srv)
 	free(srv->nick);
 	free(srv->alt_nick);
 
-	pthread_mutex_destroy(srv->mutex);
+	pthread_mutex_destroy(&srv->mutex);
 
 	return 1;
 }
