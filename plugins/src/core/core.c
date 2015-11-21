@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <libconfig.h>
+#include <pthread.h>
 
 #include "../headers/irc.h"
 #include "../headers/server.h"
@@ -11,6 +12,7 @@
 #include "../headers/plugin_handler.h"
 #include "../headers/callback_defines.h"
 
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 
 int handle_ping(void **params, int argc);
 int handle_registeration(void **params, int argc);
@@ -80,7 +82,7 @@ void autojoin_channels(server *srv)
         {
             config_setting_t *chan_setting = config_setting_get_elem(chans_setting, y);
 
-            const char *chan_str;
+            char *chan_str;
             char *key_str;
 
             config_setting_lookup_string(chan_setting, "chan_name", &chan_str);
@@ -102,7 +104,6 @@ int got_in(void **params, int argc)
 {
     server *srv = (server*) params[0];
     int *numeric = (int*) params[1];
-
 
     if (srv->motd_sent == 1)
         return BCIRC_PLUGIN_OK;
@@ -170,7 +171,6 @@ int handle_registeration(void **params, int argc)
 
     char key_buf[512];
     char username_buf[512];
-    char nickname_buf[512];
 
     if (!srv)
     {
@@ -233,14 +233,17 @@ void *try_rejoin(void *srv_void)
 {
     server *srv = srv_void;
     int res;
-    while( (res = server_connect(srv)) != 1337) //i had to
+    while((res = server_connect(srv)) != 1337) //i had to
     {
         if (res == 1)
             break;
-        sleep(30);
+        sleep(15);
     }
-    add_to_serverpool(srv);
     printf("Reconnected to %s\n", srv->host);
+
+
+    pthread_exit(&srv->thread);
+    add_to_serverpool(srv);
 
     return NULL;
 }
@@ -250,11 +253,18 @@ int server_rejoin(void **params, int argc)
     server *srv = params[0];
     int *reason = (int*) params[1];
 
+    if ((!reason) || (!srv))
+    {
+        return -1;
+    }
+
+    pthread_t thread;
+    printf("server_rejoin called\n");
+
     if (*reason == SERVER_INTENTIONAL_DC)
         return BCIRC_PLUGIN_OK;
 
-    pthread_t thread;
-    if (pthread_create(&srv->thread, NULL, server_recv, (void*) srv) == 0)
+    if (pthread_create(&thread, NULL, try_rejoin, (void*) srv) == 0)
     {
         try_rejoin( (void*) srv);
     }
