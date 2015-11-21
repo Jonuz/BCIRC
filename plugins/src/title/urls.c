@@ -21,7 +21,7 @@ int check_url(char *str) // 1 if true, othetwise 0.
     }
 
     char *token, *save;
-    char *urls_save[strlen(urls)];
+    char *urls_save[strlen(urls)+1];
     strcpy(urls_save, urls);
 
     token = strtok_r(urls, "\n", &save);
