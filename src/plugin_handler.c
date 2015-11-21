@@ -20,8 +20,6 @@ callback_index **index_list;
 int index_count;
 
 
-void *execute_function = NULL;
-
 int load_plugin(char *path)
 {
     plugin *new_plugin = malloc(sizeof(plugin));
