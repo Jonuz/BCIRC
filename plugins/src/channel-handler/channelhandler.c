@@ -43,7 +43,7 @@ int get_channel_info(void **params, int argcv)
 
     if (!buffer)
     {
-        puts("buffers is null!");
+        bcirc_printf("buffers is null!\n");
         return BCIRC_PLUGIN_OK;
     }
 
@@ -76,7 +76,7 @@ int get_channel_info(void **params, int argcv)
         this_channel = create_channel(chan_name, srv);
         if (!this_channel)
         {
-            printf("Failed to add channel named %s\n!", chan_name);
+            bcirc_printf("Failed to add channel named %s\n!", chan_name);
             return BCIRC_PLUGIN_OK;
         }
     }

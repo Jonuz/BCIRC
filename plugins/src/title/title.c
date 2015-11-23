@@ -6,6 +6,7 @@
 #include  "entities.h"
 
 #include "../headers/irc.h"
+#include "../headers/log.h"
 #include "../headers/server.h"
 #include "../headers/irc_cmds.h"
 #include "../headers/plugin_handler.h"
@@ -78,7 +79,7 @@ int check_for_url(void **params, int argv)
     for (int i = 0; i < argv; i++)
         if (params[i] == NULL)
         {
-            printf("params[%d] is NULL!\n", i);
+            bcirc_printf("params[%d] is NULL!\n", i);
             return BCIRC_PLUGIN_FAIL;
         }
 
@@ -95,7 +96,7 @@ int check_for_url(void **params, int argv)
     reti = regcomp(&regex, "https?:\/\/[^\ ]+", REG_EXTENDED);
     if (reti != 0)
     {
-        printf("Failed to compile regex!\n");
+        bcirc_printf("Failed to compile regex!\n");
         regfree(&regex);
         return BCIRC_PLUGIN_FAIL;
     }
@@ -148,7 +149,7 @@ int http_request(char *url, ark *arkptr)
 
     if (res != CURLE_OK)
     {
-        printf("curl failed: %s\n", curl_easy_strerror(res));
+        bcirc_printf("curl failed: %s\n", curl_easy_strerror(res));
         curl_easy_cleanup(curl);
         curl_global_cleanup();
 
@@ -174,7 +175,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
     reti = regcomp(&regex, "<title[^>]*>(.*?)</title>", REG_EXTENDED);
     if (reti != 0)
     {
-        printf("Failed to compile regex!\n");
+        bcirc_printf("Failed to compile regex!\n");
         free(response);
         regfree(&regex);
         return size * nmemb;;
@@ -188,7 +189,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
         return size * nmemb;
     }
 
-    puts("Title found");
+    bcirc_printf("Title found\n");
 
     size_t len = matches[0].rm_eo - matches[0].rm_so;
 

@@ -5,6 +5,7 @@
 #include <libconfig.h>
 #include <pthread.h>
 
+#include "../headers/log.h"
 #include "../headers/irc.h"
 #include "../headers/server.h"
 #include "../headers/numeric.h"
@@ -49,8 +50,8 @@ void autojoin_channels(server *srv)
 
     if (!config_read_file(&cfg, config))
 	{
-		printf("Failed to load config!\n");
-		printf("%d\n%s\n", config_error_line(&cfg), config_error_text(&cfg));
+		bcirc_printf("Failed to load config!\n");
+		bcirc_printf("%d\n%s\n", config_error_line(&cfg), config_error_text(&cfg));
 		config_destroy(&cfg);
 
 		return;
@@ -59,7 +60,7 @@ void autojoin_channels(server *srv)
     config_setting_t *servers_setting;
     if (!(servers_setting = config_lookup(&cfg, "servers")))
 	{
-		printf("Failed to load setting \"servers\"(%s).\n", config);
+		bcirc_printf("Failed to load setting \"servers\"(%s).\n", config);
 		return;
 	}
 
@@ -73,7 +74,7 @@ void autojoin_channels(server *srv)
 
         if (!(chans_setting = config_lookup(&srv_setting, "channels")))
         {
-            printf("No channels found.\n");
+            bcirc_printf("No channels found.\n");
             return;
         }
         unsigned int channel_count = config_setting_length(chans_setting);
@@ -90,7 +91,7 @@ void autojoin_channels(server *srv)
             if (!config_setting_lookup_string(chan_setting, "chan_key", &key_str))
                 key_str = NULL;
 
-            printf("chan %s\nkey: %s\n", chan_str, key_str);
+            bcirc_printf("chan %s\nkey: %s\n", chan_str, key_str);
 
             join_channel(chan_str, key_str, srv);
 
@@ -111,7 +112,7 @@ int got_in(void **params, int argc)
     if (*numeric != RPL_ENDOFMOTD)
         return BCIRC_PLUGIN_CONTINUE;
 
-    printf("Connected to %s!\n", srv->host);
+    bcirc_printf("Connected to %s!\n", srv->host);
     srv->motd_sent = 1;
 
     autojoin_channels(srv);
@@ -151,7 +152,7 @@ int handle_ping(void **params, int argc)
 
     pong[1] = 'O';
 
-    puts("PONG!");
+    bcirc_printf("PONG!\n");
     server_send(pong, srv);
 
     free(pong);
@@ -174,7 +175,7 @@ int handle_registeration(void **params, int argc)
 
     if (!srv)
     {
-        printf("srv is null!\n");
+        bcirc_printf("srv is null!\n");
         return BCIRC_PLUGIN_CONTINUE;
     }
 
@@ -211,8 +212,6 @@ int handle_nick(void **params, int argc)
             return BCIRC_PLUGIN_OK;
     }
 
-    printf("%s\n", buf);
-
     if (strcmp(srv->nick, srv->alt_nick) != 0)
         nick(srv->alt_nick, srv);
     else
@@ -239,7 +238,7 @@ void *try_rejoin(void *srv_void)
             break;
         sleep(15);
     }
-    printf("Reconnected to %s\n", srv->host);
+    bcirc_printf("Reconnected to %s\n", srv->host);
 
 
     pthread_exit(&srv->thread);
@@ -259,7 +258,7 @@ int server_rejoin(void **params, int argc)
     }
 
     pthread_t thread;
-    printf("server_rejoin called\n");
+    bcirc_printf("server_rejoin called\n");
 
     if (*reason == SERVER_INTENTIONAL_DC)
         return BCIRC_PLUGIN_OK;
@@ -270,7 +269,7 @@ int server_rejoin(void **params, int argc)
     }
     else
     {
-        printf("Failed to create thread");
+        bcirc_printf("Failed to create thread");
         return BCIRC_PLUGIN_FAIL;
     }
 

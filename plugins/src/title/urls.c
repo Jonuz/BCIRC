@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../headers/log.h"
 #include "../headers/plugin_handler.h"
 #include "../headers/callback_defines.h"
 
@@ -21,7 +22,7 @@ int check_url(char *str) // 1 if true, othetwise 0.
     }
 
     char *token, *save;
-    char *urls_save[strlen(urls)+1];
+    char urls_save[strlen(urls)+1];
     strcpy(urls_save, urls);
 
     token = strtok_r(urls, "\n", &save);
@@ -50,7 +51,7 @@ int get_urls()
     urlstxt = fopen(url_file, "r");
     if (urlstxt == NULL)
     {
-        printf("Failed to open %s", url_file);
+        bcirc_printf("Failed to open %s", url_file);
         if (urls)
             free(urls);
         return 0;
@@ -85,7 +86,7 @@ int add_url(void **params, int argc)
 
     if ((!msg) || (!nick))
     {
-        puts("msg or nick NULL");
+        bcirc_printf("msg or nick NULL\n");
         return BCIRC_PLUGIN_CONTINUE;
     }
 
@@ -112,7 +113,7 @@ int add_url(void **params, int argc)
     urlstxt = fopen(url_file, "a");
     if (!urlstxt)
     {
-        printf("failed to open %s\n", url_file);
+        bcirc_printf("failed to open %s\n", url_file);
         fclose(urlstxt);
         return BCIRC_PLUGIN_FAIL;
     }

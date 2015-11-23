@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "../headers/log.h"
 #include "../headers/irc.h"
 #include "../headers/server.h"
 #include "../headers/plugin_handler.h"
@@ -25,12 +26,12 @@ int on_numeric(void **params, int argc);
 
 int plugin_init(plugin *pluginptr)
 {
-	//register_callback(CALLBACK_SERVER_RECV, on_recv, 15, pluginptr);
+	register_callback(CALLBACK_SERVER_RECV, on_recv, 20, pluginptr);
 
-	register_callback(CALLBACK_GOT_PRIVMSG, on_privmsg, 10, pluginptr);
+	register_callback(CALLBACK_GOT_PRIVMSG, on_privmsg, 20, pluginptr);
 
-	register_callback(CALLBACK_CHANNEL_JOIN, on_join, 15, pluginptr);
-	register_callback(CALLBACK_CHANNEL_PART, on_part, 15, pluginptr);
+	register_callback(CALLBACK_CHANNEL_JOIN, on_join, 20, pluginptr);
+	register_callback(CALLBACK_CHANNEL_PART, on_part, 20, pluginptr);
 	//register_callback(CALLBACK_CHANNEL_KICK, on_kick, 20, pluginptr);
 
 	//register_callback(CALLBACK_GOT_NUMERIC, on_numeric, 20, pluginptr);
@@ -50,7 +51,7 @@ int on_recv(void **params, int argc)
 	if (srv->motd_sent == 1)
 		return BCIRC_PLUGIN_CONTINUE;
 
-	printf("%s\n", buffer);
+	bcirc_log("%s\n", NULL, buffer);
 
 	return BCIRC_PLUGIN_OK;
 }
@@ -70,7 +71,7 @@ int on_numeric(void **params, int argc)
 
 	if (!srv->network_name)
 		return BCIRC_PLUGIN_OK;
-	printf("%s: %s\n", srv->network_name, buf);
+	bcirc_printf("%s: %s\n", srv->network_name, buf);
 
 	return BCIRC_PLUGIN_STOP;
 }
@@ -82,7 +83,7 @@ int on_privmsg(void **params, int argc)
 	char *target = params[3];
 	char *msg = params[4];
 
-	printf("%s <%s>: %s\n", target, nick, msg);
+	bcirc_printf("%s <%s>: %s\n", target, nick, msg);
 
 	return BCIRC_PLUGIN_OK;
 }
@@ -95,7 +96,8 @@ int on_server_send(void **paramams, int argc)
     if ((srv == NULL) || (buf == NULL))
         return BCIRC_PLUGIN_BREAK;
 
-    printf("%s\n", buf);
+    bcirc_printf("%s\n", buf);
+	bcirc_log(buf, NULL);
 
     return BCIRC_PLUGIN_OK;
 }
@@ -112,7 +114,7 @@ int on_join(void **params, int argc)
         return BCIRC_PLUGIN_BREAK;
     }
 
-    printf("User %s joined channel %s\n", nick, chan->name);
+    bcirc_printf("User %s joined channel %s\n", nick, chan->name);
 
 	return BCIRC_PLUGIN_OK;
 }
@@ -128,7 +130,7 @@ int on_part(void **params, int argc)
         return BCIRC_PLUGIN_BREAK;
     }
 
-    printf("User %s left channel %s\n", nick, chan->name);
+    bcirc_printf("User %s left channel %s\n", nick, chan->name);
 
     return BCIRC_PLUGIN_OK;
 }
