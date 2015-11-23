@@ -1,11 +1,18 @@
+#include <time.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-#include <time.h>
+
+ #include <sys/types.h>
+ #include <sys/stat.h>
 
 #include "../headers/log.h"
+
+#pragma GCC diagnostic ignored "-Wvarargs" //but it works
+
 
 int bcirc_printf(char *str, ...)
 {
@@ -84,6 +91,19 @@ int bcirc_log(char *str, char *file, ...)
     // /logdir/logname.dd.mm.yy.log
     char *file_to_write = malloc((strlen(log_dir) + 1 + strlen(file) + 1 + strlen(log_name_time) + 4 + 1) * sizeof(char));
     sprintf(file_to_write, "%s/%s.%s.log", log_dir, file, log_name_time);
+
+
+    struct stat sb;
+    if (stat(log_dir, &sb))
+    {
+        int status = mkdir(log_dir, S_IRWXU);
+
+        if (status != 0)
+        {
+             printf("failed to create dir %s, errno: %d\n", log_dir, errno);
+             exit(EXIT_FAILURE);
+        }
+    }
 
     FILE *logfile = fopen(file_to_write, "a");
     fprintf(logfile, "%s", new_output);
