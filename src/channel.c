@@ -3,6 +3,7 @@
 #include <string.h>
 #include <pthread.h>
 
+#include "../headers/log.h"
 #include "../headers/numeric.h"
 #include "../headers/server.h"
 #include "../headers/channel.h"
@@ -43,13 +44,13 @@ channel *create_channel(char *chan_name, struct server *srv)
     channel **new_channel_list = realloc(channel_list, (channel_count + 1) * sizeof(channel*) );
     if (!new_channel_list)
     {
-        printf("Failed to realloc new_channel_list (%s)\n", __PRETTY_FUNCTION__);
+        bcirc_printf("Failed to realloc new_channel_list (%s)\n", __PRETTY_FUNCTION__);
         exit(EXIT_FAILURE);
     }
     new_channel_list[channel_count] = malloc(sizeof(channel));
     if (!new_channel_list)
     {
-        printf("Failed to malloc!(%s)\n", __PRETTY_FUNCTION__);
+        bcirc_printf("Failed to malloc!(%s)\n", __PRETTY_FUNCTION__);
         exit(EXIT_FAILURE);
     }
 
@@ -129,7 +130,7 @@ int remove_user(void **params, int arcv)
             strncpy(new_users, chan->users, len);
             strncat(new_users, chan->users+second_start, strlen(chan->users - second_start));
 
-            printf("new_users: %s\n", new_users);
+            bcirc_printf("new_users: %s\n", new_users);
 
         }
 
@@ -152,7 +153,7 @@ int get_channel_users(channel *chan, char *buffer)
 
 
 	char *users = NULL;
-    
+
 	users = strstr(buffer+1, ":");
 	users++;
 

@@ -8,8 +8,9 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#include "../headers/server.h"
 #include "../headers/irc.h"
+#include "../headers/log.h"
+#include "../headers/server.h"
 #include "../headers/plugin_handler.h"
 #include "../headers/callback_defines.h"
 
@@ -124,7 +125,7 @@ void *server_recv(void *srv_void)
 
 	if (!srv)
 	{
-		puts("srv is null!");
+		bcirc_printf("srv is null!\n");
 		return NULL;
 	}
 
@@ -213,8 +214,8 @@ int load_servers(char *config)
 
 	if (!config_read_file(&cfg, config))
 	{
-		printf("Failed to load config!\n");
-		printf("%d\n%s\n", config_error_line(&cfg), config_error_text(&cfg));
+		bcirc_printf("Failed to load config!\n");
+		bcirc_printf("%d\n%s\n", config_error_line(&cfg), config_error_text(&cfg));
 		config_destroy(&cfg);
 
 		return -2;
@@ -223,13 +224,13 @@ int load_servers(char *config)
 
 	if (! (setting = config_lookup(&cfg, "servers")))
 	{
-		printf("Failed to load setting \"servers\".(%s)\n", config);
+		bcirc_printf("Failed to load setting \"servers\".(%s)\n", config);
 		return -1;
 	}
 
 
 	unsigned int server_count = config_setting_length(setting);
-	printf("server_count: %d\n", server_count);
+	bcirc_printf("server_count: %d\n", server_count);
 
 
 	for (int i = 0; i < server_count; i++)
@@ -238,7 +239,7 @@ int load_servers(char *config)
 		server *srv = malloc(sizeof(server));
 		if (!srv)
 		{
-			puts("failed to malloc server");
+			bcirc_printf("failed to malloc server\n");
 			exit(EXIT_FAILURE);
 		}
 
@@ -277,7 +278,7 @@ int load_servers(char *config)
 
 		if (server_connect(srv) != 1)
 		{
-			printf("Failed connect to %s\n", srv->host);
+			bcirc_printf("Failed connect to %s\n", srv->host);
 			return 0;
 		}
 		puts("oink");
@@ -292,7 +293,7 @@ int add_to_serverpool(server *srv)
 {
 	if (!srv)
 	{
-		printf("srv in null!(%s)\n", __PRETTY_FUNCTION__);
+		bcirc_printf("srv in null!(%s)\n", __PRETTY_FUNCTION__);
 		return -1;
 	}
 
@@ -312,7 +313,7 @@ int add_to_serverpool(server *srv)
 
 	if (ret)
 	{
-		printf("pthread_create failed, %d\n", ret);
+		bcirc_printf("pthread_create failed, %d\n", ret);
 		return -2;
 	}
 	pthread_detach(srv->thread);
@@ -324,7 +325,7 @@ int remove_from_serverpool(server *srv)
 {
 	if (!srv)
 	{
-		printf("srv in null!(%s)\n", __PRETTY_FUNCTION__);
+		bcirc_printf("srv in null!(%s)\n", __PRETTY_FUNCTION__);
 		return -1;
 	}
 
@@ -358,7 +359,7 @@ int free_server(server *srv)
 {
 	if (!srv)
 	{
-		printf("srv in null!(%s)\n", __PRETTY_FUNCTION__);
+		bcirc_printf("srv in null!(%s)\n", __PRETTY_FUNCTION__);
 		return -1;
 	}
 

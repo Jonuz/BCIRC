@@ -8,6 +8,7 @@
 #include <sys/time.h>
 
 #include "../headers/irc.h"
+#include "../headers/log.h"
 #include "../headers/irc_cmds.h"
 #include "../headers/plugin_handler.h"
 
@@ -43,7 +44,7 @@ int add_to_privmsg_queue(char *msg, char *target, server *srv, const int drop )
 
     if (msg_count >= MAX_MSG_COUNT)
     {
-        printf("Got already %d messages on queue, wont take more.\n", msg_count);
+        bcirc_printf("Got already %d messages on queue, wont take more.\n", msg_count);
         return 0;
     }
 
@@ -62,7 +63,7 @@ int add_to_privmsg_queue(char *msg, char *target, server *srv, const int drop )
     msg_list[msg_count] = new_msg_info;
     if (!msg_list)
     {
-        printf("Failed to realloc msg_list. (%s)\n", __PRETTY_FUNCTION__);
+        bcirc_printf("Failed to realloc msg_list. (%s)\n", __PRETTY_FUNCTION__);
         exit(EXIT_FAILURE);
     }
     msg_count++;
@@ -73,7 +74,7 @@ int add_to_privmsg_queue(char *msg, char *target, server *srv, const int drop )
     {
         if ((pthread_create(&thread, NULL, &handle_privmsg_queue, NULL)))
         {
-            puts("Failed to create thread!");
+            bcirc_printf("Failed to create thread!\n");
             exit(0);
         }
         pthread_detach(thread);
@@ -120,12 +121,12 @@ void *handle_privmsg_queue()
         {
             if (!msg_list[0]->drop)
             {
-                puts("Will sleep");
+                bcirc_printf("Will sleep\n");
                 usleep(12500);
                 privmsg(msg_list[0]->msg, msg_list[0]->target, msg_list[0]->srv);
             }
             else
-                printf("Dropped message \"%s\" to target %s\n", msg_list[0]->msg, msg_list[0]->target);
+                bcirc_printf("Dropped message \"%s\" to target %s\n", msg_list[0]->msg, msg_list[0]->target);
         }
         else
             privmsg(msg_list[0]->msg, msg_list[0]->target, msg_list[0]->srv);
@@ -154,6 +155,6 @@ void *handle_privmsg_queue()
         last_message_times[0] = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
 
     }
-    puts("privmsg handler loop stopped.. this should not happen..");
+    bcirc_printf("privmsg handler loop stopped.. this should not happen..\n");
     exit(EXIT_FAILURE);
 }

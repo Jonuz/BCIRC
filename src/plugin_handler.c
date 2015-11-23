@@ -6,9 +6,11 @@
 
 #include <execinfo.h>
 
-#include "../headers/plugin_handler.h"
 #include "../headers/irc.h"
+#include "../headers/log.h"
 #include "../headers/server.h"
+#include "../headers/plugin_handler.h"
+
 
 #define get_str_size(str) ( (strlen( (char*) str) + 1) * sizeof(char) )
 
@@ -45,8 +47,8 @@ int load_plugin(char *path)
     new_plugin->plugin_author = (char*) dlsym(handle, "plugin_author");
     if (new_plugin->plugin_author == NULL)
     {
-        printf("Failed to get author of plugin!\n");
-        printf("Path: %s\n", path);
+        bcirc_printf("Failed to get author of plugin!\n");
+        bcirc_printf("Path: %s\n", path);
         free(new_plugin->callback_list);
         free(new_plugin);
         return -2;
@@ -55,8 +57,8 @@ int load_plugin(char *path)
     new_plugin->plugin_name = (char*) dlsym(handle, "plugin_name");
     if (new_plugin->plugin_name == NULL)
     {
-        printf("Failed to get name of plugin!\n");
-        printf("Path: %s\n", path);
+        bcirc_printf("Failed to get name of plugin!\n");
+        bcirc_printf("Path: %s\n", path);
         free(new_plugin->callback_list);
         free(new_plugin);
         return -2;
@@ -65,8 +67,8 @@ int load_plugin(char *path)
     new_plugin->plugin_version = (char*) dlsym(handle, "plugin_version");
     if (new_plugin->plugin_version == NULL)
     {
-        printf("Failed to get version of plugin!\n");
-        printf("Path: %s\n", path);
+        bcirc_printf("Failed to get version of plugin!\n");
+        bcirc_printf("Path: %s\n", path);
         free(new_plugin->callback_list);
         free(new_plugin);
         return -2;
@@ -75,8 +77,8 @@ int load_plugin(char *path)
     init_func = dlsym(handle, "plugin_init");
     if (init_func == NULL)
     {
-        printf("Failed to load function for initialization!\n");
-        printf("Path: %s\n", path);
+        bcirc_printf("Failed to load function for initialization!\n");
+        bcirc_printf("Path: %s\n", path);
         free(new_plugin->callback_list);
         free(new_plugin);
         return -2;
@@ -86,7 +88,7 @@ int load_plugin(char *path)
     int res;
     if ((res = init_func(new_plugin)) != BCIRC_PLUGIN_OK)
     {
-        printf("Plugin %s returned %d on init!\n", new_plugin->plugin_name, res);
+        bcirc_printf("Plugin %s returned %d on init!\n", new_plugin->plugin_name, res);
         free(new_plugin->callback_list);
         free(new_plugin);
         return -3;
@@ -96,7 +98,7 @@ int load_plugin(char *path)
     new_list = realloc(plugin_list, (plugin_count + 1) * sizeof(plugin*));
     if (plugin_list == NULL)
     {
-        printf("Failed to malloc new_list (%s)\n", __PRETTY_FUNCTION__);
+        bcirc_printf("Failed to malloc new_list (%s)\n", __PRETTY_FUNCTION__);
         exit(EXIT_FAILURE);
     }
 
@@ -106,7 +108,7 @@ int load_plugin(char *path)
 
     plugin_count++;
 
-    printf("Added plugin %s version %s\n", new_plugin->plugin_name, new_plugin->plugin_version);
+    bcirc_printf("Added plugin %s version %s\n", new_plugin->plugin_name, new_plugin->plugin_version);
 
     return 1;
 }
@@ -126,7 +128,7 @@ int get_plugins(char *plugin_dir)
                 if (strlen(dir->d_name) > 3)
                 {
                     size_t name_len = strlen(dir->d_name);
-                    if (strstr(dir->d_name, ".so") == dir->d_name+name_len-3)
+                    if (strstr(dir->d_name, ".so") == dir->d_name+name_len-3) //name ends to .so
                     {
                         char *plugin_to_add = malloc( (strlen(plugin_dir) + 1 + strlen(dir->d_name) + 1) * sizeof(char));
                         sprintf(plugin_to_add, "%s/%s", plugin_dir, dir->d_name);
@@ -166,17 +168,17 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, int priority, plugin
 {
     if (pluginptr == NULL)
     {
-        printf("pluginptr is null!\n");
+        bcirc_printf("pluginptr is null!\n");
         return -1;
     }
     if (cb_name == NULL)
     {
-        printf("cb_name is null!\n");
+        bcirc_printf("cb_name is null!\n");
         return -1;
     }
     if (cb_func == NULL)
     {
-        printf("cb_func is null!\n");
+        bcirc_printf("cb_func is null!\n");
         return -1;
     }
 
@@ -189,7 +191,7 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, int priority, plugin
     new_list = realloc(pluginptr->callback_list, (pluginptr->callback_count + 1) * sizeof(callback));
     if (!new_list)
     {
-        printf("Failed to realloc new_list (%s)\n", __PRETTY_FUNCTION__);
+        bcirc_printf("Failed to realloc new_list (%s)\n", __PRETTY_FUNCTION__);
         exit(EXIT_FAILURE);
     }
     pluginptr->callback_list = new_list;
@@ -219,7 +221,7 @@ int init_index()
 }
 
 
-int is_callback_indexed(char *cb_name)
+int get_cb_index(char *cb_name)
 {
     for (int i = 0; i < index_count; i++)
     {
@@ -243,7 +245,7 @@ int compare_index (const void *a, const void *b)
 int index_callback(callback *callback_ptr)
 {
     char *cb_name = callback_ptr->cb_name;
-    int index_point = is_callback_indexed(cb_name);
+    int index_point = get_cb_index(cb_name);
 
     if (index_point >= 0)
     {
@@ -257,7 +259,7 @@ int index_callback(callback *callback_ptr)
 
         if (!callbacks)
         {
-            printf("Failed to alloc callback_list(%s)!\n", __PRETTY_FUNCTION__);
+            bcirc_printf("Failed to alloc callback_list(%s)!\n", __PRETTY_FUNCTION__);
             exit(EXIT_SUCCESS);
         }
         callbacks[callbacks_count] = callback_ptr;
@@ -273,7 +275,7 @@ int index_callback(callback *callback_ptr)
         callback_index *new_index = malloc(sizeof(callback_index));
         if (!new_index)
         {
-            printf("Failed to malloc new_index(%s)\n", __PRETTY_FUNCTION__);
+            bcirc_printf("Failed to malloc new_index(%s)\n", __PRETTY_FUNCTION__);
             exit(EXIT_SUCCESS);
         }
 
@@ -286,7 +288,7 @@ int index_callback(callback *callback_ptr)
         index_list = realloc(index_list, (index_count + 1) * sizeof(callback_index*));
         if (!index_list)
         {
-            printf("Failed to realloc index_list(%s)\n", __PRETTY_FUNCTION__);
+            bcirc_printf("Failed to realloc index_list(%s)\n", __PRETTY_FUNCTION__);
             exit(EXIT_SUCCESS);
         }
 
@@ -308,7 +310,7 @@ void print_backtrace()
     strings = backtrace_symbols(buffers, nptrs);
 
     for (int i = 0; i < nptrs; i++)
-        printf("%s\n", strings[i]);
+        bcirc_printf("%s\n", strings[i]);
     free(strings);
 
     return;
@@ -316,7 +318,7 @@ void print_backtrace()
 
 int execute_callbacks(char *cb_name, void **args, int argc)
 {
-    int index_point = is_callback_indexed(cb_name);
+    int index_point = get_cb_index(cb_name);
 
     if (index_point == -1)
     {
