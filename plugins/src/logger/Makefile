@@ -7,4 +7,4 @@ $(TARGET):
 	$(CC) $(SOURCES) $(CFLAGS) -o $@
 
 clean:
-	rm -f $(BCIRC_PLUGIN_PATH)/logger.so
+	rm -f $(BCIRC_PLUGINS_BIN)/logger.so

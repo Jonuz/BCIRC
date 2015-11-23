@@ -21,3 +21,4 @@ clean:
 	-rm -f $(BCIRC_PLUGINS_BIN)/*.so
 	-rm -f $(BCIRC_PLUGINS_DIR)/libbcirc.a
 	-rm $(BCIRC_TARGET_DIR)/irc
+	-rm *.out
