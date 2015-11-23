@@ -78,6 +78,6 @@ int execute_callbacks(char *cb_name, void **args, int argc);
 int init_index();
 int index_callback(callback *callback_ptr);
 int get_index_count();
-int is_callback_indexed(char *cb_name);
+int get_cb_index(char *cb_name);
 
 #endif /* PLUGIN_HANDLER_H_ */
