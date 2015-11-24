@@ -157,12 +157,46 @@ int pause_plugin(plugin *pluginptr)
     return 1;
 }
 
+/*
 int remove_plugin(plugin *pluginptr)
 {
 
+	plugin **new_list = malloc(sizeof(plugin*));
+	int new_count;
+
+	for (int i = 0; i < plugin_count; i++)
+	{
+		if (plugin_list[i] == pluginptr)
+		{
+			for (int y = 0; y < plugin_list[i]->cb_count)
+			{
+				// remove_callbac(plugin_list[i]->callbacks[y]); TODO: implement this
+				free(plugin_list[i]->callbacks[y]);
+				plugin_list[i]->callbackcount--,
+			}
+
+			free(plugin_list[i]->handle);
+			free(plugin_list[i]->plugin_name);
+			free(plugin_list[i]->plugin_version);
+			free(plugin_list[i]->plugin_author);
+
+			free(plugin_list[i]->callback_list);
+			free(plugin_list[i]);
+		}
+		else
+		{
+			new_list = realloc(new_list, (new_count + 1) * sizeof(callback));
+			new_list[new_count] = plugin_list[i];
+			new_count++;
+		}
+	}
+
+	free(plugin_list);
+	plugin_list = new_list;
+	plugin_count = new_count;
 
     return 1;
-}
+}*/
 
 int register_callback(char *cb_name, CALLBACK_FUNC cb_func, int priority, plugin *pluginptr)
 {
@@ -298,23 +332,6 @@ int index_callback(callback *callback_ptr)
     return 1;
 }
 
-/*
-void print_backtrace()
-{
-    int nptrs;
-    #define SIZE 100
-    void *buffers[100];
-    char **strings;
-
-    nptrs = backtrace(buffers, SIZE);
-    strings = backtrace_symbols(buffers, nptrs);
-
-    for (int i = 0; i < nptrs; i++)
-        bcirc_printf("%s\n", strings[i]);
-    free(strings);
-
-    return;
-}*/
 
 int execute_callbacks(char *cb_name, void **args, int argc)
 {
@@ -322,12 +339,9 @@ int execute_callbacks(char *cb_name, void **args, int argc)
 
     if (index_point == -1)
     {
-        //printf("no such a callback!(%s)\n", cb_name);
         return BCIRC_PLUGIN_OK;
     }
     int cb_count = index_list[index_point]->cb_count;
-
-    //print_backtrace();
 
     for (int i = 0; i < cb_count; i++)
     {
