@@ -2,6 +2,7 @@
 #include <curl/curl.h>
 #include <regex.h>
 #include <sys/types.h>
+#include <time.h>
 
 #include  "entities.h"
 
@@ -25,6 +26,8 @@ typedef struct ark
     server *srv_save;
     char *target_save;
     char *nick_save;
+
+	clock_t start_time;
 } ark;
 
 
@@ -89,6 +92,9 @@ int check_for_url(void **params, int argv)
     char *target = params[3];
     char *msg = params[4];
 
+	ark *new_ark = malloc(sizeof(ark));
+	new_ark->start_time = clock();
+
     regex_t regex;
     int reti;
     regmatch_t matches[1];
@@ -98,6 +104,7 @@ int check_for_url(void **params, int argv)
     {
         bcirc_printf("Failed to compile regex!\n");
         regfree(&regex);
+		free(new_ark);
         return BCIRC_PLUGIN_FAIL;
     }
 
@@ -105,6 +112,7 @@ int check_for_url(void **params, int argv)
     regfree(&regex);
     if (reti != 0)
     {
+		free(new_ark);
         return BCIRC_PLUGIN_CONTINUE;
     }
 
@@ -113,8 +121,6 @@ int check_for_url(void **params, int argv)
 
     strncpy(url, msg+matches[0].rm_so, len);
     url[len-1] = '\0';
-
-    ark *new_ark = malloc(sizeof(ark));
 
     new_ark->srv_save = srv;
 
@@ -126,8 +132,10 @@ int check_for_url(void **params, int argv)
 
     if (has_filter == 1)
         if (check_url(url) == 0)
+		{
+			free(new_ark);
             return BCIRC_PLUGIN_OK;
-
+		}
     http_request(url, new_ark);
     free(url);
     free(new_ark->target_save);
@@ -153,7 +161,12 @@ int http_request(char *url, ark *arkptr)
         curl_easy_cleanup(curl);
         curl_global_cleanup();
 
-        return BCIRC_PLUGIN_CONTINUE;
+
+		init_curl();
+
+		http_request(url, arkptr); //Playing with fire.
+
+        return BCIRC_PLUGIN_OK;
     }
 
     return BCIRC_PLUGIN_OK;
@@ -268,6 +281,9 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
 
     free(title);
 
+
+	clock_t time_now = clock();
+	bcirc_printf("It took %f seconds to get title\n", (double) (time_now - arkptr->start_time) / CLOCKS_PER_SEC );
     //curl_easy_pause(curl, CURLPAUSE_ALL);
 
     return size * nmemb;
