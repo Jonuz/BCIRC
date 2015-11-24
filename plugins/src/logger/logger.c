@@ -26,12 +26,12 @@ int on_numeric(void **params, int argc);
 
 int plugin_init(plugin *pluginptr)
 {
-	register_callback(CALLBACK_SERVER_RECV, on_recv, 20, pluginptr);
+	register_callback(CALLBACK_SERVER_RECV, on_recv, 0, pluginptr);
 
-	register_callback(CALLBACK_GOT_PRIVMSG, on_privmsg, 20, pluginptr);
+	register_callback(CALLBACK_GOT_PRIVMSG, on_privmsg, 0, pluginptr);
 
-	register_callback(CALLBACK_CHANNEL_JOIN, on_join, 20, pluginptr);
-	register_callback(CALLBACK_CHANNEL_PART, on_part, 20, pluginptr);
+	register_callback(CALLBACK_CHANNEL_JOIN, on_join, 0, pluginptr);
+	register_callback(CALLBACK_CHANNEL_PART, on_part, 0, pluginptr);
 	//register_callback(CALLBACK_CHANNEL_KICK, on_kick, 20, pluginptr);
 
 	//register_callback(CALLBACK_GOT_NUMERIC, on_numeric, 20, pluginptr);
