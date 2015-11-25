@@ -109,6 +109,7 @@ int bcirc_log(char *str, char *file, ...)
     fprintf(logfile, "%s", new_output);
     fclose(logfile);
 
+    free(file_to_write);
     free(output);
     free(new_output);
 
