@@ -21,6 +21,8 @@ plugin **plugin_list;
 callback_index **index_list;
 int index_count;
 
+pthread_mutex_t plugins_global_mutex;
+
 
 int load_plugin(char *path)
 {
@@ -28,7 +30,6 @@ int load_plugin(char *path)
     void *handle = NULL;
     int (*init_func)(plugin*);
 
-    new_plugin->handle = handle;
     new_plugin->callback_count = 0;
     new_plugin->status = RUNNING;
 
@@ -36,13 +37,14 @@ int load_plugin(char *path)
 
     dlerror();
 
-    if ((handle = dlopen(path, RTLD_LAZY )) == NULL)
+    if ((handle = dlopen(path, RTLD_LAZY)) == NULL)
     {
-        printf("%s\n", dlerror());
+        bcirc_printf("%s)\n",path, dlerror());
         free(new_plugin->callback_list);
         free(new_plugin);
         return -1;
     }
+    new_plugin->handle = handle;
 
     new_plugin->plugin_author = (char*) dlsym(handle, "plugin_author");
     if (new_plugin->plugin_author == NULL)
@@ -94,6 +96,11 @@ int load_plugin(char *path)
         return -3;
     }
 
+    new_plugin->path = malloc((strlen(path) + 1) * sizeof(char));
+    strcpy(new_plugin->path, path);
+
+
+    pthread_mutex_lock(&plugins_global_mutex);
     plugin **new_list = NULL;
     new_list = realloc(plugin_list, (plugin_count + 1) * sizeof(plugin*));
     if (plugin_list == NULL)
@@ -102,11 +109,14 @@ int load_plugin(char *path)
         exit(EXIT_FAILURE);
     }
 
+
     new_list[plugin_count] = malloc(sizeof(plugin));
     new_list[plugin_count] = new_plugin;
     plugin_list = new_list;
 
     plugin_count++;
+    pthread_mutex_unlock(&plugins_global_mutex);
+
 
     bcirc_printf("Added plugin %s version %s\n", new_plugin->plugin_name, new_plugin->plugin_version);
 
@@ -157,46 +167,42 @@ int pause_plugin(plugin *pluginptr)
     return 1;
 }
 
-/*
+
 int remove_plugin(plugin *pluginptr)
 {
+    plugin **new_list = malloc(sizeof(plugin*));
+    int new_count = 0;
 
-	plugin **new_list = malloc(sizeof(plugin*));
-	int new_count;
+    pthread_mutex_lock(&plugins_global_mutex);
+    for (int i = 0; i < plugin_count; i++)
+    {
+        if (plugin_list[i] == pluginptr)
+        {
+            for (int y = 0; y < plugin_list[i]->callback_count; y++)
+            {
+                remove_index(plugin_list[i]->callback_list[y]);
+            }
+            dlclose(plugin_list[i]->handle);
+            free(plugin_list[i]->callback_list);
+            free(plugin_list[i]);
+        }
+        else
+        {
+            new_list = realloc(new_list, (new_count + 1) * sizeof(callback*));
+            new_list[new_count] = plugin_list[i];
+            new_count++;
+        }
+    }
 
-	for (int i = 0; i < plugin_count; i++)
-	{
-		if (plugin_list[i] == pluginptr)
-		{
-			for (int y = 0; y < plugin_list[i]->cb_count)
-			{
-				// remove_callbac(plugin_list[i]->callbacks[y]); TODO: implement this
-				free(plugin_list[i]->callbacks[y]);
-				plugin_list[i]->callbackcount--,
-			}
+    free(plugin_list);
+    plugin_list = NULL;
+    plugin_list = new_list;
+    plugin_count = new_count;
 
-			free(plugin_list[i]->handle);
-			free(plugin_list[i]->plugin_name);
-			free(plugin_list[i]->plugin_version);
-			free(plugin_list[i]->plugin_author);
-
-			free(plugin_list[i]->callback_list);
-			free(plugin_list[i]);
-		}
-		else
-		{
-			new_list = realloc(new_list, (new_count + 1) * sizeof(callback));
-			new_list[new_count] = plugin_list[i];
-			new_count++;
-		}
-	}
-
-	free(plugin_list);
-	plugin_list = new_list;
-	plugin_count = new_count;
+    pthread_mutex_unlock(&plugins_global_mutex);
 
     return 1;
-}*/
+}
 
 int register_callback(char *cb_name, CALLBACK_FUNC cb_func, int priority, plugin *pluginptr)
 {
@@ -270,8 +276,6 @@ int compare_index (const void *a, const void *b)
     const callback *cb1 = *(callback**) a;
     const callback *cb2 = *(callback**) b;
 
-    //printf("cb1: %d\n", (int*) cb1->priority);
-
     return (cb1->priority) > (cb2->priority);
 
 }
@@ -332,6 +336,33 @@ int index_callback(callback *callback_ptr)
     return 1;
 }
 
+int remove_index(callback *cb_ptr)
+{
+    for (int i = 0; i < index_count; i++)
+    {
+        int new_count = 0;
+        callback **callbacks = malloc(sizeof(callback*));
+
+        for (int y = 0; y < index_list[i]->cb_count; y++)
+        {
+            if (index_list[i]->callbacks[y] != cb_ptr)
+            {
+                callbacks = realloc(callbacks, (new_count + 1) * sizeof (callback*));
+                callbacks[new_count] = index_list[i]->callbacks[y];
+                new_count++;
+            }
+            else
+            {
+                free(index_list[i]->callbacks[y]);
+                index_list[i]->callbacks[y] = NULL;
+            }
+        }
+        index_list[i]->cb_count = new_count;
+        index_list[i]->callbacks = callbacks;
+    }
+
+    return 1;
+}
 
 int execute_callbacks(char *cb_name, void **args, int argc)
 {
