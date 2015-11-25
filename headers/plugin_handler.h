@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <pthread.h>
 
 #include "channel.h"
 #include "server.h"
@@ -43,6 +44,8 @@ typedef struct
 	char *plugin_version;
     char *plugin_author;
 
+    char *path;
+
     PLUGIN_STATUS status;
 
     callback **callback_list;
@@ -65,6 +68,8 @@ extern int index_count;
 extern plugin **plugin_list;
 extern int plugin_count;
 
+extern pthread_mutex_t plugins_global_mutex;
+
 int get_plugins(char *dir);
 int load_plugin(char *path);
 int pause_plugin(plugin *pluginptr);
@@ -79,5 +84,6 @@ int init_index();
 int index_callback(callback *callback_ptr);
 int get_index_count();
 int get_cb_index(char *cb_name);
+int remove_index(callback *cb_ptr);
 
 #endif /* PLUGIN_HANDLER_H_ */
