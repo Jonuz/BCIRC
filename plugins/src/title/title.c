@@ -17,7 +17,7 @@
 #define get_str_size(str) ( (strlen( (char*) str) + 1) * sizeof(char) )
 
 char plugin_name[] = "Title announcer";
-char plugin_version[] = "0.01";
+char plugin_version[] = "0.1";
 char plugin_author[] = "Joona";
 
 
@@ -68,6 +68,8 @@ int init_curl()
 int plugin_init(plugin *pluginptr)
 {
     has_filter = get_urls(); //1 if urls in urls.txt
+
+    bcirc_printf("called plugin_init!\n");
 
     register_callback(CALLBACK_GOT_PRIVMSG, check_for_url, 20, pluginptr);
     register_callback(CALLBACK_GOT_PRIVMSG, add_url, 20, pluginptr);
@@ -185,7 +187,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
     strncpy(response, (char*) ptr, size * nmemb);
     response[size*nmemb] = '\0';
 
-    reti = regcomp(&regex, "<title[^>]*>(.*?)</title>", REG_EXTENDED);
+    reti = regcomp(&regex, "<title[^>]*>(.*?)</", REG_EXTENDED);
     if (reti != 0)
     {
         bcirc_printf("Failed to compile regex!\n");
@@ -280,11 +282,6 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
         add_to_privmsg_queue(title, nick, arkptr->srv_save, 0);
 
     free(title);
-
-
-	clock_t time_now = clock();
-	bcirc_printf("It took %f seconds to get title\n", (double) (time_now - arkptr->start_time) / CLOCKS_PER_SEC );
-    //curl_easy_pause(curl, CURLPAUSE_ALL);
 
     return size * nmemb;
 }

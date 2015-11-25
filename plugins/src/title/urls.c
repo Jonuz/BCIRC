@@ -51,7 +51,7 @@ int get_urls()
     urlstxt = fopen(url_file, "r");
     if (urlstxt == NULL)
     {
-        bcirc_printf("Failed to open %s", url_file);
+        bcirc_printf("%s doesnt exists, url filtering disabled.\n", url_file);
         if (urls)
             free(urls);
         return 0;
