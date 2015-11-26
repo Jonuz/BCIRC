@@ -28,6 +28,7 @@ int plugin_init(plugin *pluginptr)
     register_callback(CALLBACK_GOT_NUMERIC, get_channel_info, 10, pluginptr);
     register_callback(CALLBACK_CHANNEL_KICK, remove_user, 10, pluginptr);
     register_callback(CALLBACK_CHANNEL_PART, remove_user, 10, pluginptr);
+    register_callback(CALLBACK_CHANNEL_QUIT, remove_user, 10, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
