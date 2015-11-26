@@ -18,16 +18,16 @@ int res;
 
 void get_input()
 {
-	char asd[50];
-	fgets(asd, 50, stdin);
-	get_input();
+    char asd[50];
+    fgets(asd, 50, stdin);
+    get_input();
 }
 
 int main()
 {
-	channel_count = 0;
-	server_count = 0;
-	pthread_mutex_init(&servers_global_mutex, NULL);
+    channel_count = 0;
+    server_count = 0;
+    pthread_mutex_init(&servers_global_mutex, NULL);
 
     plugin_list = malloc(sizeof(plugin*));
     init_index();
@@ -40,15 +40,14 @@ int main()
     }
     get_plugins(plugin_dir);
 
-	char *configdir = getenv("BCIRC_CONFIG_DIR");
-	char *serverfile = malloc( (strlen(configdir) + 13 + 1) * sizeof(char) );
+    char *configdir = getenv("BCIRC_CONFIG_DIR");
+    char *serverfile = malloc( (strlen(configdir) + 13 + 1) * sizeof(char) );
 
-	sprintf(serverfile, "%s/servers.conf", configdir);
-	load_servers(serverfile);
-	free(serverfile);
+    sprintf(serverfile, "%s/servers.conf", configdir);
+    load_servers(serverfile);
+    free(serverfile);
 
+    get_input();
 
-	get_input();
-
-	return 0;
+    return 0;
 }
