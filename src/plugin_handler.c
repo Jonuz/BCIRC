@@ -184,6 +184,7 @@ int remove_plugin(plugin *pluginptr)
             }
             dlclose(plugin_list[i]->handle);
             free(plugin_list[i]->callback_list);
+            free(plugin_list[i]->path);
             free(plugin_list[i]);
         }
         else
