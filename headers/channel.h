@@ -7,6 +7,11 @@
 
 struct server;
 
+#define CHAN_JOIN 0
+#define CHAN_KICK 1
+#define CHAN_PART 2
+#define CHAN_QUIT 3
+
 typedef struct channel
 {
 	char *name;
