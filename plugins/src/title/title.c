@@ -179,7 +179,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
 {
     regex_t regex;
     int reti;
-    regmatch_t matches[1];
+    regmatch_t matches[2];
 
     ark *arkptr = (ark*) ark_param;
 
@@ -187,7 +187,9 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
     strncpy(response, (char*) ptr, size * nmemb);
     response[size*nmemb] = '\0';
 
-    reti = regcomp(&regex, "<title[^>]*>(.*?)</", REG_EXTENDED);
+
+    char regex_str[] = "<\\s*t\\s*i\\s*t\\s*l\\s*e[^>]*>\t*\\s*([^<]+\\t*\\s*)";
+    reti = regcomp(&regex, regex_str, REG_EXTENDED);
     if (reti != 0)
     {
         bcirc_printf("Failed to compile regex!\n");
@@ -196,7 +198,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
         return size * nmemb;;
     }
 
-    reti = regexec(&regex, response, 1, matches, 0);
+    reti = regexec(&regex, response, 2, matches, 0);
     regfree(&regex);
     if (reti != 0)
     {
@@ -204,71 +206,16 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
         return size * nmemb;
     }
 
-    bcirc_printf("Title found\n");
-
-    size_t len = matches[0].rm_eo - matches[0].rm_so;
+    size_t len = matches[1].rm_eo - matches[1].rm_so;
 
     char *title = (char*) malloc((len + 2) * sizeof(char));
-    strncpy(title, (char*) response + matches[0].rm_so, len);
+    strncpy(title, (char*) response + matches[1].rm_so, len);
     title[len] = '\0';
 
     free(response);
 
-    size_t title_start = 0;
-    size_t title_end = strlen(title);
+    decode_html_entities_utf8(title, NULL);
 
-    for (int i = 0; title[i] != '>'; i++) //till we are on the end of <title>
-        title_start++;
-    title_start++;
-
-    for (int i = strlen(title); title[i - 1] != '<'; i--)
-        title_end--;
-    title_end--;
-
-    size_t title_len = title_end - title_start;
-    char *new_title = malloc((title_len + 1) * sizeof(char));
-
-    strncpy(new_title, title+title_start, title_len );
-    new_title[title_len] = '\0';
-
-
-    title = realloc(title, (strlen(new_title) + 1) * sizeof(char));
-
-    // http://stackoverflow.com/a/1082191/2279808 <3
-    decode_html_entities_utf8(title, new_title);
-    free(new_title);
-
-    char *unwanted_chars =  "\r\n\t\a\b\f\r\v ";
-
-    int remove_front = 0;
-    int remove_back = 0;
-
-    title_len = strlen(title);
-
-    char *ret;
-    while(1)
-    {
-        ret = strpbrk(title, unwanted_chars);
-        if (!ret)
-            break;
-
-        if ( (title[0 + remove_front]) == (char) *ret)
-            remove_front++;
-        else if (( title[title_len - remove_back - 1]) == (char) *ret)
-            remove_back++;
-        else
-            break;
-    }
-
-    if ((remove_front != 0) || (remove_back != 0))
-    {
-        char *new_title2 = malloc( (title_len - remove_back - remove_front + 1) * sizeof(char) );
-        strncpy(new_title2, title+remove_front, title_len - remove_front - remove_back);
-        new_title2[title_len - remove_front - remove_back] = '\0';
-
-        free(title);
-        title = new_title2;
-    }
 
     char *target = malloc((strlen(arkptr->target_save)+1) * sizeof(char));
     char *nick = malloc(( strlen(arkptr->nick_save)+1) * sizeof(char));
