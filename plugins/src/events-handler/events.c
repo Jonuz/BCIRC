@@ -146,7 +146,7 @@ int get_numeric(void **params, int argc)
 
         strcpy(buffer, params[1]);
         void **new_params = malloc(sizeof(void*) * 3);
-        
+
         new_params[0] = srv;
         new_params[1] = (int*) numeric;
         new_params[2] = buffer;
@@ -160,10 +160,6 @@ int get_numeric(void **params, int argc)
 }
 
 
-
-#define CHAN_JOIN 0
-#define CHAN_KICK 1
-#define CHAN_PART 2
 
 int get_chan_event(void **params, int argv)
 {
@@ -197,6 +193,8 @@ int get_chan_event(void **params, int argv)
                 event_type = CHAN_KICK;
             else if (strcmp(token, "PART") == 0)
                 event_type = CHAN_PART;
+            else if (strcmp(token, "QUIT") == 0)
+                event_type = CHAN_QUIT;
             else
             {
                 free(str);
@@ -217,13 +215,13 @@ int get_chan_event(void **params, int argv)
             memmove(hostmask, buffer + nick_len + 2, mask_len);
             hostmask[mask_len] = '\0';
 
-            //printf("nick: %s\n", nick);
-            //printf("mask: %s\n", hostmask);
-
         }
         if (i == 2)
+        {
             chan = (channel*) get_channel(token, (server*) srv);
-
+            if (!chan)
+                chan = create_channel(token,srv);
+        }
         if (i == 3)
         {
             reason = malloc(( strlen(token) + strlen(save) + 1) * sizeof(char));
@@ -249,6 +247,8 @@ int get_chan_event(void **params, int argv)
         execute_callbacks(CALLBACK_CHANNEL_KICK, params2, 4);
     else if (event_type == CHAN_PART)
         execute_callbacks(CALLBACK_CHANNEL_PART, params2, 4);
+    else if (event_type == CHAN_QUIT)
+        execute_callbacks(CALLBACK_CHANNEL_QUIT, params2, 4);
 
     free(str);
     free(params2);
