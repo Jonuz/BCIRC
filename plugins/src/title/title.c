@@ -28,7 +28,7 @@ typedef struct ark
     server *srv_save;
     char *target_save;
     char *nick_save;
-    int tries = 0;
+    int tries;
 
 	clock_t start_time;
 } ark;
@@ -99,7 +99,7 @@ int check_for_url(void **params, int argv)
 
 	ark *new_ark = malloc(sizeof(ark));
 	new_ark->start_time = clock();
-
+    new_ark->tries = 0;
     regex_t regex;
     int reti;
     regmatch_t matches[1];
