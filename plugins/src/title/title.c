@@ -21,13 +21,14 @@ char plugin_version[] = "0.1";
 char plugin_author[] = "Joona";
 
 
-#define TITLE_MAX_LEN 100
+#define TITLE_MAX_LEN 250f
 
 typedef struct ark
 {
     server *srv_save;
     char *target_save;
     char *nick_save;
+    int tries = 0;
 
 	clock_t start_time;
 } ark;
@@ -161,14 +162,20 @@ int http_request(char *url, ark *arkptr)
 
     if (res != CURLE_OK)
     {
+        if (arkptr->tries > 3)
+        {
+            printf("Tried %d tries already, stopping now.\n", arkptr->tries);
+            return BCIRC_PLUGIN_OK;
+        }
+
         bcirc_printf("curl failed: %s\n", curl_easy_strerror(res));
         curl_easy_cleanup(curl);
         curl_global_cleanup();
 
-
 		init_curl();
 
-		http_request(url, arkptr); //Playing with fire.
+		http_request(url, arkptr);
+        arkptr->tries++;
 
         return BCIRC_PLUGIN_OK;
     }
