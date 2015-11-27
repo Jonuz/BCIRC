@@ -21,7 +21,7 @@ char plugin_version[] = "0.1";
 char plugin_author[] = "Joona";
 
 
-#define TITLE_MAX_LEN 250f
+#define TITLE_MAX_LEN 250
 
 typedef struct ark
 {
