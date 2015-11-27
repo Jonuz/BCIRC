@@ -21,6 +21,8 @@ char plugin_version[] = "0.1";
 char plugin_author[] = "Joona";
 
 
+#define TITLE_MAX_LEN 100
+
 typedef struct ark
 {
     server *srv_save;
@@ -207,6 +209,12 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
     }
 
     size_t len = matches[1].rm_eo - matches[1].rm_so;
+
+    if (len > TITLE_MAX_LEN)
+    {
+        bcirc_printf("Title is too long, wont send it.\n");
+        return size * nmemb;
+    }
 
     char *title = (char*) malloc((len + 2) * sizeof(char));
     strncpy(title, (char*) response + matches[1].rm_so, len);
