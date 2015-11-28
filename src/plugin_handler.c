@@ -4,6 +4,9 @@
 #include <dlfcn.h>
 #include <dirent.h>
 
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/prctl.h>
 #include <execinfo.h>
 
 #include "../headers/irc.h"
@@ -264,11 +267,16 @@ int init_index()
 
 int get_cb_index(char *cb_name)
 {
+    pthread_mutex_lock(&plugins_global_mutex);
     for (int i = 0; i < index_count; i++)
     {
         if (strcmp(index_list[i]->cb_name, cb_name) == 0)
+        {
+            pthread_mutex_unlock(&plugins_global_mutex);
             return i;
+        }
     }
+    pthread_mutex_unlock(&plugins_global_mutex);
     return -1;
 }
 
@@ -288,6 +296,8 @@ int index_callback(callback *callback_ptr)
 
     if (index_point >= 0)
     {
+        pthread_mutex_lock(&plugins_global_mutex);
+
         int callbacks_count = index_list[index_point]->cb_count;
         callback **callbacks = index_list[index_point]->callbacks;
 
@@ -307,10 +317,12 @@ int index_callback(callback *callback_ptr)
         qsort(callbacks, callbacks_count + 1, sizeof(callback*), compare_index);
 
         index_list[index_point]->callbacks = callbacks;
+        pthread_mutex_unlock(&plugins_global_mutex);
 
     }
     else
     {
+        pthread_mutex_lock(&plugins_global_mutex);
         callback_index *new_index = malloc(sizeof(callback_index));
         if (!new_index)
         {
@@ -333,12 +345,14 @@ int index_callback(callback *callback_ptr)
 
         index_list[index_count] = new_index;
         index_count++;
+        pthread_mutex_unlock(&plugins_global_mutex);
     }
     return 1;
 }
 
 int remove_index(callback *cb_ptr)
 {
+    pthread_mutex_lock(&plugins_global_mutex);
     for (int i = 0; i < index_count; i++)
     {
         int new_count = 0;
@@ -360,8 +374,10 @@ int remove_index(callback *cb_ptr)
         }
         index_list[i]->cb_count = new_count;
         index_list[i]->callbacks = callbacks;
-    }
 
+        break;
+    }
+    pthread_mutex_unlock(&plugins_global_mutex);
     return 1;
 }
 
