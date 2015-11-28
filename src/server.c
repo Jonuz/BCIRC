@@ -61,7 +61,7 @@ int server_connect(server *srv)
 
     void **cb_params = malloc( sizeof(void*) );
     cb_params[0] = (void*) srv;
-    execute_callbacks( CALLBACK_SERVER_CONNECTED, cb_params, 1 );
+    execute_callbacks( CALLBACK_SERVER_CONNECTED, cb_params);
 	free(cb_params);
 
 
@@ -78,7 +78,7 @@ int server_disconnect(server *srv)
 
 	void **cb_params = malloc( sizeof(server) );
     cb_params[0] = srv;
-    execute_callbacks( CALLBACK_SERVER_DISCONNECTED, cb_params, 1 );
+    execute_callbacks( CALLBACK_SERVER_DISCONNECTED, cb_params);
 	free(cb_params);
 
 	return close_res;
@@ -95,11 +95,8 @@ int server_send(char *buf, server *srv)
 	params[0] = srv;
 	params[1] = buf;
 
-	if (execute_callbacks(CALLBACK_SERVER_SEND, params, 2) != BCIRC_PLUGIN_OK)
-	{
-		free(params);
-		return -2;
-	}
+	execute_callbacks(CALLBACK_SERVER_SEND, params);
+
 	free(params);
 
 	int res = send(srv->s, buf, strlen(buf), 0);
@@ -182,7 +179,7 @@ void *server_recv(void *srv_void)
 			params[0] = (void*) srv;
 			params[1] = (void*) line;
 
-			execute_callbacks(CALLBACK_SERVER_RECV, params, 2);
+			execute_callbacks(CALLBACK_SERVER_RECV, params);
 			free(params);
 
 			line = strtok_r(NULL, "\r\n", &save);
@@ -198,7 +195,7 @@ void *server_recv(void *srv_void)
 	params[0] = (void*) srv;
 	params[1] = (void*) reason;
 
-	execute_callbacks(CALLBACK_SERVER_DISCONNECTED, params, 2);
+	execute_callbacks(CALLBACK_SERVER_DISCONNECTED, params);
 
 	free(reason);
 	free(params);

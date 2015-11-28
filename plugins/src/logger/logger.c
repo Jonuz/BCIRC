@@ -12,10 +12,10 @@ char plugin_author[] = "Joona";
 char plugin_name[] = "Logger";
 
 
-int on_server_send(void **paramams, int argc);
-int on_connect(void **params, int argc);
+int on_server_send(void **paramamsc);
+int on_connect(void **params);
 
-int on_privmsg(void **params, int argc);
+int on_privmsg(void **params);
 
 int on_recv(void **params);
 int on_join(void **params);
@@ -24,7 +24,7 @@ int on_kick(void **params);
 int on_quit(void **params);
 
 
-int on_numeric(void **params, int argc);
+int on_numeric(void **params);
 
 int plugin_init(plugin *pluginptr)
 {
@@ -60,8 +60,6 @@ int on_recv(void **params)
 
 int on_numeric(void **params)
 {
-
-
 	server *srv = params[0];
 	char *buf = params[2];
 
@@ -77,7 +75,6 @@ int on_numeric(void **params)
 
 int on_privmsg(void **params)
 {
-
 	char *nick = params[1];
 	char *target = params[3];
 	char *msg = params[4];
