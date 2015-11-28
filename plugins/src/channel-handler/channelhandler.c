@@ -9,9 +9,9 @@
 #include "../headers/plugin_handler.h"
 #include "../headers/callback_defines.h"
 
-char plugin_name[] = "Logger";
+char plugin_name[] = "Channelhanbdler";
 char plugin_author[] = "Joona";
-char plugin_version[] = "0.1";
+char plugin_version[] = "1.0";
 
 int get_channel_info(void **params, int argcv);
 
