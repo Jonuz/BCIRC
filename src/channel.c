@@ -126,12 +126,10 @@ int remove_user(void **params, int arcv)
             size_t second_start = len + 1 + strlen(token);
             new_users = malloc(new_len * sizeof(char));
 
-
             strncpy(new_users, chan->users, len);
             strncat(new_users, chan->users+second_start, strlen(chan->users - second_start));
 
             bcirc_printf("new_users: %s\n", new_users);
-
         }
 
         token = strtok_r(NULL, " ", &save);
@@ -147,10 +145,9 @@ int get_channel_users(channel *chan, char *buffer)
 {
     if (!buffer)
     {
-        puts("buffers is null!");
+        bcirc_printf("buffers is null!\n");
         return BCIRC_PLUGIN_OK;
     }
-
 
 	char *users = NULL;
 
@@ -166,7 +163,7 @@ int get_channel_users(channel *chan, char *buffer)
 
 	if (!chan->users)
 	{
-		printf("Failed to realloc chan->users(%s)\n", __PRETTY_FUNCTION__);
+		bcirc_printf("Failed to realloc chan->users(%s)\n", __PRETTY_FUNCTION__);
 		exit(EXIT_FAILURE);
 	}
 
