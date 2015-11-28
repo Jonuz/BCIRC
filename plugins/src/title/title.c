@@ -113,6 +113,7 @@ int check_for_url(void **params, int argv)
 			free(new_ark);
             return BCIRC_PLUGIN_OK;
 		}
+
     http_request(url, new_ark);
     free(url);
     free(new_ark->target_save);
@@ -182,7 +183,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
     response[size*nmemb] = '\0';
 
 
-    char regex_str[] = "<\\s*title[^>]*>\\s*([^<]+\\s*)";
+    char regex_str[] = "<\\s*title[^>]*>\\i\\s*([^<]+\\s*)\\i";
     reti = regcomp(&regex, regex_str, REG_EXTENDED);
     if (reti != 0)
     {
