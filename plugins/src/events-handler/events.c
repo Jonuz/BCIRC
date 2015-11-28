@@ -35,7 +35,7 @@ int plugin_init(plugin *pluginptr)
 }
 
 
-int get_privmsg(void **params, int argc)
+int get_privmsg(void **params)
 {
     char *srv = params[0];
     char buf[strlen(params[1])];
@@ -102,7 +102,7 @@ int get_privmsg(void **params, int argc)
     new_params[3] = (char*) target;
     new_params[4] = (char*) msg;
 
-    execute_callbacks(CALLBACK_GOT_PRIVMSG, new_params, 5);
+    execute_callbacks(CALLBACK_GOT_PRIVMSG, new_params);
 
     free(new_params);
 
@@ -115,7 +115,7 @@ int get_privmsg(void **params, int argc)
 }
 
 
-int get_numeric(void **params, int argc)
+int get_numeric(void **params)
 {
 
     server *srv = (server*) params[0];
@@ -151,7 +151,7 @@ int get_numeric(void **params, int argc)
         new_params[1] = (int*) numeric;
         new_params[2] = buffer;
 
-        execute_callbacks(CALLBACK_GOT_NUMERIC, new_params, 3);
+        execute_callbacks(CALLBACK_GOT_NUMERIC, new_params);
 
         free(numeric);
         free(new_params);
@@ -161,7 +161,7 @@ int get_numeric(void **params, int argc)
 
 
 
-int get_chan_event(void **params, int argv)
+int get_chan_event(void **params)
 {
     server *srv = params[0];
     char *buffer = params[1];
@@ -242,13 +242,13 @@ int get_chan_event(void **params, int argv)
 
 
     if (event_type == CHAN_JOIN)
-        execute_callbacks(CALLBACK_CHANNEL_JOIN, params2, 4);
+        execute_callbacks(CALLBACK_CHANNEL_JOIN, params2,);
     else if (event_type == CHAN_KICK)
-        execute_callbacks(CALLBACK_CHANNEL_KICK, params2, 4);
+        execute_callbacks(CALLBACK_CHANNEL_KICK, params2);
     else if (event_type == CHAN_PART)
-        execute_callbacks(CALLBACK_CHANNEL_PART, params2, 4);
+        execute_callbacks(CALLBACK_CHANNEL_PART, params2);
     else if (event_type == CHAN_QUIT)
-        execute_callbacks(CALLBACK_CHANNEL_QUIT, params2, 4);
+        execute_callbacks(CALLBACK_CHANNEL_QUIT, params2);
 
     free(str);
     free(params2);

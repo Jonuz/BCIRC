@@ -17,11 +17,11 @@ int on_connect(void **params, int argc);
 
 int on_privmsg(void **params, int argc);
 
-int on_recv(void **params, int argc);
-int on_join(void **params, int argc);
-int on_part(void **params, int argc);
-int on_kick(void **params, int argc);
-int on_quit(void **params, int argc);
+int on_recv(void **params);
+int on_join(void **params);
+int on_part(void **params);
+int on_kick(void **params);
+int on_quit(void **params);
 
 
 int on_numeric(void **params, int argc);
@@ -42,7 +42,7 @@ int plugin_init(plugin *pluginptr)
 }
 
 
-int on_recv(void **params, int argc)
+int on_recv(void **params)
 {
 	server *srv = params[0];
 	char *buffer = params[1];
@@ -58,12 +58,9 @@ int on_recv(void **params, int argc)
 	return BCIRC_PLUGIN_OK;
 }
 
-int on_numeric(void **params, int argc)
+int on_numeric(void **params)
 {
 
-	for (int i = 0; i < argc; i++)
-		if (params[i] == NULL)
-			return BCIRC_PLUGIN_CONTINUE;
 
 	server *srv = params[0];
 	char *buf = params[2];
@@ -78,7 +75,7 @@ int on_numeric(void **params, int argc)
 	return BCIRC_PLUGIN_STOP;
 }
 
-int on_privmsg(void **params, int argc)
+int on_privmsg(void **params)
 {
 
 	char *nick = params[1];
@@ -90,7 +87,7 @@ int on_privmsg(void **params, int argc)
 	return BCIRC_PLUGIN_OK;
 }
 
-int on_server_send(void **paramams, int argc)
+int on_server_send(void **paramams)
 {
     server *srv = (server*) paramams[0];
     char *buf = (char*) paramams[1];
@@ -105,7 +102,7 @@ int on_server_send(void **paramams, int argc)
 }
 
 
-int on_join(void **params, int argc)
+int on_join(void **params)
 {
     channel *chan = params[0];
     char *nick = params[1];
@@ -121,7 +118,7 @@ int on_join(void **params, int argc)
 	return BCIRC_PLUGIN_OK;
 }
 
-int on_part(void **params, int argc)
+int on_part(void **params)
 {
     channel *chan = params[0];
     char *nick = params[1];
@@ -137,7 +134,7 @@ int on_part(void **params, int argc)
     return BCIRC_PLUGIN_OK;
 }
 
-int on_quit(void **params, int argc)
+int on_quit(void **params)
 {
     channel *chan = params[0];
     char *nick = params[1];
@@ -152,7 +149,7 @@ int on_quit(void **params, int argc)
     return BCIRC_PLUGIN_OK;
 }
 
-int on_kick(void **params, int argc)
+int on_kick(void **params)
 {
     channel *chan = params[0];
     char *nick = params[1];

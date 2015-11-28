@@ -15,11 +15,11 @@
 
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 
-int handle_ping(void **params, int argc);
-int handle_registeration(void **params, int argc);
-int got_in(void **params, int argc);
+int handle_ping(void **params);
+int handle_registeration(void **params);
+int got_in(void **params);
 void autojoin_channels();
-int server_rejoin(void **params, int);
+int server_rejoin(void **params);
 
 
 int handle_nick(void **params, int argc); //This function handles usage alternative nick.
@@ -101,7 +101,7 @@ void autojoin_channels(server *srv)
 
 }
 
-int got_in(void **params, int argc)
+int got_in(void **params)
 {
     server *srv = (server*) params[0];
     int *numeric = (int*) params[1];
@@ -122,7 +122,7 @@ int got_in(void **params, int argc)
 
 
 
-int handle_ping(void **params, int argc)
+int handle_ping(void **params)
 {
     server *srv = (server*) params[0];
     char *buf = (char*) params[1];
@@ -162,7 +162,7 @@ int handle_ping(void **params, int argc)
 }
 
 
-int handle_registeration(void **params, int argc)
+int handle_registeration(void **params)
 {
 
     if (params[0] == NULL)
@@ -193,7 +193,7 @@ int handle_registeration(void **params, int argc)
     return BCIRC_PLUGIN_OK;
 }
 
-int handle_nick(void **params, int argc)
+int handle_nick(void **params)
 {
     server *srv = (server*) params[0];
     int *numeric = (int*) params[1];
@@ -247,7 +247,7 @@ void *try_rejoin(void *srv_void)
     return NULL;
 }
 
-int server_rejoin(void **params, int argc)
+int server_rejoin(void **params)
 {
     server *srv = params[0];
     int *reason = (int*) params[1];
