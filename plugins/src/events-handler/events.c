@@ -224,7 +224,7 @@ int get_chan_event(void **params)
         }
         if (i == 3)
         {
-            reason = malloc(( strlen(token) + strlen(save) + 1) * sizeof(char));
+            reason = malloc(( strlen(token) + 1 + strlen(save) + 1) * sizeof(char));
             strcpy(reason, token+1);
             strcat(reason, save);
 
