@@ -17,6 +17,6 @@ Remember that BCIRC's enviroment variables has to be set, to do it run source ex
 
 ##Requiments
 >gcc5 (Might work with gcc4.x, never tested thought)  
->libcurl-dev
+>libcurl-dev 
 >libconfig-dev  
 >POSIX compatible OS
