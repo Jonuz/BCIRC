@@ -87,8 +87,6 @@ int bcirc_log(char *str, char *file, ...)
 
     const int max_time_len = 20;
 
-    char *new_output = malloc(strlen(output) + 3 + 1); //hh:mm:ss | text\n\0
-
     char log_name_time[max_time_len]; //dd.mm.yy
     strftime(log_name_time, 20, "%d-%m-%Y", timeinfo);
 
@@ -119,12 +117,11 @@ int bcirc_log(char *str, char *file, ...)
     }
 
     FILE *logfile = fopen(file_to_write, "a");
-    fprintf(logfile, "%s", new_output);
+    fprintf(logfile, "%s", output);
     fclose(logfile);
 
     free(file_to_write);
     free(output);
-    free(new_output);
 
     return 1;
 }
