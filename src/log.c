@@ -32,6 +32,28 @@ int bcirc_printf(char *str, ...)
     vsnprintf(output, len+1, str, args);
     va_end(args);
 
+
+    time_t rawtime;
+    struct tm *timeinfo;
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+
+    const int max_time_len = 20;
+    char time_prefix[max_time_len];
+
+    strftime(time_prefix, max_time_len, "%H:%M:%S", timeinfo);
+
+    char *new_output = malloc(strlen(output) + 3 + strlen(time_prefix) + 1); //hh:mm:ss | text\n\0
+    sprintf(new_output, "%s | %s", time_prefix, output);
+
+    if (!new_output)
+    {
+        return -1;
+    }
+    free(output);
+    output = malloc((strlen(new_output) + 1) * (sizeof(char)));
+    strcpy(output, new_output);
+
     bcirc_log(output, NULL);
 
     printf(output);
@@ -64,19 +86,10 @@ int bcirc_log(char *str, char *file, ...)
     timeinfo = localtime(&rawtime);
 
     const int max_time_len = 20;
-    char time_prefix[max_time_len];
 
-    strftime(time_prefix, max_time_len, "%H:%M:%S", timeinfo);
+    char *new_output = malloc(strlen(output) + 3 + 1); //hh:mm:ss | text\n\0
 
-    char *new_output = malloc(strlen(output) + 3 + strlen(time_prefix) + 1); //hh:mm:ss | text\n\0
-    sprintf(new_output, "%s | %s", time_prefix, output);
-
-    if (!new_output)
-    {
-        return -1;
-    }
-
-    char log_name_time[20]; //dd.mm.yy
+    char log_name_time[max_time_len]; //dd.mm.yy
     strftime(log_name_time, 20, "%d-%m-%Y", timeinfo);
 
     char *log_dir = getenv("BCIRC_LOG_DIR");
