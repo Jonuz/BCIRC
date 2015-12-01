@@ -381,7 +381,7 @@ int remove_index(callback *cb_ptr)
     return 1;
 }
 
-int execute_callbacks(char *cb_name, void **args)
+int execute_callbacks(char *cb_name, void **args, int argc)
 {
     int index_point = get_cb_index(cb_name);
 
@@ -393,10 +393,10 @@ int execute_callbacks(char *cb_name, void **args)
 
     for (int i = 0; i < cb_count; i++)
     {
-        int (*cb)(void **) = index_list[index_point]->callbacks[i]->cb_func;
+        int (*cb)(void **, int) = index_list[index_point]->callbacks[i]->cb_func;
 
         int res;
-        if ( ((res = cb(args)) != BCIRC_PLUGIN_OK))
+        if ( ((res = cb(args, argc)) != BCIRC_PLUGIN_OK))
         {
             if (res == BCIRC_PLUGIN_STOP)
                 pause_plugin(plugin_list[i]);

@@ -75,10 +75,10 @@ int load_plugin(char *path);
 int pause_plugin(plugin *pluginptr);
 int remove_plugin(plugin *pluginptr);
 
-typedef int(*CALLBACK_FUNC)(void**);
+typedef int(*CALLBACK_FUNC)(void**, int);
 
 int register_callback(char *cb_name, CALLBACK_FUNC cb_func, int priority, plugin *pluginptr);
-int execute_callbacks(char *cb_name, void **args);
+int execute_callbacks(char *cb_name, void **args, int argc);
 
 int init_index();
 int index_callback(callback *callback_ptr);

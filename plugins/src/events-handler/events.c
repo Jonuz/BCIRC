@@ -242,7 +242,7 @@ int get_chan_event(void **params)
 
 
     if (event_type == CHAN_JOIN)
-        execute_callbacks(CALLBACK_CHANNEL_JOIN, params2);
+        execute_callbacks(CALLBACK_CHANNEL_JOIN, params2,);
     else if (event_type == CHAN_KICK)
         execute_callbacks(CALLBACK_CHANNEL_KICK, params2);
     else if (event_type == CHAN_PART)

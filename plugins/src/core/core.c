@@ -22,7 +22,7 @@ void autojoin_channels();
 int server_rejoin(void **params);
 
 
-int handle_nick(void **params); //This function handles usage alternative nick.
+int handle_nick(void **params, int argc); //This function handles usage alternative nick.
 
 char plugin_name[] = "BCIRC-Core plugin";
 char plugin_author[] = "Joona";
