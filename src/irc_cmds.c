@@ -28,7 +28,7 @@ int join_channel(char *chan_name, char *chan_pass, server *srv)
 	else
 	{
 		buf = malloc((4 + 1 + strlen(chan_name) + 2 + strlen(chan_pass) + 2 + 1) * sizeof(char));
-		sprintf(buf, "JOIN %s; %s\r\n", chan_name, chan_pass);
+		sprintf(buf, "JOIN %s %s\r\n", chan_name, chan_pass);
 	}
 
 	sprintf(buf, buf, chan_name);
