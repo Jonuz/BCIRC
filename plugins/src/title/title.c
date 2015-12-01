@@ -183,7 +183,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
     response[size*nmemb] = '\0';
 
 
-    char regex_str[] = "<\\s*title[^>]*>\\i\\s*([^<]+\\s*)\\i";
+    char regex_str[] = "<\\s*title[^>]*>\\s*([^<]+\\s*)";
     reti = regcomp(&regex, regex_str, REG_EXTENDED);
     if (reti != 0)
     {
