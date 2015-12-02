@@ -238,10 +238,7 @@ void *try_rejoin(void *srv_void)
             break;
         sleep(15);
     }
-    bcirc_printf("Reconnected to %s\n", srv->host);
-
-
-    pthread_exit(&srv->thread);
+    bcirc_printf("Reopened connection to %s\n", srv->host);
     add_to_serverpool(srv);
 
     return NULL;
@@ -257,15 +254,16 @@ int server_rejoin(void **params, int argc)
         return -1;
     }
 
-    pthread_t thread;
-    bcirc_printf("server_rejoin called\n");
+    bcirc_printf("Trying to rejoin to server %s\n", srv->host);
 
     if (*reason == SERVER_INTENTIONAL_DC)
         return BCIRC_PLUGIN_OK;
 
+    pthread_t thread;
+
     if (pthread_create(&thread, NULL, try_rejoin, (void*) srv) == 0)
     {
-        try_rejoin( (void*) srv);
+        return BCIRC_PLUGIN_OK;
     }
     else
     {
