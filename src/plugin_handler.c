@@ -183,7 +183,9 @@ int remove_plugin(plugin *pluginptr)
         {
             for (int y = 0; y < plugin_list[i]->callback_count; y++)
             {
+                pthread_mutex_unlock(&plugins_global_mutex);
                 remove_index(plugin_list[i]->callback_list[y]);
+                pthread_mutex_lock(&plugins_global_mutex);
             }
             dlclose(plugin_list[i]->handle);
             free(plugin_list[i]->callback_list);
@@ -374,8 +376,6 @@ int remove_index(callback *cb_ptr)
         }
         index_list[i]->cb_count = new_count;
         index_list[i]->callbacks = callbacks;
-
-        break;
     }
     pthread_mutex_unlock(&plugins_global_mutex);
     return 1;
