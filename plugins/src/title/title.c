@@ -152,6 +152,10 @@ int http_request(char *url, ark *arkptr)
 
     if (res != CURLE_OK)
     {
+/*        printf("res: %d\n", res);
+        if (res == CURL_WRITEFUNC_PAUSE)
+            return BCIRC_PLUGIN_OK;
+
         if (arkptr->tries >= 3)
         {
             printf("Tried %d times already, stopping now.\n", arkptr->tries);
@@ -162,7 +166,7 @@ int http_request(char *url, ark *arkptr)
         arkptr->tries++;
 
         http_request(url, arkptr);
-
+*/
         return BCIRC_PLUGIN_OK;
     }
 
@@ -214,8 +218,37 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
     title[len] = '\0';
 
     free(response);
-
     decode_html_entities_utf8(title, NULL);
+
+    char unwanted[] = { '\r', '\t', '\n' };
+    size_t uw_count = sizeof(unwanted) / sizeof(char);
+
+    char new_title[strlen(title) + 1];
+
+    size_t new_count = 0;
+
+    for (int i = 0; i < strlen(title); i++)
+    {
+        int remove = 0;
+        for (int y = 0; y < uw_count; y++)
+        {
+            if (title[i] == unwanted[y])
+            {
+                remove = 1;
+                break;
+            }
+        }
+        if (remove == 1)
+            continue;
+        new_title[new_count] = title[i];
+        new_count++;
+
+    }
+    new_title[new_count+1] = '\0';
+
+    free(title);
+    title = malloc((new_count + 1) * sizeof(char));
+    strcpy(title, new_title);
 
 
     char *target = malloc((strlen(arkptr->target_save)+1) * sizeof(char));
