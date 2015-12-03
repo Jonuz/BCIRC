@@ -252,6 +252,8 @@ int load_servers(char *config)
 		srv->realname = NULL;
 		srv->username = NULL;
 
+		srv->rejoin_tries = 0;
+
 		pthread_mutex_init(&srv->mutex, NULL);
 
 

@@ -114,6 +114,7 @@ int got_in(void **params, int argc)
 
     bcirc_printf("Connected to %s!\n", srv->host);
     srv->motd_sent = 1;
+    srv->rejoin_tries = 0;
 
     autojoin_channels(srv);
 
@@ -129,6 +130,7 @@ int handle_ping(void **params, int argc)
 
     if ((buf == NULL) || (srv == NULL))
         return BCIRC_PLUGIN_CONTINUE;
+
 
     if (strlen(buf) < 7)
     {
@@ -169,6 +171,7 @@ int handle_registeration(void **params, int argc)
         return BCIRC_PLUGIN_BREAK;
 
     server *srv = (server*) params[0];
+    time(&srv->time_connected);
 
     char key_buf[512];
     char username_buf[512];
@@ -231,6 +234,21 @@ int handle_nick(void **params, int argc)
 void *try_rejoin(void *srv_void)
 {
     server *srv = srv_void;
+
+    time_t timenow;
+    time(&timenow);
+
+    #define WAIT_TIME 30
+
+    time_t timediff = timenow - srv->time_connected;
+    if ((timediff < WAIT_TIME) && (srv->rejoin_tries != 0))
+    {
+        size_t sleeptime = WAIT_TIME * (srv->rejoin_tries + 1);
+        printf("Sleeping for %d seconds before trying rejoin to %s.\n", sleeptime, srv->host);
+        sleep(sleeptime);
+    }
+    srv->rejoin_tries++;
+
     int res;
     while((res = server_connect(srv)) != 1337) //i had to
     {

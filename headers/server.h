@@ -32,6 +32,9 @@ typedef struct server
 
 	int s;
 
+	time_t time_connected;
+	int rejoin_tries;
+
 	size_t sent_len;
 	size_t recvd_len;
 
