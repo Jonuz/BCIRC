@@ -30,6 +30,8 @@ typedef struct ark
     char *nick_save;
     int tries;
 
+    int sent; /*Sometimes curl returns errror even if message gets sent, so we set this 1 when title is sent so request will not be sent again. */
+
 	clock_t start_time;
 } ark;
 
@@ -72,6 +74,7 @@ int check_for_url(void **params, int argv)
 	ark *new_ark = malloc(sizeof(ark));
 	new_ark->start_time = clock();
     new_ark->tries = 0;
+    new_ark->sent = 0;
     regex_t regex;
     int reti;
     regmatch_t matches[1];
@@ -152,8 +155,7 @@ int http_request(char *url, ark *arkptr)
 
     if (res != CURLE_OK)
     {
-/*        printf("res: %d\n", res);
-        if (res == CURL_WRITEFUNC_PAUSE)
+        if (arkptr->sent == 1)
             return BCIRC_PLUGIN_OK;
 
         if (arkptr->tries >= 3)
@@ -166,7 +168,7 @@ int http_request(char *url, ark *arkptr)
         arkptr->tries++;
 
         http_request(url, arkptr);
-*/
+
         return BCIRC_PLUGIN_OK;
     }
 
@@ -261,6 +263,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
         add_to_privmsg_queue(title, target, arkptr->srv_save, 0);
     else
         add_to_privmsg_queue(title, nick, arkptr->srv_save, 0);
+    arkptr->sent = 1;
 
     free(title);
 
