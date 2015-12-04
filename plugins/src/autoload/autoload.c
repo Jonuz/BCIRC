@@ -40,8 +40,6 @@ int plugin_init(plugin *pluginptr) //TODO: Make this plugin more safer.
 
 void load_new_plugin(char *name)
 {
-    pthread_mutex_lock(&plugins_global_mutex);
-
     char *dir_path = getenv("BCIRC_PLUGINS_BIN");
     if (!dir_path)
     {
@@ -58,12 +56,12 @@ void load_new_plugin(char *name)
         if (strcmp(path, plugin_list[i]->path) == 0)
         {
             bcirc_printf("Removing old plugin..\n");
-            pthread_mutex_unlock(&plugins_global_mutex);
-            remove_plugin(plugin_list[i]);
             pthread_mutex_lock(&plugins_global_mutex);
+            remove_plugin(plugin_list[i]);
+            pthread_mutex_unlock(&plugins_global_mutex);
+            bcirc_printf("asd\n");
         }
     }
-    pthread_mutex_unlock(&plugins_global_mutex);
     int res = load_plugin(path);
     if (res == 1)
         bcirc_printf("Automatically loaded plugin %s\n", path);
@@ -73,7 +71,6 @@ void load_new_plugin(char *name)
 
 void *hook_change()
 {
-
     int len, fd, wd, i = 0;
     char buffer[BUF_LEN];
 
