@@ -246,7 +246,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
         new_count++;
 
     }
-    new_title[new_count+1] = '\0';
+    new_title[new_count] = '\0';
 
     free(title);
     title = malloc((new_count + 1) * sizeof(char));
