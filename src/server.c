@@ -72,13 +72,14 @@ int server_connect(server *srv)
 
 
 
-int server_disconnect(server *srv)
+int server_disconnect(server *srv, int reason)
 {
 	int close_res = close(srv->s);
 
 	void **cb_params = malloc( sizeof(server) );
     cb_params[0] = srv;
-    execute_callbacks( CALLBACK_SERVER_DISCONNECTED, cb_params, 1 );
+	cb_params[1] = &reason;
+    execute_callbacks( CALLBACK_SERVER_DISCONNECTED, cb_params, 2 );
 	free(cb_params);
 
 	return close_res;
@@ -95,12 +96,11 @@ int server_send(char *buf, server *srv)
 	params[0] = srv;
 	params[1] = buf;
 
-	if (execute_callbacks(CALLBACK_SERVER_SEND, params, 2) != BCIRC_PLUGIN_OK)
-	{
-		free(params);
-		return -2;
-	}
+	execute_callbacks(CALLBACK_SERVER_SEND, params, 2);
 	free(params);
+
+	if (!buf)
+		return 0;
 
 	int res = send(srv->s, buf, strlen(buf), 0);
 
@@ -119,8 +119,6 @@ void *server_recv(void *srv_void)
 	char tmpbuf[2048];
 	char *buf = NULL;
 
-	int dc_reason = SERVER_INTENTIONAL_DC;
-
 	server *srv = (server*) srv_void;
 
 	if (!srv)
@@ -134,8 +132,8 @@ void *server_recv(void *srv_void)
 
 	int n;
 
-	tv.tv_sec = 0;
-	tv.tv_usec = 2500;
+	tv.tv_sec = 600;
+	tv.tv_usec = 0;
 
 
 	for (;;)
@@ -147,7 +145,8 @@ void *server_recv(void *srv_void)
 
 		if (n == 2) //timeout
 		{
-			continue;
+			server_disconnect(srv, SERVER_TIMEOUT);
+			return NULL;
 		}
 
 		int res;
@@ -157,9 +156,8 @@ void *server_recv(void *srv_void)
 
 		if (res <= 0)
 		{
-			dc_reason = SERVER_CLOSED_CONNECTION;
-			close(srv->s);
-			break;
+			server_disconnect(srv, SERVER_CLOSED_CONNECTION);
+			return NULL;
 		}
 
 		if (!buf)
@@ -188,20 +186,7 @@ void *server_recv(void *srv_void)
 			line = strtok_r(NULL, "\r\n", &save);
 		}
 	}
-
-	srv->connected = 0;
-
-	int *reason = malloc(sizeof(int));
-	*reason = dc_reason;
-
-	void **params = malloc(2 * sizeof(void*));
-	params[0] = (void*) srv;
-	params[1] = (void*) reason;
-
-	execute_callbacks(CALLBACK_SERVER_DISCONNECTED, params, 2);
-
-	free(reason);
-	free(params);
+	bcirc_printf("If this gets printed something is wrong(%s)\nHost: %s Network: %s.\n", __PRETTY_FUNCTION__, srv->host, srv->network_name);
 
 	return NULL;
 }

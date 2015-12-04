@@ -56,49 +56,54 @@ void autojoin_channels(server *srv)
 
 		return;
 	}
+    config_setting_t *servers = NULL;
+    servers = config_lookup(&cfg, "servers");
 
-    config_setting_t *servers_setting;
-    if (!(servers_setting = config_lookup(&cfg, "servers")))
-	{
-		bcirc_printf("Failed to load setting \"servers\"(%s).\n", config);
-		return;
-	}
-
-    unsigned int server_count = config_setting_length(servers_setting);
-
-    for (int i = 0; i < server_count; i++)
+    if (!servers)
     {
-        config_setting_t *srv_setting = config_setting_get_elem(servers_setting, i);
-
-        config_setting_t *chans_setting;
-
-        if (!(chans_setting = config_lookup(&srv_setting, "channels")))
-        {
-            bcirc_printf("No channels found.\n");
-            return;
-        }
-        unsigned int channel_count = config_setting_length(chans_setting);
-
-        for (int y = 0; y < channel_count; y++)
-        {
-            config_setting_t *chan_setting = config_setting_get_elem(chans_setting, y);
-
-            char *chan_str;
-            char *key_str;
-
-            config_setting_lookup_string(chan_setting, "chan_name", &chan_str);
-
-            if (!config_setting_lookup_string(chan_setting, "chan_key", &key_str))
-                key_str = NULL;
-
-            bcirc_printf("chan %s\nkey: %s\n", chan_str, key_str);
-
-            join_channel(chan_str, key_str, srv);
-
-        }
-
+        bcirc_printf("Failed to load servers from config file!\n");
+        return;
     }
+    int servers_count = config_setting_length(servers);
 
+    for (int i = 0; i < servers_count; i++)
+    {
+        config_setting_t *this_server = config_setting_get_elem(servers, i);
+
+        char *network_name = NULL;
+        config_setting_lookup_string(this_server, "network_name", &network_name);
+
+        if (strcmp(srv->network_name, network_name) != 0)
+            continue;
+
+        config_setting_t *channels = config_setting_lookup(this_server, "channels");
+        if (!channels)
+        {
+            bcirc_printf("Failed to load channels(no channels?)\n");
+            continue;
+        }
+
+        size_t channels_count = config_setting_length(channels);
+
+        for (int y = 0; y < channels_count; y++)
+        {
+            config_setting_t *this_channel = config_setting_get_elem(channels, y);
+
+            char *channel_to_join = NULL;
+            char *channel_key = NULL;
+
+            if (!(config_setting_lookup_string(this_channel, "chan_name", &channel_to_join)))
+            {
+                bcirc_printf("Failed to load chan_name\n");
+                continue;
+            }
+
+            if (!(config_setting_lookup_string(this_channel, "chan_key", &channel_key)))
+                channel_key = NULL;
+
+            join_channel(channel_to_join, channel_key, srv);
+        }
+    }
 }
 
 int got_in(void **params, int argc)
