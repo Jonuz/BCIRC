@@ -76,7 +76,7 @@ void autojoin_channels(server *srv)
         if (strcmp(srv->network_name, network_name) != 0)
             continue;
 
-        config_setting_t *channels = config_setting_lookup(this_server, "channels");
+        config_setting_t *channels = config_lookup(&this_server, "channels");
         if (!channels)
         {
             bcirc_printf("Failed to load channels(no channels?)\n");
