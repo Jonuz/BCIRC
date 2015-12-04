@@ -96,12 +96,11 @@ int server_send(char *buf, server *srv)
 	params[0] = srv;
 	params[1] = buf;
 
-	if (execute_callbacks(CALLBACK_SERVER_SEND, params, 2) != BCIRC_PLUGIN_OK)
-	{
-		free(params);
-		return -2;
-	}
+	execute_callbacks(CALLBACK_SERVER_SEND, params, 2);
 	free(params);
+
+	if (!buf)
+		return 0;
 
 	int res = send(srv->s, buf, strlen(buf), 0);
 
