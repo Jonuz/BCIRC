@@ -47,12 +47,16 @@ int plugin_init(plugin *pluginptr)
     py_script_count = 0;
 
     char *pydir = getenv("BCIRC_PY_DIR");
-    char *filename = "test.py";
+    char *filename = "test";
 
-    //setenv("PYTHONPATH", pydir, 1);
+    setenv("PYTHONPATH", pydir, 1);
 
-    load_script(filename);
-
+	int res = 0;
+    if (! (res = load_script(filename)) )
+	{
+		bcirc_printf("load_script() returned: %d!\n", res);
+		return BCIRC_PLUGIN_FAIL;
+	}
     return BCIRC_PLUGIN_OK;
 }
 
@@ -61,17 +65,17 @@ int load_script(char *filename)
 {
     py_script *new_script = malloc(sizeof(new_script));
 
-    //new_script->name = PyUnicode_DecodeFSDefault(filename);
     new_script->name = malloc(strlen(filename) + 1);
     strcpy(new_script->name, filename);
     new_script->handle = PyImport_Import(PyUnicode_DecodeFSDefault(new_script->name));
 
-    if (new_script->handle == NULL)
+    if (!new_script->handle)
     {
-        printf("Failed to load %s\n", filename);
+        bcirc_printf("Failed to load %s\n", filename);
         PyErr_Print();
         return -1;
     }
+	init_script(new_script);
 
     return 1;
 }
@@ -79,7 +83,7 @@ int load_script(char *filename)
 int init_script(py_script *script)
 {
     PyObject *init_func = PyObject_GetAttrString(script->handle, "script_init");
-    if ((!init_func) || (!PyCallable_Check(init_func)))
+    if (!(init_func) || (!(PyCallable_Check(init_func))))
     {
         printf("no script_init() on script %s?\n", script->name);
         PyErr_Print();
