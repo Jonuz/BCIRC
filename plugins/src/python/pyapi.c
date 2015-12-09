@@ -41,6 +41,8 @@ PyObject* py_register_script(PyObject *self, PyObject *args)
     if (!py_scripts_list)
     {
         bcirc_printf("Failed to realloc py_script_list(%s)\n", __PRETTY_FUNCTION__);
+		pthread_mutex_unlock(&py_scripts_mutex);
+
         return PyLong_FromLong(-2);
     }
 
