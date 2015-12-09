@@ -40,16 +40,16 @@ InitMod(void)
 
 int plugin_init(plugin *pluginptr)
 {
+    char *pydir = getenv("BCIRC_PY_DIR");
+    char *filename = "test";
+
+    setenv("PYTHONPATH", pydir, 1);
+
     PyImport_AppendInittab("bcirc", &InitMod);
     Py_Initialize();
 
     py_scripts_list = malloc(sizeof(py_script*));
     py_script_count = 0;
-
-    char *pydir = getenv("BCIRC_PY_DIR");
-    char *filename = "test";
-
-    setenv("PYTHONPATH", pydir, 1);
 
 	int res = 0;
     if (! (res = load_script(filename)) )
