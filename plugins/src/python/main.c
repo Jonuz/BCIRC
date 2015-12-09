@@ -90,8 +90,7 @@ int init_script(py_script *script)
         return -1;
     }
 
-    PyObject *pArgs = PyTuple_New(1);
-    PyTuple_SetItem(pArgs, 0, PyLong_FromVoidPtr(script));
+	PyObject *pArgs = Py_BuildValue("(0)", PyLong_FromVoidPtr(script));
 
     PyObject *res = PyObject_CallObject(init_func, pArgs);
     if (res == NULL)
