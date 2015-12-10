@@ -10,4 +10,5 @@ def on_recv(params, count):
 def script_init(script):
     bcirc.register_script(script, script_name, script_version, script_author)
     bcirc.register_callback(script, "callback_server_recv", on_recv, 20)
-    print("yo")
+
+    return 1;
