@@ -13,6 +13,7 @@
 #include "../headers/log.h"
 #include "../headers/server.h"
 #include "../headers/plugin_handler.h"
+#include "../headers/callback_defines.h"
 
 
 #define get_str_size(str) ( (strlen( (char*) str) + 1) * sizeof(char) )
@@ -389,5 +390,20 @@ int execute_callbacks(char *cb_name, void **args, int argc)
                 return BCIRC_PLUGIN_FAIL;
         }
     }
+    if (strcmp(cb_name, CALLBACK_CALLBACKS_EXECUTED) != 0)
+    {
+        args = realloc(args, (argc + 1) * sizeof(void*));
+        if (!args)
+        {
+            bcirc_printf("Failed to realloc args.\n");
+            return -1;
+        }
+        args[argc] = malloc( (strlen(cb_name) + 1) * sizeof(char) );
+        strcpy(args[argc], cb_name);
+        execute_callbacks(CALLBACK_CALLBACKS_EXECUTED, args, argc+1);
+
+        free(args[argc]);
+    }
+
     return BCIRC_PLUGIN_OK;
 }
