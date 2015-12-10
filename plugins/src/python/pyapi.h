@@ -30,12 +30,14 @@ typedef struct py_script
 } py_script;
 
 py_script **py_scripts_list;
-
 unsigned int py_script_count;
+
+
 pthread_mutex_t py_scripts_mutex;
 
 int load_script(char *filename);
 int init_script(py_script *script);
+int py_execute_callbacks(void **params, int argc);
 
 
 PyObject* py_register_script(PyObject *self, PyObject *args);

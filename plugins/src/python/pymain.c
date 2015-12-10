@@ -41,7 +41,9 @@ InitMod(void)
 int plugin_init(plugin *pluginptr)
 {
     char *pydir = getenv("BCIRC_PY_DIR");
-    char *filename = "test";
+    char filename[] = "test";
+
+    bcirc_printf("????\n");
 
     setenv("PYTHONPATH", pydir, 1);
 
@@ -57,9 +59,49 @@ int plugin_init(plugin *pluginptr)
 		bcirc_printf("load_script() returned: %d!\n", res);
 		return BCIRC_PLUGIN_FAIL;
 	}
+
+    //register_callback(CALLBACK_CALLBACKS_EXECUTED, py_execute_callbacks, 20, pluginptr);
+
     return BCIRC_PLUGIN_OK;
 }
 
+int py_execute_callbacks(void **params, int argc) //Todo: Make this not so ugly.
+{
+    char *cb_name = params[argc];
+
+    for (int i = 0; i < py_script_count; i++)
+    {
+        for (int y = 0; y < py_scripts_list[i]->cb_count; y++)
+        {
+            char *script_cb_name = py_scripts_list[i]->cbs[y]->cb_name;
+            if (strcmp(cb_name, script_cb_name) == 0)
+            {
+                PyObject *ptrarray = PyList_New(argc);
+                for (int x = 0; x < argc - 1; x++)
+                {
+                    if (!(PyList_SET_ITEM(ptrarray, x, PyLong_FromVoidPtr(params[x]))))
+                    {
+                        bcirc_printf("Failed to set arg. Callback %s | argc: %d\n", cb_name, x);
+                        return BCIRC_PLUGIN_FAIL;
+                    }
+                }
+
+                PyObject *pArgs = Py_BuildValue("(od)", ptrarray, PyLong_FromLong(argc - 1));
+                PyObject *cb = py_scripts_list[i]->cbs[y]->cb_func;
+
+                PyObject *res = PyObject_CallObject(cb, pArgs);
+                Py_DECREF(pArgs);
+                if (res == NULL)
+                {
+                    bcirc_printf("Failed to execute py-function!\n");
+
+                }
+
+            }
+        }
+    }
+    return BCIRC_PLUGIN_OK;
+}
 
 int load_script(char *filename)
 {
@@ -67,14 +109,18 @@ int load_script(char *filename)
 
     new_script->name = malloc(strlen(filename) + 1);
     strcpy(new_script->name, filename);
-    new_script->handle = PyImport_Import(PyUnicode_DecodeFSDefault(new_script->name));
 
+    PyObject *name = PyUnicode_DecodeFSDefault(new_script->name);
+    new_script->handle = PyImport_Import(name);
+    Py_DECREF(name);
+    
     if (!new_script->handle)
     {
         bcirc_printf("Failed to load %s\n", filename);
         PyErr_Print();
         return -1;
     }
+
 	init_script(new_script);
 
     return 1;
@@ -93,12 +139,13 @@ int init_script(py_script *script)
 	PyObject *pArgs = Py_BuildValue("(O)", PyLong_FromVoidPtr(script));
 
     PyObject *res = PyObject_CallObject(init_func, pArgs);
+    Py_DECREF(pArgs);
     if (res == NULL)
     {
         bcirc_printf("cb returned %d\n", PyLong_AsLong(res));
+        return -1;
     }
     bcirc_printf("Initalized script\n");
-    //Py_DECREF(pArgs);
 
 
     return 1;

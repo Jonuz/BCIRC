@@ -20,13 +20,13 @@ PyObject* py_register_script(PyObject *self, PyObject *args)
     PyArg_ParseTuple(args, "Osss", &scriptptr, &script_name, &script_version, &script_author);
 
 
-    if (!scriptptr)
+    if (scriptptr == NULL)
     {
         bcirc_printf("scriptptr is null!\n");
         return PyLong_FromLong(-1);
     }
 
-    py_script *script = (py_script*) PyLong_FromVoidPtr(scriptptr);
+    py_script *script = (py_script*) PyLong_AsVoidPtr(scriptptr);
 
     script->name = malloc(strlen(script_name) + 1);
     script->version = malloc(strlen(script_version) + 1);
@@ -35,6 +35,9 @@ PyObject* py_register_script(PyObject *self, PyObject *args)
     strcpy(script->name, script_name);
     strcpy(script->version, script_version);
     strcpy(script->author, script_author);
+
+    script->cb_count = 0;
+    script->cbs = malloc(sizeof(py_cb*));
 
     pthread_mutex_lock(&py_scripts_mutex);
     py_scripts_list = realloc(py_scripts_list, (py_script_count + 1) * sizeof(py_script*));
@@ -57,6 +60,7 @@ PyObject* py_register_script(PyObject *self, PyObject *args)
 PyObject* py_register_callback(PyObject *self, PyObject *args)
 {
     PyObject *pyptr = NULL;
+
     char *cb_name = NULL;
 
     py_cb *new_cb = malloc(sizeof(py_cb));
@@ -69,16 +73,23 @@ PyObject* py_register_callback(PyObject *self, PyObject *args)
     new_cb->cb_name = malloc( (strlen(cb_name) + 1) * sizeof(char));
     strcpy(new_cb->cb_name, cb_name);
 
-    py_script *script = (py_script*) PyLong_FromVoidPtr(pyptr);
+    py_script *script = (py_script*) PyLong_AsVoidPtr(pyptr);
     if (!script)
     {
         bcirc_printf("script is null(%s)\n", __PRETTY_FUNCTION__);
+        free(new_cb);
         return PyLong_FromLong(-2);
+    }
+
+    if (!PyCallable_Check(new_cb->cb_func))
+    {
+        printf("Can't register callback, object is not callable!\n");
+        free(new_cb);
+        return PyLong_FromLong(-3);
     }
 
     script->cbs = realloc(script->cbs, (script->cb_count + 1) * sizeof(py_cb*));
     script->cbs[script->cb_count] = new_cb;
-
 
     return PyLong_FromLong(1);
 }
