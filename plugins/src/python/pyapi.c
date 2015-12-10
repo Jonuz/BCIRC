@@ -17,7 +17,7 @@ PyObject* py_register_script(PyObject *self, PyObject *args)
     PyObject *scriptptr = NULL;
     char *script_name, *script_version, *script_author;
 
-    PyArg_ParseTuple(args, "0sss", &scriptptr, &script_name, &script_version, &script_author);
+    PyArg_ParseTuple(args, "Osss", &scriptptr, &script_name, &script_version, &script_author);
 
 
     if (!scriptptr)
@@ -61,7 +61,7 @@ PyObject* py_register_callback(PyObject *self, PyObject *args)
 
     py_cb *new_cb = malloc(sizeof(py_cb));
 
-    if (!PyArg_ParseTuple(args, "0s0d", &pyptr, &cb_name, &new_cb->cb_func, &new_cb->priority))
+    if (!PyArg_ParseTuple(args, "OsOd", &pyptr, &cb_name, &new_cb->cb_func, &new_cb->priority))
     {
         free(new_cb);
         return PyLong_FromLong(-1);
