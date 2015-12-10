@@ -76,7 +76,7 @@ int server_disconnect(server *srv, int reason)
 {
 	int close_res = close(srv->s);
 
-	void **cb_params = malloc( sizeof(server) );
+	void **cb_params = malloc( 2 * sizeof(void*) );
     cb_params[0] = srv;
 	cb_params[1] = &reason;
     execute_callbacks( CALLBACK_SERVER_DISCONNECTED, cb_params, 2 );
