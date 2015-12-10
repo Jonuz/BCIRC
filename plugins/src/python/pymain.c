@@ -90,23 +90,16 @@ int init_script(py_script *script)
         return -1;
     }
 
-	PyObject *pArgs = Py_BuildValue("(0)", PyLong_FromVoidPtr(script));
+	PyObject *pArgs = Py_BuildValue("(O)", PyLong_FromVoidPtr(script));
 
     PyObject *res = PyObject_CallObject(init_func, pArgs);
     if (res == NULL)
     {
         bcirc_printf("cb returned %d\n", PyLong_AsLong(res));
     }
+    bcirc_printf("Initalized script\n");
+    //Py_DECREF(pArgs);
 
-    Py_DECREF(pArgs);
-
-/*
-    if (*res != BCIRC_PLUGIN_OK)
-    {
-        bcirc_printf("Failed to init script %s\n", script->name);
-        return -1;
-    }
-*/
 
     return 1;
 }
