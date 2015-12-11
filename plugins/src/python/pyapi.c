@@ -165,7 +165,6 @@ PyObject *py_server_connect(PyObject *self, PyObject *args)
     int res = server_connect(srv);
 
     return PyLong_FromLong(res);
-
 }
 
 PyObject *py_add_to_serverpool(PyObject *self, PyObject *args)
