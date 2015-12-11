@@ -6,13 +6,15 @@ import bcirc
 from ctypes import *
 
 def on_recv(params, count):
-    #buf = c_char_p(params[1])
-    #rint("buf: ", buf)
-    print ("something sent")
+    srv = bcirc.get_chan_srv(params[0])
+
+    bcirc.server_send(srv, "PRIVMSG #tesm :       ____\r\n");
+    bcirc.server_send(srv, "PRIVMSG #tesm : _,.-'`_ o `;__,\r\n")
+    bcirc.server_send(srv, "PRIVMSG #tesm : _.-'` '---'   '\r\n");
 
 
 def script_init(script):
     bcirc.register_script(script, script_name, script_version, script_author)
-    bcirc.register_callback(script, "server_recv", on_recv, 20)
+    bcirc.register_callback(script, "channel_join", on_recv, 20)
 
     return 1
