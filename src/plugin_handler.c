@@ -39,9 +39,9 @@ int load_plugin(char *path)
 
     dlerror();
 
-    if ((handle = dlopen(path, RTLD_LAZY)) == NULL)
+    if ((handle = dlopen(path, RTLD_LOCAL | RTLD_NOW)) == NULL)
     {
-        bcirc_printf("%s)\n",path, dlerror());
+        bcirc_printf("Failed to load plugin %s, (%s))\n",path, dlerror());
         free(new_plugin->callback_list);
         free(new_plugin);
         return -1;
@@ -392,17 +392,22 @@ int execute_callbacks(char *cb_name, void **args, int argc)
     }
     if (strcmp(cb_name, CALLBACK_CALLBACKS_EXECUTED) != 0)
     {
-        args = realloc(args, (argc + 1) * sizeof(void*));
-        if (!args)
+        void **new_args = malloc((argc + 1) * sizeof(void*));
+        if (!new_args)
         {
-            bcirc_printf("Failed to realloc args.\n");
+            bcirc_printf("Failed to malloc new args.\n");
             return -1;
         }
-        args[argc] = malloc( (strlen(cb_name) + 1) * sizeof(char) );
-        strcpy(args[argc], cb_name);
-        execute_callbacks(CALLBACK_CALLBACKS_EXECUTED, args, argc+1);
 
-        free(args[argc]);
+        for (int i = 0; i < argc; i++)
+            new_args[i] = args[i];
+
+        new_args[argc] = malloc( (strlen(cb_name) + 1) * sizeof(char) );
+        strcpy(new_args[argc], cb_name);
+        execute_callbacks(CALLBACK_CALLBACKS_EXECUTED, new_args, argc+1);
+
+        free(new_args[argc]);
+        free(new_args);
     }
 
     return BCIRC_PLUGIN_OK;
