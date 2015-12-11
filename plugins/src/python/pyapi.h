@@ -32,8 +32,9 @@ typedef struct py_script
 py_script **py_scripts_list;
 unsigned int py_script_count;
 
-
 pthread_mutex_t py_scripts_mutex;
+
+PyThreadState *mainThreadState;
 
 int load_script(char *filename);
 int init_script(py_script *script);
@@ -43,10 +44,9 @@ int py_execute_callbacks(void **params, int argc);
 PyObject* py_register_script(PyObject *self, PyObject *args);
 PyObject* py_register_callback(PyObject *self, PyObject *args);
 
-/*
-static PyObject* py_server_send(PyObject *self, PyObject *args);
-static PyObject* py_server_recv(PyObject *self, PyObject *args);
-*/
+
+PyObject* py_server_send(PyObject *self, PyObject *args);
+
 
 #endif
 

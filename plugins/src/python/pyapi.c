@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "../headers/log.h"
+#include "../headers/server.h"
 #include "../headers/callback_defines.h"
 
 #include "pyapi.h"
@@ -90,6 +91,36 @@ PyObject* py_register_callback(PyObject *self, PyObject *args)
 
     script->cbs = realloc(script->cbs, (script->cb_count + 1) * sizeof(py_cb*));
     script->cbs[script->cb_count] = new_cb;
+    script->cb_count++;
 
     return PyLong_FromLong(1);
+}
+
+PyObject* py_server_send(PyObject *self, PyObject *args)
+{
+    PyObject *pyptr = NULL;
+    char *buf;
+
+    if (!PyArg_ParseTuple(args, "Os", &pyptr, &buf))
+    {
+        return PyLong_FromLong(-1);
+    }
+
+    if (!pyptr)
+        return PyLong_FromLong(-2);
+
+    server *srv = (server*) PyLong_AsVoidPtr(pyptr);
+    if (!srv)
+        return PyLong_FromLong(-3);
+
+
+    int res = server_send(srv, buf);
+
+    return PyLong_FromLong(-1);
+}
+
+PyObject* py_server_recv(PyObject *self, PyObject *args)
+{
+
+
 }
