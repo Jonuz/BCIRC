@@ -35,6 +35,8 @@ static PyMethodDef BcircMethods[] = {
     { "bcirc_log", py_bcirc_log, METH_VARARGS, "Frees server." },
 
     { "privmsg", py_privmsg, METH_VARARGS, "Sends privmsg." },
+    { "privmsg_queue", py_privmsg_queue, METH_VARARGS, "Adds message to queue to be sent." },
+
     { "join_channel", py_join_channel, METH_VARARGS, "Join to channel." },
     { "part_channel", py_part_channel, METH_VARARGS, "Parts from channel." },
     { "nick", py_nick, METH_VARARGS, "Changes nick." },
@@ -162,10 +164,10 @@ int py_execute_callbacks(void **params, int argc) //Todo: Make this not so ugly.
                     if (PyList_SetItem(ptrarray, x, PyLong_FromVoidPtr(params[x])) != 0 )
                     {
                         bcirc_printf("Failed to set arg. Callback %s | argc: %d\n", cb_name, x);
+                        //Py_DECREF(ptrarray);
                         return BCIRC_PLUGIN_FAIL;
                     }
                 }
-
 
                 //PyThreadState *tstate = PyThreadState_New(mainThreadState->interp);
                 //PyThreadState *this_thread = PyThreadState_New(tstate);
@@ -173,10 +175,12 @@ int py_execute_callbacks(void **params, int argc) //Todo: Make this not so ugly.
 
                 PyObject *pArgs = Py_BuildValue("(Ol)", ptrarray, PyLong_FromLong(argc - 1));
                 PyObject *cb = py_scripts_list[i]->cbs[y]->cb_func;
+                Py_DECREF(ptrarray);
 
                 if (pArgs == NULL)
                 {
                     bcirc_printf("pArgs is null!\n");
+                    Py_DECREF(pArgs);
                     //PyEval_ReleaseThread(tstate);
                     //PyThreadState_Delete(tstate);
                     break;
@@ -185,6 +189,7 @@ int py_execute_callbacks(void **params, int argc) //Todo: Make this not so ugly.
                 if (!PyCallable_Check(cb))
                 {
                     bcirc_printf("callback is not callable!\n");
+                    Py_DECREF(pArgs);
                     //PyEval_ReleaseThread(tstate);
                     //PyThreadState_Delete(tstate);
                     break;
@@ -192,6 +197,7 @@ int py_execute_callbacks(void **params, int argc) //Todo: Make this not so ugly.
 
                 bcirc_printf("calling callback!\n");
                 PyObject *res = PyObject_CallObject(cb, pArgs);
+                Py_DECREF(pArgs);
 
                 if (res == NULL)
                 {
