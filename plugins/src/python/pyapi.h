@@ -47,7 +47,7 @@ PyObject* py_register_callback(PyObject *self, PyObject *args);
 PyObject* py_get_chan_srv(PyObject *self, PyObject *args);
 
 
-PyObject* py_server_send(PyObject *self, PyObject *args);
+PyObject *py_server_send(PyObject *self, PyObject *args);
 PyObject *py_server_connect(PyObject *self, PyObject *args);
 PyObject *py_add_to_serverpool(PyObject *self, PyObject *args);
 PyObject *py_remove_from_serverpool(PyObject *self, PyObject *args);
@@ -57,6 +57,7 @@ PyObject *py_load_servers(PyObject *self, PyObject *args);
 PyObject *py_bcirc_printf(PyObject *self, PyObject *args);
 PyObject *py_bcirc_log(PyObject *self, PyObject *args);
 
+PyObject *py_privmsg_queue(PyObject *self, PyObject *args);
 PyObject *py_privmsg(PyObject *self, PyObject *args);
 PyObject *py_join_channel(PyObject *self, PyObject *args);
 PyObject *py_part_channel(PyObject *self, PyObject *args);
