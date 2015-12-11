@@ -15,11 +15,15 @@ extern unsigned int py_script_count;
 
 char plugin_name[] = "Python";
 char plugin_author[] = "Joona";
-char plugin_version[] = "1.0";
+char plugin_version[] = "0.1";
 
 static PyMethodDef BcircMethods[] = {
     { "register_script", py_register_script, METH_VARARGS, "Registers python script." },
     { "register_callback", py_register_callback, METH_VARARGS, "Registers python callback." },
+
+    { "server_send", py_server_send, METH_VARARGS, "Sends to server." },
+
+
 
     {NULL, NULL, 0, NULL}
 };
@@ -43,15 +47,19 @@ int plugin_init(plugin *pluginptr)
     char *pydir = getenv("BCIRC_PY_DIR");
     char filename[] = "test";
 
-    bcirc_printf("????\n");
-
     setenv("PYTHONPATH", pydir, 1);
 
     PyImport_AppendInittab("bcirc", &InitMod);
+
     Py_Initialize();
+    PyEval_InitThreads();
+
+    mainThreadState = PyThreadState_Get();
 
     py_scripts_list = malloc(sizeof(py_script*));
     py_script_count = 0;
+
+    pthread_mutex_init(&py_scripts_mutex, NULL);
 
 	int res = 0;
     if (! (res = load_script(filename)) )
@@ -60,14 +68,14 @@ int plugin_init(plugin *pluginptr)
 		return BCIRC_PLUGIN_FAIL;
 	}
 
-    //register_callback(CALLBACK_CALLBACKS_EXECUTED, py_execute_callbacks, 20, pluginptr);
+    register_callback(CALLBACK_CALLBACKS_EXECUTED, py_execute_callbacks, 20, pluginptr);
 
     return BCIRC_PLUGIN_OK;
 }
 
 int py_execute_callbacks(void **params, int argc) //Todo: Make this not so ugly.
 {
-    char *cb_name = params[argc];
+    char *cb_name = params[argc-1];
 
     for (int i = 0; i < py_script_count; i++)
     {
@@ -76,26 +84,48 @@ int py_execute_callbacks(void **params, int argc) //Todo: Make this not so ugly.
             char *script_cb_name = py_scripts_list[i]->cbs[y]->cb_name;
             if (strcmp(cb_name, script_cb_name) == 0)
             {
-                PyObject *ptrarray = PyList_New(argc);
+                PyObject *ptrarray = PyList_New(argc-1);
                 for (int x = 0; x < argc - 1; x++)
                 {
-                    if (!(PyList_SET_ITEM(ptrarray, x, PyLong_FromVoidPtr(params[x]))))
+                    if (PyList_SetItem(ptrarray, x, PyLong_FromVoidPtr(params[x])) != 0 )
                     {
                         bcirc_printf("Failed to set arg. Callback %s | argc: %d\n", cb_name, x);
                         return BCIRC_PLUGIN_FAIL;
                     }
                 }
 
-                PyObject *pArgs = Py_BuildValue("(od)", ptrarray, PyLong_FromLong(argc - 1));
+
+                //PyThreadState *tstate = PyThreadState_New(mainThreadState->interp);
+                //PyThreadState *this_thread = PyThreadState_New(tstate);
+                //PyEval_AcquireThread(tstate);
+
+                PyObject *pArgs = Py_BuildValue("(Ol)", ptrarray, PyLong_FromLong(argc - 1));
                 PyObject *cb = py_scripts_list[i]->cbs[y]->cb_func;
 
+                if (pArgs == NULL)
+                {
+                    bcirc_printf("pArgs is null!\n");
+                    //PyEval_ReleaseThread(tstate);
+                    //PyThreadState_Delete(tstate);
+                    break;
+                }
+
+                if (!PyCallable_Check(cb))
+                {
+                    bcirc_printf("callback is not callable!\n");
+                    //PyEval_ReleaseThread(tstate);
+                    //PyThreadState_Delete(tstate);
+                    break;
+                }
+
                 PyObject *res = PyObject_CallObject(cb, pArgs);
-                Py_DECREF(pArgs);
+
                 if (res == NULL)
                 {
                     bcirc_printf("Failed to execute py-function!\n");
-
                 }
+                //PyEval_ReleaseThread(tstate);
+                //PyThreadState_Delete(tstate);
 
             }
         }
@@ -112,8 +142,8 @@ int load_script(char *filename)
 
     PyObject *name = PyUnicode_DecodeFSDefault(new_script->name);
     new_script->handle = PyImport_Import(name);
-    Py_DECREF(name);
-    
+    //Py_DECREF(name);
+
     if (!new_script->handle)
     {
         bcirc_printf("Failed to load %s\n", filename);
@@ -121,7 +151,11 @@ int load_script(char *filename)
         return -1;
     }
 
-	init_script(new_script);
+	if (init_script(new_script) != 1)
+    {
+        bcirc_printf("Failed to initalize script\n");
+        return -2;
+    }
 
     return 1;
 }
@@ -136,10 +170,12 @@ int init_script(py_script *script)
         return -1;
     }
 
+    script->cbs = NULL;
+
 	PyObject *pArgs = Py_BuildValue("(O)", PyLong_FromVoidPtr(script));
 
     PyObject *res = PyObject_CallObject(init_func, pArgs);
-    Py_DECREF(pArgs);
+    //Py_DECREF(pArgs);
     if (res == NULL)
     {
         bcirc_printf("cb returned %d\n", PyLong_AsLong(res));
