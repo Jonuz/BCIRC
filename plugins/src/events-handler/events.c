@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "events.h"
+#include "../headers/log.h"
 #include "../headers/irc.h"
 #include "../headers/server.h"
 #include "../headers/plugin_handler.h"
@@ -202,6 +203,14 @@ int get_chan_event(void **params, int argv)
             }
 
             char *nick_end = memchr(buffer, '!', strlen(buffer));
+            if (nick_end == NULL)
+                nick_end = memchr(buffer, '*', strlen(buffer));
+            if (nick_end == NULL)
+            {
+                bcirc_printf("nick_end is still NULL(%s)\n", __PRETTY_FUNCTION__);
+                return BCIRC_PLUGIN_OK;
+            }
+
             size_t nick_len = strlen(buffer) - strlen(nick_end) - 1;
 
             nick = malloc((nick_len + 1) * sizeof(char));
@@ -214,8 +223,8 @@ int get_chan_event(void **params, int argv)
             hostmask = malloc((mask_len + 1) * sizeof(char));
             memmove(hostmask, buffer + nick_len + 2, mask_len);
             hostmask[mask_len] = '\0';
-
         }
+
         if (i == 2)
         {
             chan = (channel*) get_channel(token, (server*) srv);
