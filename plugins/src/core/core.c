@@ -160,7 +160,7 @@ int handle_ping(void **params, int argc)
     pong[1] = 'O';
 
     bcirc_printf("PONG!\n");
-    server_send(pong, srv);
+    server_send(srv, pong);
 
     free(pong);
     free(tmp);
@@ -194,8 +194,8 @@ int handle_registeration(void **params, int argc)
 
     sprintf(username_buf, "USER %s 8 * :%s\r\n", srv->realname, srv->username);
 
-    server_send(key_buf, srv);
-    server_send(username_buf, srv);
+    server_send(srv, key_buf);
+    server_send(srv, username_buf);
     nick(srv->nick, srv);
 
     return BCIRC_PLUGIN_OK;

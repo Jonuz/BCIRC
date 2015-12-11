@@ -64,7 +64,7 @@ int server_connect(server *srv);
 int server_set_info(server *srv);
 
 void *server_recv(void *srv);
-int server_send(char *buf, server *srv);
+int server_send(server *srv, char *buf);
 
 int load_servers(char *);
 

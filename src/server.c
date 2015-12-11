@@ -89,7 +89,7 @@ int server_disconnect(server *srv, int reason)
 /* todo:
 	timeout handling
 */
-int server_send(char *buf, server *srv)
+int server_send(server *srv, char *buf)
 {
 
 	void **params = malloc(2* sizeof(void*));
