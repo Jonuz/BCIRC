@@ -1,6 +1,7 @@
 #include <Python.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 
 #include "pyapi.h"
 
@@ -54,18 +55,71 @@ InitMod(void)
 }
 
 
+int load_script(char *filename, char *dir)
+{
+    py_script *new_script = malloc(sizeof(new_script));
+
+    new_script->name = malloc(strlen(filename) + 1);
+    strcpy(new_script->name, filename);
+
+    PyObject *name = PyUnicode_DecodeFSDefault(new_script->name);
+    new_script->handle = PyImport_Import(name);
+    Py_DECREF(name);
+
+    setenv("PYTHONPATH", dir, 1);
+
+    if (!new_script->handle)
+    {
+        bcirc_printf("Failed to load %s\n", filename);
+        PyErr_Print();
+        return -1;
+    }
+
+	if (init_script(new_script) != 1)
+    {
+        bcirc_printf("Failed to initalize script\n");
+        return -2;
+    }
+
+    return 1;
+}
+
+int load_script_dir(char *dirname)
+{
+    DIR *d = NULL;
+    struct dirent *dir;
+
+    d = opendir(dirname);
+    if (d)
+    {
+        while( (dir = readdir(d)) != NULL )
+        {
+            if (dir->d_type == DT_REG)
+            {
+                if (strcmp(dir->d_name, "__init__") == 0)
+                    continue;
+
+                size_t len = strlen(dir->d_name) - 3;
+                char filename[len+1];
+                strncpy(filename, dir->d_name, len);
+                filename[len] = '\0';
+                load_script(filename, dirname);
+            }
+        }
+    }
+    return 1;
+}
 
 int plugin_init(plugin *pluginptr)
 {
     char *pydir = getenv("BCIRC_PY_DIR");
-    char filename[] = "test";
-
     setenv("PYTHONPATH", pydir, 1);
 
     PyImport_AppendInittab("bcirc", &InitMod);
 
     Py_Initialize();
     PyEval_InitThreads();
+
 
     int test = 0;
 
@@ -77,13 +131,15 @@ int plugin_init(plugin *pluginptr)
 
     pthread_mutex_init(&py_scripts_mutex, NULL);
 
+    load_script_dir(pydir);
+/*
 	int res = 0;
     if (! (res = load_script(filename)) )
 	{
 		bcirc_printf("load_script() returned: %d!\n", res);
 		return BCIRC_PLUGIN_FAIL;
 	}
-
+*/
     register_callback(CALLBACK_CALLBACKS_EXECUTED, py_execute_callbacks, 20, pluginptr);
 
     return BCIRC_PLUGIN_OK;
@@ -150,32 +206,6 @@ int py_execute_callbacks(void **params, int argc) //Todo: Make this not so ugly.
     return BCIRC_PLUGIN_OK;
 }
 
-int load_script(char *filename)
-{
-    py_script *new_script = malloc(sizeof(new_script));
-
-    new_script->name = malloc(strlen(filename) + 1);
-    strcpy(new_script->name, filename);
-
-    PyObject *name = PyUnicode_DecodeFSDefault(new_script->name);
-    new_script->handle = PyImport_Import(name);
-    //Py_DECREF(name);
-
-    if (!new_script->handle)
-    {
-        bcirc_printf("Failed to load %s\n", filename);
-        PyErr_Print();
-        return -1;
-    }
-
-	if (init_script(new_script) != 1)
-    {
-        bcirc_printf("Failed to initalize script\n");
-        return -2;
-    }
-
-    return 1;
-}
 
 int init_script(py_script *script)
 {
