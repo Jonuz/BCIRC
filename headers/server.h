@@ -57,16 +57,16 @@ extern int server_count;
 
 extern pthread_mutex_t servers_global_mutex;
 
-int add_to_serverpool();
-
 int server_disconnect(server *srv, int reason);
 int server_connect(server *srv);
-int server_set_info(server *srv);
 
 void *server_recv(void *srv);
 int server_send(server *srv, char *buf);
 
 int load_servers(char *);
 
+int add_to_serverpool(server *srv);
+int remove_from_serverpool(server *srv);
+int free_server(server *srv);
 
 #endif
