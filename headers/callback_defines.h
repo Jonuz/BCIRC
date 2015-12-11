@@ -104,7 +104,7 @@ Params:
         When CALLBACK_CALLBACKS_EXECUTED are executed, name of callback which are being executed is added to end of aguments list.
         So you can get name of callback like this:
 
-        char *cb_name = arguments[count];
+        char *cb_name = arguments[count-1];
 */
 
 
