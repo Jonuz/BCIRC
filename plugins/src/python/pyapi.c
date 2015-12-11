@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../headers/irc.h"
 #include "../headers/log.h"
 #include "../headers/server.h"
 #include "../headers/channel.h"
@@ -271,7 +272,7 @@ PyObject *py_bcirc_log(PyObject *self, PyObject *args)
 {
     char *buf, *logname;
 
-    if (!PyArg_ParseTuple(args, "s", &buf, "s", &logname))
+    if (!PyArg_ParseTuple(args, "ss", &buf, &logname))
     {
         return PyLong_FromLong(-1);
     }
@@ -281,14 +282,34 @@ PyObject *py_bcirc_log(PyObject *self, PyObject *args)
     return PyLong_FromLong(res);
 }
 
+PyObject *py_privmsg_queue(PyObject *self, PyObject *args)
+{
+    //int add_to_privmsg_queue(char *msg, char *target, server *srv, const int drop )
+    char *msg = NULL;
+    char *target = NULL;
+    int drop;
+    PyObject *pyptr = NULL;
+
+    if (!PyArg_ParseTuple(args, "ssOd", &msg, &target, &pyptr, &drop))
+    {
+        return PyLong_FromLong(-1);
+    }
+    server *srv = (server*) PyLong_AsVoidPtr(pyptr);
+    if (!srv)
+        return PyLong_FromLong(-2);
+
+    int res = add_to_privmsg_queue(msg, target, srv, drop);
+
+    return PyLong_FromLong(res);
+}
 
 
 PyObject *py_privmsg(PyObject *self, PyObject *args)
 {
-    char *newnick;
+    char *msg, *target;
     PyObject *pyptr = NULL;
 
-    if (!PyArg_ParseTuple(args, "s", &newnick, "O", &pyptr))
+    if (!PyArg_ParseTuple(args, "ssO", &msg, &target, &pyptr))
     {
         return PyLong_FromLong(-1);
     }
@@ -297,7 +318,9 @@ PyObject *py_privmsg(PyObject *self, PyObject *args)
     if (!srv)
         return PyLong_FromLong(-2);
 
-    int res = nick(newnick, srv);
+    //int privmsg(char *msg, char *target, server *srv)
+
+    int res = privmsg(msg, target, srv);
 
     return PyLong_FromLong(res);
 }
@@ -307,7 +330,7 @@ PyObject *py_join_channel(PyObject *self, PyObject *args)
     char *channame, *chanpass;
     PyObject *pyptr = NULL;
 
-    if (!PyArg_ParseTuple(args, "s", &channame, "s", &chanpass, "O", &pyptr))
+    if (!PyArg_ParseTuple(args, "ssO", &channame, &chanpass, &pyptr))
     {
         return PyLong_FromLong(-1);
     }
@@ -326,7 +349,7 @@ PyObject *py_part_channel(PyObject *self, PyObject *args)
     char *reason;
     PyObject *pyptr = NULL;
 
-    if (!PyArg_ParseTuple(args, "s", &reason, "O", &pyptr))
+    if (!PyArg_ParseTuple(args, "sO", &reason, &pyptr))
     {
         return PyLong_FromLong(-1);
     }
@@ -345,7 +368,7 @@ PyObject *py_nick(PyObject *self, PyObject *args)
     char *newnick;
     PyObject *pyptr = NULL;
 
-    if (!PyArg_ParseTuple(args, "s", &newnick, "O", &pyptr))
+    if (!PyArg_ParseTuple(args, "sO", &newnick, &pyptr))
     {
         return PyLong_FromLong(-1);
     }
