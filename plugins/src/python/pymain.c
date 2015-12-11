@@ -10,7 +10,7 @@
 
 
 py_script **py_scripts_list;
-extern unsigned int py_script_count;
+unsigned int py_script_count;
 
 
 char plugin_name[] = "Python";
@@ -21,9 +21,22 @@ static PyMethodDef BcircMethods[] = {
     { "register_script", py_register_script, METH_VARARGS, "Registers python script." },
     { "register_callback", py_register_callback, METH_VARARGS, "Registers python callback." },
 
+    { "get_chan_srv", py_get_chan_srv, METH_VARARGS, "Returns pointer to channel's server." },
+
+
     { "server_send", py_server_send, METH_VARARGS, "Sends to server." },
+    { "server_connect", py_server_connect, METH_VARARGS, "Connects to server." },
+    { "add_to_serverpool", py_add_to_serverpool, METH_VARARGS, "Adds server yo server pool." },
+    { "free_server", py_free_server, METH_VARARGS, "Frees server." },
+    { "load_servers", py_load_servers, METH_VARARGS, "Load server(s) from config file and adds those to serverpool." },
 
+    { "bcirc_printf", py_bcirc_printf, METH_VARARGS, "Frees server." },
+    { "bcirc_log", py_bcirc_log, METH_VARARGS, "Frees server." },
 
+    { "privmsg", py_privmsg, METH_VARARGS, "Sends privmsg." },
+    { "join_channel", py_join_channel, METH_VARARGS, "Join to channel." },
+    { "part_channel", py_part_channel, METH_VARARGS, "Parts from channel." },
+    { "nick", py_nick, METH_VARARGS, "Changes nick." },
 
     {NULL, NULL, 0, NULL}
 };
@@ -53,6 +66,9 @@ int plugin_init(plugin *pluginptr)
 
     Py_Initialize();
     PyEval_InitThreads();
+
+    int test = 0;
+
 
     mainThreadState = PyThreadState_Get();
 
@@ -118,6 +134,7 @@ int py_execute_callbacks(void **params, int argc) //Todo: Make this not so ugly.
                     break;
                 }
 
+                bcirc_printf("calling callback!\n");
                 PyObject *res = PyObject_CallObject(cb, pArgs);
 
                 if (res == NULL)

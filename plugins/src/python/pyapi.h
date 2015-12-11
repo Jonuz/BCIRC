@@ -44,8 +44,24 @@ int py_execute_callbacks(void **params, int argc);
 PyObject* py_register_script(PyObject *self, PyObject *args);
 PyObject* py_register_callback(PyObject *self, PyObject *args);
 
+PyObject* py_get_chan_srv(PyObject *self, PyObject *args);
+
 
 PyObject* py_server_send(PyObject *self, PyObject *args);
+PyObject *py_server_connect(PyObject *self, PyObject *args);
+PyObject *py_add_to_serverpool(PyObject *self, PyObject *args);
+PyObject *py_remove_from_serverpool(PyObject *self, PyObject *args);
+PyObject *py_free_server(PyObject *self, PyObject *args);
+PyObject *py_load_servers(PyObject *self, PyObject *args);
+
+PyObject *py_bcirc_printf(PyObject *self, PyObject *args);
+PyObject *py_bcirc_log(PyObject *self, PyObject *args);
+
+PyObject *py_privmsg(PyObject *self, PyObject *args);
+PyObject *py_join_channel(PyObject *self, PyObject *args);
+PyObject *py_part_channel(PyObject *self, PyObject *args);
+PyObject *py_nick(PyObject *self, PyObject *args);
+
 
 
 #endif
@@ -62,7 +78,7 @@ def on_recv(params, count):
 
 script_name = "test script"
 script_version = "0.1"
-script_authotr = "Joona"
+script_aut1hotr = "Joona"
 
 def py_init(script):
     register_script(script, script_name, script_version, script_author)
