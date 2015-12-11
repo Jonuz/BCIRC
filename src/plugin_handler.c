@@ -39,7 +39,7 @@ int load_plugin(char *path)
 
     dlerror();
 
-    if ((handle = dlopen(path, RTLD_LOCAL | RTLD_NOW)) == NULL)
+    if ((handle = dlopen(path, RTLD_GLOBAL | RTLD_NOW)) == NULL)
     {
         bcirc_printf("Failed to load plugin %s, (%s))\n",path, dlerror());
         free(new_plugin->callback_list);
