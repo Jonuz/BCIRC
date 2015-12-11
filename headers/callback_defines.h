@@ -18,7 +18,6 @@
 		char *hostmask
 		char *target
 		char *msg
-
 */
 
 
@@ -61,7 +60,6 @@ Params:
         char *nick
         char *hostmask
         int event_type
-
 */
 
 
@@ -72,8 +70,6 @@ Params:
         char *nick
         char *hostmask
         char *reason
-
-
 */
 
 #define CALLBACK_CHANNEL_KICK "channel_kick"
