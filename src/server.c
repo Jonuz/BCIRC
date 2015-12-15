@@ -143,7 +143,7 @@ void *server_recv(void *srv_void)
 
 		n = select(srv->s+1, &readfs, NULL, NULL, &tv);
 
-		if (n == 2) //timeout
+		if (n == 0) //timeout
 		{
 			server_disconnect(srv, SERVER_TIMEOUT);
 			return NULL;
