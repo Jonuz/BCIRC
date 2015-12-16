@@ -5,6 +5,10 @@
 #include "../headers/plugin_handler.h"
 #include "../headers/callback_defines.h"
 
+char plugin_name[] = "Example plugin";
+char plugin_version[] = "1.0";
+char plugin_author[] = "Joona";
+
 
 int hello(void **params, int argc)
 {
