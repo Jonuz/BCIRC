@@ -50,10 +50,7 @@ int on_recv(void **params, int argc)
 	if ((!srv) || (!buffer))
 		return BCIRC_PLUGIN_CONTINUE;
 
-	if (srv->motd_sent == 1)
-		return BCIRC_PLUGIN_CONTINUE;
-
-	bcirc_log("%s\n", NULL, buffer);
+	bcirc_log("%s\n", "raw", buffer);
 
 	return BCIRC_PLUGIN_OK;
 }
