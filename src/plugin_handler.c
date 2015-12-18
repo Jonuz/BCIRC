@@ -85,7 +85,7 @@ int load_plugin(char *path)
         bcirc_printf("Path: %s\n", path);
         free(new_plugin->callback_list);
         free(new_plugin);
-        return -2;
+        return -3;
     }
 
 
@@ -95,7 +95,7 @@ int load_plugin(char *path)
         bcirc_printf("Plugin %s returned %d on init!\n", new_plugin->plugin_name, res);
         free(new_plugin->callback_list);
         free(new_plugin);
-        return -3;
+        return -4;
     }
 
     new_plugin->path = malloc((strlen(path) + 1) * sizeof(char));
