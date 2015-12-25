@@ -32,6 +32,7 @@ int plugin_init(plugin *pluginptr)
     register_callback(CALLBACK_SERVER_RECV, get_numeric, 3, pluginptr);
     register_callback(CALLBACK_SERVER_RECV, get_chan_event, 3, pluginptr);
 
+
     return BCIRC_PLUGIN_OK;
 }
 
@@ -234,7 +235,7 @@ int get_chan_event(void **params, int argv)
         if (i == 3)
         {
             reason = malloc(( strlen(token) + 1 + strlen(save) + 1) * sizeof(char));
-            strcpy(reason, token);
+            strcpy(reason, token+1);
             strcat(reason, save);
 
             break;
