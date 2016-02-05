@@ -91,7 +91,6 @@ int server_disconnect(server *srv, int reason)
 */
 int server_send(server *srv, char *buf)
 {
-
 	void **params = malloc(2* sizeof(void*));
 	params[0] = srv;
 	params[1] = buf;
@@ -143,8 +142,12 @@ void *server_recv(void *srv_void)
 
 		n = select(srv->s+1, &readfs, NULL, NULL, &tv);
 
-		if (!(FD_ISSET(srv->s, &readfs)))
-			continue;
+
+		if (n == -1)
+		{
+			bcirc_printf("Select() fails: %s\n", strerror(errno) );
+			return NULL;
+		}
 
 		if (n == 0) //timeout
 		{
