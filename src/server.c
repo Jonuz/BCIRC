@@ -211,7 +211,7 @@ int load_servers(char *config)
 		return -2;
 	}
 
-	if (! (setting = config_lookup(&cfg, "servers")))
+	if (!(setting = config_lookup(&cfg, "servers")))
 	{
 		bcirc_printf("Failed to load setting \"servers\".(%s)\n", config);
 		return -1;
@@ -270,7 +270,6 @@ int load_servers(char *config)
 		{
 			bcirc_printf("Failed connect to %s\n", srv->host);
 		}
-		puts("oink");
 		add_to_serverpool(srv);
 	}
 
@@ -293,9 +292,9 @@ int add_to_serverpool(server *srv)
 
 	server_list[server_count] = malloc(sizeof(server*));
 	server_list[server_count] = srv;
+	server_count++;
 	pthread_mutex_unlock(&servers_global_mutex);
 
-	server_count++;
 
 	int ret = pthread_create(&srv->thread, NULL, server_recv, (void*) srv);
 
