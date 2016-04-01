@@ -129,8 +129,6 @@ void *server_recv(void *srv_void)
 	struct timeval tv;
 	fd_set readfs;
 
-	int n;
-
 	for (;;)
 	{
 		tv.tv_sec = 600;
@@ -139,7 +137,7 @@ void *server_recv(void *srv_void)
 		FD_ZERO(&readfs);
 		FD_SET(srv->s, &readfs);
 
-		n = select(srv->s+1, &readfs, NULL, NULL, &tv);
+		int n = select(srv->s+1, &readfs, NULL, NULL, &tv);
 
 		if (n == -1)
 		{
