@@ -46,7 +46,7 @@ void autojoin_channels(server *srv)
 	config_init(&cfg);
 
     char config[256];
-    sprintf(config, "%s/servers.conf", getenv("BCIRC_CONFIG_DIR"));
+    sprintf(config, "%s/bcirc.conf", getenv("BCIRC_CONFIG_DIR"));
 
     if (!config_read_file(&cfg, config))
 	{
