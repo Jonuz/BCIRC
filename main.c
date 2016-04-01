@@ -43,7 +43,7 @@ int main()
     char *configdir = getenv("BCIRC_CONFIG_DIR");
     char *serverfile = malloc( (strlen(configdir) + 13 + 1) * sizeof(char) );
 
-    sprintf(serverfile, "%s/servers.conf", configdir);
+    sprintf(serverfile, "%s/bcirc.conf", configdir);
     load_servers(serverfile);
     free(serverfile);
 
