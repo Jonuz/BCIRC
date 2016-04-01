@@ -230,12 +230,22 @@ int get_chan_event(void **params, int argv)
 
         if (i == 2)
         {
+            if (event_type == CHAN_INVITE)
+                continue;
             chan = (channel*) get_channel(token, (server*) srv);
             if (!chan)
                 chan = create_channel(token,srv);
         }
         if (i == 3)
         {
+            if (event_type == CHAN_INVITE)
+            {
+                chan = (channel*) get_channel(save, (server*) srv);
+                if (!chan)
+                    chan = create_channel(save,srv);
+                break;
+            }
+
             reason = malloc(( strlen(token) + 1 + strlen(save) + 1) * sizeof(char));
             strcpy(reason, token+1);
             strcat(reason, save);
@@ -262,7 +272,7 @@ int get_chan_event(void **params, int argv)
     else if (event_type == CHAN_QUIT)
         execute_callbacks(CALLBACK_CHANNEL_QUIT, params2, 4);
     else if (event_type == CHAN_INVITE)
-    execute_callbacks(CALLBACK_CHANNEL_INVITE, params2, 4);
+        execute_callbacks(CALLBACK_CHANNEL_INVITE, params2, 4);
 
     free(str);
     free(params2);

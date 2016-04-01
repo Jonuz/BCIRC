@@ -11,6 +11,7 @@ struct server;
 #define CHAN_KICK 1
 #define CHAN_PART 2
 #define CHAN_QUIT 3
+#define CHAN_INVITE 4
 
 typedef struct channel
 {
