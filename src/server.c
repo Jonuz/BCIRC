@@ -131,12 +131,11 @@ void *server_recv(void *srv_void)
 
 	int n;
 
-	tv.tv_sec = 600;
-	tv.tv_usec = 0;
-
-
 	for (;;)
 	{
+		tv.tv_sec = 600;
+		tv.tv_usec = 0;
+
 		FD_ZERO(&readfs);
 		FD_SET(srv->s, &readfs);
 
@@ -190,6 +189,7 @@ void *server_recv(void *srv_void)
 
 			line = strtok_r(NULL, "\r\n", &save);
 		}
+
 	}
 	bcirc_printf("If this gets printed something is wrong(%s)\nHost: %s Network: %s.\n", __PRETTY_FUNCTION__, srv->host, srv->network_name);
 
@@ -294,7 +294,6 @@ int add_to_serverpool(server *srv)
 	server_list[server_count] = srv;
 	server_count++;
 	pthread_mutex_unlock(&servers_global_mutex);
-
 
 	int ret = pthread_create(&srv->thread, NULL, server_recv, (void*) srv);
 
