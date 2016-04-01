@@ -142,10 +142,9 @@ void *server_recv(void *srv_void)
 
 		n = select(srv->s+1, &readfs, NULL, NULL, &tv);
 
-
 		if (n == -1)
 		{
-			bcirc_printf("Select() fails: %s\n", strerror(errno) );
+			bcirc_printf("select() fails: %s\n", strerror(errno));
 			return NULL;
 		}
 
@@ -212,7 +211,6 @@ int load_servers(char *config)
 		return -2;
 	}
 
-
 	if (! (setting = config_lookup(&cfg, "servers")))
 	{
 		bcirc_printf("Failed to load setting \"servers\".(%s)\n", config);
@@ -222,7 +220,6 @@ int load_servers(char *config)
 
 	unsigned int server_count = config_setting_length(setting);
 	bcirc_printf("server_count: %d\n", server_count);
-
 
 	for (int i = 0; i < server_count; i++)
 	{
@@ -280,7 +277,6 @@ int load_servers(char *config)
 	return 1;
 }
 
-
 int add_to_serverpool(server *srv)
 {
 	if (!srv)
@@ -323,7 +319,6 @@ int remove_from_serverpool(server *srv)
 
 	if (srv->thread)
 		pthread_exit(&srv->thread);
-
 
 	server **new_list = NULL;
 	int new_count = 0;
