@@ -267,6 +267,7 @@ int load_servers(char *config)
 		if (server_connect(srv) != 1)
 		{
 			bcirc_printf("Failed connect to %s\n", srv->host);
+			return -3;
 		}
 		add_to_serverpool(srv);
 	}
