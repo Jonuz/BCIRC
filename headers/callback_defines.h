@@ -113,6 +113,11 @@ Params:
 
 */
 
+#define CALLBACK_GOT_INPUT "callback_got_input"
+/*
+    params:
+        char* input
 
+*/
 
 #endif
