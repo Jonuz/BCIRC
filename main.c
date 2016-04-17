@@ -8,6 +8,7 @@
 #include "./headers/server.h"
 #include "./headers/channel.h"
 #include "./headers/plugin_handler.h"
+#include "./headers/callback_defines.h"
 
 
 int server_count;
@@ -18,8 +19,12 @@ int res;
 
 void get_input()
 {
-    char asd[50];
-    fgets(asd, 50, stdin);
+    char input[1024];
+    fgets(input, 1024, stdin);
+    void **params;
+    params = malloc(sizeof(void*));
+    params[0] = input;
+    execute_callbacks(CALLBACK_GOT_INPUT, params, 1);
     get_input();
 }
 
@@ -46,6 +51,7 @@ int main()
     sprintf(serverfile, "%s/bcirc.conf", configdir);
     load_servers(serverfile);
     free(serverfile);
+
 
     get_input();
 
