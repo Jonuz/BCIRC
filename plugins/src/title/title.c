@@ -141,6 +141,7 @@ int http_request(char *url, ark *arkptr)
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, arkptr);
 
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Linux i586; rv:31.0) Gecko/20100101 Firefox/31.0");    
 
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
