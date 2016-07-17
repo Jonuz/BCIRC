@@ -14,6 +14,42 @@
 #pragma GCC diagnostic ignored "-Wvarargs" //but it works
 
 
+int bcirc_escape_buf(char *str, char *new_str)
+{
+    #define MAX_LEN 2048
+
+    char str_copy[MAX_LEN];
+
+    int str_len = strlen(str);
+
+    int i = 0;
+    int str_copy_len = 0;
+
+    while (str[i] != '\0')
+    {
+        if (str_copy_len >= MAX_LEN)
+            return NULL;
+
+        //if (i == str_len)
+        //    break;
+
+        str_copy[str_copy_len] = str[i];
+        str_copy_len++;
+
+        if ((str[i] == '%') && (str[i+1] != '%'))
+        {
+            str_copy[str_copy_len] = '%';
+            str_copy_len++;
+        }
+        i++;
+    }
+    str_copy[str_copy_len] = '\0';
+
+    strcpy(new_str, str_copy);
+
+    return 1;
+}
+
 int bcirc_printf(char *str, ...)
 {
     char *output = NULL;
@@ -91,6 +127,11 @@ int bcirc_log(char *str, char *file, ...)
     strftime(log_name_time, 20, "%d-%m-%Y", timeinfo);
 
     char *log_dir = getenv("BCIRC_LOG_DIR");
+    if (!log_dir)
+    {
+        bcirc_printf("BCIRC_LOG_DIR is not set!\n");
+        return -1;
+    }
 
     char file2[8];
     if (file == NULL)
