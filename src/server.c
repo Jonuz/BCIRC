@@ -153,8 +153,12 @@ void *server_recv(void *srv_void)
 
 		int res;
 		res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
+		srv->recvd_len += res;
 
 		tmpbuf[res] = '\0';
+
+		char new_tmpbuf[res+1];
+		bcirc_escape_buf(tmpbuf, new_tmpbuf);
 
 		if (res <= 0)
 		{
@@ -163,18 +167,15 @@ void *server_recv(void *srv_void)
 		}
 
 		if (!buf)
-			buf = malloc((strlen(tmpbuf) + 1) * sizeof(char));
+			buf = malloc((strlen(tmpbuf) + 1));
 		else
-			buf = realloc(buf, (strlen(tmpbuf) + 1) * sizeof(char));
+			buf = realloc(buf, strlen(tmpbuf) + 1);
 
-		strcpy(buf, tmpbuf);
-
-		srv->recvd_len += res;
+		strcpy(buf, new_tmpbuf);
 
 		char *save;
-		char *line;
+		char *line = strtok_r(buf, "\r\n", &save);
 
-		line = strtok_r(buf, "\r\n", &save);
 		while (line != NULL)
 		{
 			void **params = malloc(2 * sizeof(void*));
@@ -187,7 +188,6 @@ void *server_recv(void *srv_void)
 
 			line = strtok_r(NULL, "\r\n", &save);
 		}
-
 	}
 	bcirc_printf("If this gets printed something is wrong(%s)\nHost: %s Network: %s.\n", __PRETTY_FUNCTION__, srv->host, srv->network_name);
 
