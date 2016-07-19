@@ -52,36 +52,8 @@ int on_privmsg(void **params, int argc)
 
     unsigned long call_now = time(NULL);
 
-
-    char *str = params[4];
-    int is_command = 0;
-
-    for (int i = 0; i < COMMANDS_COUNT; i++)
-    {
-        if (strstr(str, commands[i]) == 0)
-        {
-            is_command = 1;
-            break;
-        }
-    }
-    if (is_command == 0)
-        return BCIRC_PLUGIN_CONTINUE;
-
-
     #define WAIT_FETCH_TIME 7
     #define TIME_ANNOUNCE_TIME 3
-
-
-    char *save = NULL;
-    char *city = strtok_r(str, " ", &save);
-
-    if (city == NULL)
-        return BCIRC_PLUGIN_OK;
-    city = strtok_r(NULL, " ", &save);
-
-    if (city == NULL)
-        return BCIRC_PLUGIN_OK;
-
 
     if (call_now <= last_call + WAIT_FETCH_TIME)
     {
@@ -99,6 +71,30 @@ int on_privmsg(void **params, int argc)
         return BCIRC_PLUGIN_OK;
     }
     last_call = time(NULL) ;
+
+    char *str = params[4];
+    int is_command = 0;
+
+    for (int i = 0; i < COMMANDS_COUNT; i++)
+    {
+        if (strstr(str, commands[i]) == 0)
+        {
+            is_command = 1;
+            break;
+        }
+    }
+    if (is_command == 0)
+        return BCIRC_PLUGIN_CONTINUE;
+
+    char *save = NULL;
+    char *city = strtok_r(str, " ", &save);
+
+    if (city == NULL)
+        return BCIRC_PLUGIN_OK;
+    city = strtok_r(NULL, " ", &save);
+
+    if (city == NULL)
+        return BCIRC_PLUGIN_OK;
 
 
     char *url = malloc(strlen(URL_BASE) + strlen(city) + strlen(API_KEY) + 1);
