@@ -51,27 +51,6 @@ int on_privmsg(void **params, int argc)
     static unsigned long last_call = 0;
 
     unsigned long call_now = time(NULL);
-
-    #define WAIT_FETCH_TIME 7
-    #define TIME_ANNOUNCE_TIME 3
-
-    if (call_now <= last_call + WAIT_FETCH_TIME)
-    {
-        if (call_now <= last_call + TIME_ANNOUNCE_TIME)
-        {
-            //char *tmp = "Still %d seconds untill weather data can be fetched.";
-            char *tmp = "Vielä %d sekunttia jotta säätietoja voidaan hakea.";
-
-            char *msg = malloc(strlen(tmp) + 2);
-            sprintf(msg, tmp, (call_now - (last_call + WAIT_FETCH_TIME)) * -1);
-
-            add_to_privmsg_queue(msg, params[3], params[0], 0);
-            free(msg);
-        }
-        return BCIRC_PLUGIN_OK;
-    }
-    last_call = time(NULL) ;
-
     char *str = params[4];
     int is_command = 0;
 
@@ -96,6 +75,25 @@ int on_privmsg(void **params, int argc)
     if (city == NULL)
         return BCIRC_PLUGIN_OK;
 
+    #define WAIT_FETCH_TIME 7
+    #define TIME_ANNOUNCE_TIME 3
+
+    if (call_now <= last_call + WAIT_FETCH_TIME)
+    {
+        if (call_now <= last_call + TIME_ANNOUNCE_TIME)
+        {
+            //char *tmp = "Still %d seconds untill weather data can be fetched.";
+            char *tmp = "Vielä %d sekunttia jotta säätietoja voidaan hakea.";
+
+            char *msg = malloc(strlen(tmp) + 2);
+            sprintf(msg, tmp, (call_now - (last_call + WAIT_FETCH_TIME)) * -1);
+
+            add_to_privmsg_queue(msg, params[3], params[0], 0);
+            free(msg);
+        }
+        return BCIRC_PLUGIN_OK;
+    }
+    last_call = time(NULL) ;
 
     char *url = malloc(strlen(URL_BASE) + strlen(city) + strlen(API_KEY) + 1);
     sprintf(url, URL_BASE, city, API_KEY);
