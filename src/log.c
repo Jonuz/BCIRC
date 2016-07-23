@@ -40,7 +40,7 @@ int bcirc_escape_buf(char *str, char *new_str)
         {
             str_copy[str_copy_len] = '%';
             str_copy_len++;
-            if (str[i+1]] == '%')
+            if (str[i+1] == '%')
                 i++;
         }
         i++;
