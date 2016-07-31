@@ -17,6 +17,14 @@ If you wanna recompile plugin, go to plugins/src/\<plugin\> and do make clean an
 Remember that BCIRC's enviroment variables has to be set, to do it run source exports.sh in BCIRC's root directory.
 
 
+##Features
+>URL title announce  
+>Weather announcer  
+>Multiserver support  
+>C plugin support  
+>Logging  
+
+
 ##Requiments
 >gcc5 (Might work with gcc4)  
 >libcurl-dev  
