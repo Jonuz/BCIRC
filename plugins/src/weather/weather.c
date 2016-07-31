@@ -182,8 +182,8 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *infotmp)
 
 	add_to_privmsg_queue(msg, info->target, info->srv, 0);
 
-	//free(info->target);
-	//free(info);
+	free(info->target);
+	free(info);
 
 	return size * nmemb;
 }
