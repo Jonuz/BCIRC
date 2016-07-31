@@ -28,7 +28,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *info);
 #define API_KEY ""
 
 #define MSG "Paikkakunnan %s tiedot; lämpötila noin %.2f°C, ilmankosteus: %.0f%%, tuulen nopeus %.2f m/s"
-//#define MSG "Weather data of place %s; tempature %.2f°C, lowest tempature: %.2f°C, highest tempature %.2f°C, humidity: %.0f%%, speed of wind %.2f m/s"
+//#define MSG "Weather data of place %s; tempature: %.2f°C, humidity: %.0f%%, speed of wind: %.2f m/s"
 
 typedef struct target_info
 {
@@ -43,7 +43,7 @@ int plugin_init(plugin *pluginptr)
         bcirc_printf("API key is not set, disabling %s\n", plugin_name);
         return BCIRC_PLUGIN_STOP;
     }
-    
+
 	register_callback(CALLBACK_GOT_PRIVMSG, on_privmsg, 20, pluginptr);
     curl_global_init(CURL_GLOBAL_DEFAULT);
 
