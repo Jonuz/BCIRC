@@ -53,7 +53,7 @@ int plugin_init(plugin *pluginptr)
 int on_privmsg(void **params, int argc)
 {
     #define COMMANDS_COUNT 2
-    char *commands[COMMANDS_COUNT] = {"!sää", ".sää"} ;
+    char *commands[COMMANDS_COUNT] = {"!sää", ".sää", "!saa", ".saa"} ;
     //char *commands[COMMANDS_COUNT] = {"!weather", ".weather"} ;
 
     static unsigned long last_call = 0;
