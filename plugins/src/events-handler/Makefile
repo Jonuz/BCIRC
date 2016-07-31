@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -fPIC -shared -std=gnu11 ../libbcirc.a -g
+CFLAGS = -fPIC -shared -std=gnu11 ../libbcirc.a -g -std=gnu11
 SOURCES = $(wildcard *.c)
 TARGET = $(BCIRC_PLUGINS_BIN)/events-misc.so
 
