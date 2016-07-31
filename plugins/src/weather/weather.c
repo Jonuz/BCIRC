@@ -45,8 +45,8 @@ int plugin_init(plugin *pluginptr)
 int on_privmsg(void **params, int argc)
 {
     #define COMMANDS_COUNT 2
-    char *commands[COMMANDS_COUNT] = {"!sää", ".sää" } ;
-    //char *commands[COMMANDS_COUNT] = {"!weather", ".weather" } ;
+    char *commands[COMMANDS_COUNT] = {"!sää", ".sää"} ;
+    //char *commands[COMMANDS_COUNT] = {"!weather", ".weather"} ;
 
     static unsigned long last_call = 0;
 
@@ -143,6 +143,11 @@ int http_request(char *url, void **params, int argc)
     {
         bcirc_printf("curl failed, url: %s\n", url);
     }
+
+    free(info->target);
+    free(info);
+
+    return 1;
 }
 
 size_t write_callback(void *ptr, size_t size, size_t nmemb, void *infotmp)
@@ -182,8 +187,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *infotmp)
 
 	add_to_privmsg_queue(msg, info->target, info->srv, 0);
 
-	free(info->target);
-	free(info);
+    free(msg);
 
 	return size * nmemb;
 }
