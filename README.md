@@ -1,8 +1,8 @@
 BCIRC
 =====
 
-Basic IRC bot with plugin (and experimental python3) support, written with C as training project.
-Feel free to fork and ask for support from #bcirc @ Freenode.
+Basic IRC bot with plugin (and experimental python3) support, written with C as training project.  
+Feel free to fork and ask for support from #bcirc @ Freenode.  
 
 ##How to build
 In BCIRC directory:
