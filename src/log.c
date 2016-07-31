@@ -20,7 +20,7 @@ int bcirc_escape_buf(char *str, char *new_str)
 
     char str_copy[MAX_LEN];
 
-    int str_len = strlen(str);
+    //int str_len = strlen(str);
 
     int i = 0;
     int str_copy_len = 0;
@@ -28,7 +28,7 @@ int bcirc_escape_buf(char *str, char *new_str)
     while (str[i] != '\0')
     {
         if (str_copy_len >= MAX_LEN)
-            return NULL;
+            return -1;
 
         //if (i == str_len)
         //    break;
