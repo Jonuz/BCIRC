@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <libconfig.h>
 #include <pthread.h>
+#include <signal.h>
 
 #include "../headers/log.h"
 #include "../headers/irc.h"
@@ -21,8 +22,12 @@ int got_in(void **params, int argc);
 void autojoin_channels();
 int server_rejoin(void **params, int);
 
+void sig_handler(int sig);
 
 int handle_nick(void **params, int argc); //This function handles usage alternative nick.
+
+
+int server_count; //global variable
 
 char plugin_name[] = "BCIRC-Core plugin";
 char plugin_author[] = "Joona";
@@ -36,9 +41,31 @@ int plugin_init(plugin *pluginptr)
     register_callback(CALLBACK_GOT_NUMERIC, handle_nick, 5, pluginptr);
     register_callback(CALLBACK_SERVER_DISCONNECTED, server_rejoin, 5, pluginptr);
 
+    signal(SIGINT, sig_handler);
+    signal(SIGTERM, sig_handler);
+
     return BCIRC_PLUGIN_OK;
 }
 
+
+void sig_handler(int sig)
+{
+    bcirc_printf("Signal %d detected.\n", sig);
+
+    bcirc_printf("Server count: %d\n", server_count);
+
+    int count_copy = server_count;
+    while(server_count > 0)
+    {
+        quit("Received killing signal", server_list[0]);
+        server_disconnect(server_list[0], SERVER_INTENTIONAL_DC);
+        remove_from_serverpool(server_list[0]);
+        free_server(server_list[0]);
+
+        bcirc_printf("Server count: %d\n", server_count);
+    }
+    exit(EXIT_SUCCESS);
+}
 
 void autojoin_channels(server *srv)
 {
@@ -277,10 +304,10 @@ int server_rejoin(void **params, int argc)
         return -1;
     }
 
-    bcirc_printf("Trying to rejoin to server %s\n", srv->host);
-
     if (*reason == SERVER_INTENTIONAL_DC)
         return BCIRC_PLUGIN_OK;
+
+    bcirc_printf("Trying to rejoin to server %s\n", srv->host);
 
     pthread_t thread;
 
