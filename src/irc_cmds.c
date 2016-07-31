@@ -64,12 +64,25 @@ int nick(char *nick, server *srv)
 	buf = malloc(( strlen(BUF_BASE) + 1 + strlen(nick) + 3) * sizeof(char));
 
 	sprintf(buf, BUF_BASE, nick);
-	printf("buf: %s", buf);
+	//printf("buf: %s", buf);
 
 	srv->nick = malloc((strlen(nick)+1) * sizeof(char));
 	strcpy(srv->nick, nick);
 
 	int res = server_send(srv, buf);
+	free(buf);
+
+	return res;
+}
+
+int quit(char *reason, server *srv)
+{
+	#define BUF_QUIT_BASE "QUIT :%s\r\n"
+	char *buf = NULL;
+	buf = malloc(( strlen(BUF_QUIT_BASE) + 1 + strlen(reason) + 3) * sizeof(char));
+	sprintf(buf, BUF_QUIT_BASE, reason);
+
+	int res = server_send(buf, srv);
 	free(buf);
 
 	return res;
