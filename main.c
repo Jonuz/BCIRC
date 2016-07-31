@@ -11,6 +11,7 @@
 #include "./headers/callback_defines.h"
 
 
+//Global variables
 int server_count;
 int channel_count;
 pthread_mutex_t servers_global_mutex;
@@ -21,10 +22,19 @@ void get_input()
 {
     char input[1024];
     fgets(input, 1024, stdin);
+
+    char *input_copy = malloc(strlen(input)+1);
+    strcpy(input_copy, input);
+
     void **params;
     params = malloc(sizeof(void*));
-    params[0] = input;
+    params[0] = input_copy;
+
     execute_callbacks(CALLBACK_GOT_INPUT, params, 1);
+
+    free(params);
+    free(input_copy);
+
     get_input();
 }
 
