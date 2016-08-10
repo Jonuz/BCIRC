@@ -267,6 +267,8 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
     arkptr->sent = 1;
 
     free(title);
+    free(target);
+    free(nick);
 
     return size * nmemb;
 }
