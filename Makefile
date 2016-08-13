@@ -3,7 +3,6 @@ CC = gcc
 
 SOURCES = $(wildcard src/*.c) main.c
 HEADERS = $(wildcard include/*.h)
-OBJETCTS = $(*.o)
 
 
 STATIC = $(BCIRC_PLUGINS_SRC)/libbcirc.a

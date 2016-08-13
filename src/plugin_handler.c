@@ -41,12 +41,13 @@ int load_plugin(char *path)
 
 	if ((handle = dlopen(path, RTLD_LAZY)) == NULL)
 	{
-		bcirc_printf("%s)\n",path, dlerror());
+		bcirc_printf("%s\n", dlerror());
 		free(new_plugin->callback_list);
 		free(new_plugin);
 		return -1;
 	}
 	new_plugin->handle = handle;
+
 
 	new_plugin->plugin_author = (char*) dlsym(handle, "plugin_author");
 	if (new_plugin->plugin_author == NULL)

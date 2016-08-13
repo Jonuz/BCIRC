@@ -28,7 +28,7 @@ typedef struct channel
 
 	pthread_mutex_t mutex;
 
-    struct server *srv;
+	struct server *srv;
 } channel;
 
 extern channel **channel_list;
