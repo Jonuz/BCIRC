@@ -38,7 +38,7 @@ int plugin_init(plugin *pluginptr)
 	register_callback(CALLBACK_CHANNEL_KICK, on_kick, 0, pluginptr);
 	register_callback(CALLBACK_CHANNEL_QUIT, on_quit, 0, pluginptr);
 
-    return BCIRC_PLUGIN_OK;
+	return BCIRC_PLUGIN_OK;
 }
 
 
@@ -89,78 +89,78 @@ int on_privmsg(void **params, int argc)
 
 int on_server_send(void **paramams, int argc)
 {
-    server *srv = (server*) paramams[0];
-    char *buf = (char*) paramams[1];
+	server *srv = (server*) paramams[0];
+	char *buf = (char*) paramams[1];
 
-    if ((srv == NULL) || (buf == NULL))
-        return BCIRC_PLUGIN_BREAK;
+	if ((srv == NULL) || (buf == NULL))
+		return BCIRC_PLUGIN_BREAK;
 
-    bcirc_printf("%s\n", buf);
+	bcirc_printf("%s\n", buf);
 	bcirc_log(buf, NULL);
 
-    return BCIRC_PLUGIN_OK;
+	return BCIRC_PLUGIN_OK;
 }
 
 
 int on_join(void **params, int argc)
 {
-    channel *chan = params[0];
-    char *nick = params[1];
+	channel *chan = params[0];
+	char *nick = params[1];
 
-    if ((!chan) || (!nick))
-    {
-        puts("wut");
-        return BCIRC_PLUGIN_BREAK;
-    }
+	if ((!chan) || (!nick))
+	{
+		puts("wut");
+		return BCIRC_PLUGIN_BREAK;
+	}
 
-    bcirc_printf("User %s joined channel %s\n", nick, chan->name);
+	bcirc_printf("User %s joined channel %s\n", nick, chan->name);
 
 	return BCIRC_PLUGIN_OK;
 }
 
 int on_part(void **params, int argc)
 {
-    channel *chan = params[0];
-    char *nick = params[1];
+	channel *chan = params[0];
+	char *nick = params[1];
 	char *hostmask = params[2];
 	char *reason = params[3];
 
 
 	if (reason)
-    	bcirc_printf("User %s left channel %s(%s)\n", nick, chan->name, reason);
+		bcirc_printf("User %s left channel %s(%s)\n", nick, chan->name, reason);
 	else
 	if (reason)
 		bcirc_printf("User %s left channel %s\n", nick, chan->name);
 
-    return BCIRC_PLUGIN_OK;
+	return BCIRC_PLUGIN_OK;
 }
 
 int on_quit(void **params, int argc)
 {
-    channel *chan = params[0];
-    char *nick = params[1];
+	channel *chan = params[0];
+	char *nick = params[1];
 	char *hostmask = params[2];
 	char *reason = params[3];
 
 	if (reason)
-    	bcirc_printf("User %s left server %s(%s)\n", nick, chan->srv->network_name, reason);
+		bcirc_printf("User %s left server %s(%s)\n", nick, chan->srv->network_name, reason);
 	else
 		bcirc_printf("User %s left server %s\n", nick, chan->srv->network_name);
 
-    return BCIRC_PLUGIN_OK;
+	return BCIRC_PLUGIN_OK;
 }
 
 int on_kick(void **params, int argc)
 {
-    channel *chan = params[0];
-    char *nick = params[1];
+	channel *chan = params[0];
+	char *nick = params[1];
 	char *hostmask = params[2];
 	char *reason = params[3];
 
 	if (reason)
-    	bcirc_printf("User %s was kicked from channel %s(%s)\n", nick, chan->name, reason);
+		bcirc_printf("User %s was kicked from channel %s(%s)\n", nick, chan->name, reason);
 	else
 		bcirc_printf("User %s was kicked from channel %s\n", nick, chan->name);
 
-    return BCIRC_PLUGIN_OK;
+	return BCIRC_PLUGIN_OK;
 }
