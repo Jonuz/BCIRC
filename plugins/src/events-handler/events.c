@@ -247,7 +247,10 @@ int get_chan_event(void **params, int argv)
             }
 
             reason = malloc(( strlen(token) + 1 + strlen(save) + 1) * sizeof(char));
-            strcpy(reason, token+1);
+			if (event->type != CHAN_QUIT)
+            	strcpy(reason, token+1);
+			else
+				strcpy(reason, token);
             strcat(reason, save);
 
             break;
