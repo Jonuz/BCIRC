@@ -128,8 +128,7 @@ int on_part(void **params, int argc)
 
 	if (reason)
 		bcirc_printf("User %s left channel %s(%s)\n", nick, chan->name, reason);
-	else
-	if (reason)
+	else if (reason)
 		bcirc_printf("User %s left channel %s\n", nick, chan->name);
 
 	return BCIRC_PLUGIN_OK;
