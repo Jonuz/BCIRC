@@ -77,12 +77,12 @@ int on_numeric(void **params, int argc)
 
 int on_privmsg(void **params, int argc)
 {
-
+	server *srv = params[0];
 	char *nick = params[1];
 	char *target = params[3];
 	char *msg = params[4];
 
-	bcirc_printf("%s <%s>: %s\n", target, nick, msg);
+	bcirc_printf("%s.%s <%s>: %s\n", srv->network_name, target, nick, msg);
 
 	return BCIRC_PLUGIN_OK;
 }
@@ -106,6 +106,7 @@ int on_join(void **params, int argc)
 {
 	channel *chan = params[0];
 	char *nick = params[1];
+	server *srv = chan->srv;
 
 	if ((!chan) || (!nick))
 	{
@@ -113,7 +114,7 @@ int on_join(void **params, int argc)
 		return BCIRC_PLUGIN_BREAK;
 	}
 
-	bcirc_printf("User %s joined channel %s.%s\n", nick, srv->network_name chan->name);
+	bcirc_printf("User %s joined channel %s.%s\n", nick, srv->network_name, chan->name);
 
 	return BCIRC_PLUGIN_OK;
 }
@@ -127,9 +128,9 @@ int on_part(void **params, int argc)
 
 
 	if (reason)
-		bcirc_printf("User %s left channel %s.%s(%s)\n", nick, network_name, chan->name, reason);
+		bcirc_printf("User %s left channel %s.%s(%s)\n", nick, chan->srv->network_name, chan->name, reason);
 	else if (reason)
-		bcirc_printf("User %s left channel %s.%s\n", nick, network_name, chan->name);
+		bcirc_printf("User %s left channel %s.%s\n", nick, chan->srv->network_name, chan->name);
 
 	return BCIRC_PLUGIN_OK;
 }
@@ -157,9 +158,9 @@ int on_kick(void **params, int argc)
 	char *reason = params[3];
 
 	if (reason)
-		bcirc_printf("User %s was kicked from channel %s.%s(%s)\n", nick, network_name, chan->name, reason);
+		bcirc_printf("User %s was kicked from channel %s.%s(%s)\n", nick, chan->srv->network_name, chan->name, reason);
 	else
-		bcirc_printf("User %s was kicked from channel %s.%s\n", nick, network_name, chan->name);
+		bcirc_printf("User %s was kicked from channel %s.%s\n", nick, chan->srv->network_name, chan->name);
 
 	return BCIRC_PLUGIN_OK;
 }
