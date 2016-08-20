@@ -257,18 +257,16 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
 	title = malloc((new_count + 1) * sizeof(char));
 	strcpy(title, new_title);
 
-
 	char *target = malloc((strlen(arkptr->target_save)+1) * sizeof(char));
-	char *nick = malloc(( strlen(arkptr->nick_save)+1) * sizeof(char));
 
 	strcpy(target, arkptr->target_save);
-	strcpy(nick, arkptr->nick_save);
+
+	add_to_privmsg_queue(title, target, arkptr->srv_save, 0);
 
 	arkptr->sent = 1;
 
 	free(title);
 	free(target);
-	free(nick);
 
 	return size * nmemb;
 }
