@@ -71,6 +71,10 @@ int check_for_url(void **params, int argv)
 	char *target = params[3];
 	char *msg = params[4];
 
+	channel *is_chan = get_channel(target, srv);
+	if (is_chan == NULL)
+		return BCIRC_PLUGIN_CONTINUE;
+
 	ark *new_ark = malloc(sizeof(ark));
 	new_ark->start_time = clock();
 	new_ark->tries = 0;
@@ -260,10 +264,6 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
 	strcpy(target, arkptr->target_save);
 	strcpy(nick, arkptr->nick_save);
 
-	if (arkptr->target_save[0] == '#') //In future: Check if target is channel.
-		add_to_privmsg_queue(title, target, arkptr->srv_save, 0);
-	else
-		add_to_privmsg_queue(title, nick, arkptr->srv_save, 0);
 	arkptr->sent = 1;
 
 	free(title);
