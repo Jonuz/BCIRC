@@ -21,7 +21,7 @@ typedef struct
 	char *msg;
 	char *target;
 	server *srv;
-	int drop; // if 1 drop from msg queue if being busy
+	int drop; // if 1 drop from msg queue is being busy
 
 } msg_info;
 
