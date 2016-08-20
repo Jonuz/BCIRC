@@ -215,11 +215,7 @@ int handle_registeration(void **params, int argc)
 
 	time(&srv->time_connected);
 
-
-		sprintf(key_buf, "PASS %s\r\n", srv->pass);
-	else
-		sprintf(key_buf, "PASS %s\r\n", "adasdasda");
-
+	sprintf(key_buf, "PASS %s\r\n", (srv->pass) ? srv->pass : "asd");
 	sprintf(username_buf, "USER %s 8 * :%s\r\n", srv->realname, srv->username);
 
 	server_send(key_buf, srv);
