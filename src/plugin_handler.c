@@ -133,21 +133,19 @@ int get_plugins(char *plugin_dir)
 	{
 		while ( (dir = readdir(d)) != NULL)
 		{
-			if ( dir->d_type == DT_REG ) //is file or symlink
-			{
-				if (strlen(dir->d_name) > 3)
-				{
-					size_t name_len = strlen(dir->d_name);
-					if (strstr(dir->d_name, ".so") == dir->d_name+name_len-3) //name of file ends to .so
-					{
-						char *plugin_to_add = malloc( (strlen(plugin_dir) + 1 + strlen(dir->d_name) + 1) * sizeof(char));
-						sprintf(plugin_to_add, "%s/%s", plugin_dir, dir->d_name);
-						load_plugin(plugin_to_add);
-						free(plugin_to_add);
-					}
-				}
-			}
+			if ( dir->d_type != DT_REG ) //accept file or symlink
+				continue;
+			if (strlen(dir->d_name) < 3) //filename has at least 3 characters
+				continue;
 
+			size_t name_len = strlen(dir->d_name);
+			if (strstr(dir->d_name, ".so") != dir->d_name+name_len-3) //filename ends to .so
+				continue;
+
+			char *plugin_to_add = malloc( (strlen(plugin_dir) + 1 + strlen(dir->d_name) + 1) * sizeof(char));
+			sprintf(plugin_to_add, "%s/%s", plugin_dir, dir->d_name);
+			load_plugin(plugin_to_add);
+			free(plugin_to_add);
 		}
 	}
 	else
