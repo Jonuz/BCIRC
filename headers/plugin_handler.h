@@ -80,6 +80,9 @@ typedef int(*CALLBACK_FUNC)(void**, int);
 int register_callback(char *cb_name, CALLBACK_FUNC cb_func, int priority, plugin *pluginptr);
 int execute_callbacks(char *cb_name, void **args, int argc);
 
+// Returns paramameter "index" when it's null, -1 when none of params are null.
+int callback_params_null_check(void **params, int argc);
+
 int init_index();
 int index_callback(callback *callback_ptr);
 int get_index_count();
