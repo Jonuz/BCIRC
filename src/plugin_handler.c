@@ -390,3 +390,13 @@ int execute_callbacks(char *cb_name, void **args, int argc)
 	}
 	return BCIRC_PLUGIN_OK;
 }
+
+int callback_params_null_check(void **params, int argc)
+{
+	for (int i = 0; i < argc; i++)
+	{
+		if (params[i] == NULL)
+			return i;
+	}
+	return -1;
+}
