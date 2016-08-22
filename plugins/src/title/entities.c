@@ -386,4 +386,3 @@ size_t decode_html_entities_utf8(char *dest, const char *src)
 
 	return (size_t)(to - dest);
 }
-
