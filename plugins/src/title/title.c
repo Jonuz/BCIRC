@@ -30,7 +30,7 @@ typedef struct ark
 	char *nick_save;
 	int tries;
 
-	int sent; /*Sometimes curl returns errror even if message gets sent, so we set this 1 when title is sent so request will not be sent again. */
+	int found; /*Sometimes curl returns errror even if message gets sent, so we set this 1 when title is sent so request will not be sent again. */
 
 	clock_t start_time;
 } ark;
@@ -78,7 +78,7 @@ int check_for_url(void **params, int argv)
 	ark *new_ark = malloc(sizeof(ark));
 	new_ark->start_time = clock();
 	new_ark->tries = 0;
-	new_ark->sent = 0;
+	new_ark->found = 0;
 	regex_t regex;
 	int reti;
 	regmatch_t matches[1];
@@ -145,6 +145,8 @@ int http_request(char *url, ark *arkptr)
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, arkptr);
 
+	curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "utf8");
+
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Linux i586; rv:31.0) Gecko/20100101 Firefox/31.0");
 
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);
@@ -160,7 +162,7 @@ int http_request(char *url, ark *arkptr)
 
 	if (res != CURLE_OK)
 	{
-		if (arkptr->sent == 1)
+		if (arkptr->found == 1)
 			return BCIRC_PLUGIN_OK;
 
 		if (arkptr->tries >= 3)
@@ -212,6 +214,16 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
 		return size * nmemb;
 	}
 
+
+ 	/*
+		It seems like curl sepreates request to multiple calls, so this might be already set to 1 from another call.
+		I guess it would be ideal to use mutex when handling this arkptr->found variable.
+	*/
+	if (arkptr->found == 1)
+		return size * nmemb;
+
+	arkptr->found = 1;
+
 	size_t len = matches[1].rm_eo - matches[1].rm_so;
 
 	if (len > TITLE_MAX_LEN)
@@ -262,8 +274,6 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
 	strcpy(target, arkptr->target_save);
 
 	add_to_privmsg_queue(title, target, arkptr->srv_save, 0);
-
-	arkptr->sent = 1;
 
 	free(title);
 	free(target);
