@@ -115,7 +115,7 @@ int server_send(server *srv, char *buf)
 
 void *server_recv(void *srv_void)
 {
-	char tmpbuf[2048];
+	char tmpbuf[1024];
 	char *buf = NULL;
 
 	server *srv = (server*) srv_void;
@@ -157,21 +157,14 @@ void *server_recv(void *srv_void)
 
 		tmpbuf[res] = '\0';
 
-		char new_tmpbuf[res+1];
-		bcirc_escape_buf(tmpbuf, new_tmpbuf);
+		buf = malloc(2048);
+		bcirc_escape_buf(tmpbuf, buf);
 
 		if (res <= 0)
 		{
 			server_disconnect(srv, SERVER_CLOSED_CONNECTION);
 			return NULL;
 		}
-
-		if (!buf)
-			buf = malloc((strlen(new_tmpbuf) + 1));
-		else
-			buf = realloc(buf, strlen(new_tmpbuf) + 1);
-
-		strcpy(buf, new_tmpbuf);
 
 		char *save;
 		char *line = strtok_r(buf, "\r\n", &save);
@@ -188,6 +181,7 @@ void *server_recv(void *srv_void)
 
 			line = strtok_r(NULL, "\r\n", &save);
 		}
+		free(buf);
 	}
 	bcirc_printf("If this gets printed something is wrong(%s)\nHost: %s Network: %s.\n", __PRETTY_FUNCTION__, srv->host, srv->network_name);
 
