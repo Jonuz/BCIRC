@@ -167,9 +167,9 @@ void *server_recv(void *srv_void)
 		}
 
 		if (!buf)
-			buf = malloc((strlen(tmpbuf) + 1));
+			buf = malloc((strlen(new_tmpbuf) + 1));
 		else
-			buf = realloc(buf, strlen(tmpbuf) + 1);
+			buf = realloc(buf, strlen(new_tmpbuf) + 1);
 
 		strcpy(buf, new_tmpbuf);
 
