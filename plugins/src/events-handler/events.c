@@ -170,7 +170,7 @@ int get_numeric(void **params, int argc)
 int get_chan_event(void **params, int argv)
 {
 	if ((params[0] == NULL) || (params[1] == NULL))
-		return BCIRC_PLUGIN_FAIL;
+		return BCIRC_PLUGIN_BREAK;
 
 	size_t buf_len = strlen(params[1]) + 1;
 
@@ -254,7 +254,11 @@ int get_chan_event(void **params, int argv)
 				strcpy(reason, token+1);
 			else
 				strcpy(reason, token);
-			strcat(reason, save);
+
+			if (strlen(save) > 0) {
+				strcat(reason, " ");
+				strcat(reason, save);
+			}
 
 			break;
 		}
