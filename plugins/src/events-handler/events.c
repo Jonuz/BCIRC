@@ -168,12 +168,19 @@ int get_numeric(void **params, int argc)
 
 
 
+//Todo: Check if something is wrong when joining channel starting with ##
 int get_chan_event(void **params, int argv)
 {
 	if ((params[0] == NULL) || (params[1] == NULL))
 		return BCIRC_PLUGIN_BREAK;
 
 	size_t buf_len = strlen(params[1]) + 1;
+
+	if (buf_len <= 12) //This is strange but some times happens in channel where are many users and leads to seg fault.
+	{
+		bcirc_printf("Buf is: %s\n", params[1]);
+		return BCIRC_PLUGIN_BREAK;
+	}
 
 	server *srv = params[0];
 
@@ -228,7 +235,7 @@ int get_chan_event(void **params, int argv)
 
 			size_t nick_len = strlen(buf_orig) - strlen(nick_end) - 1;
 
-			nick = malloc((nick_len + 1) * sizeof(char));
+			nick = malloc(nick_len + 1);
 			memmove(nick, buf_orig+1, nick_len);
 			nick[nick_len] = '\0';
 
@@ -244,7 +251,7 @@ int get_chan_event(void **params, int argv)
 
 			size_t mask_len = strlen(buf_orig) - strlen(mask_end) - nick_len - 2;
 
-			hostmask = malloc((mask_len + 1) * sizeof(char));
+			hostmask = malloc(mask_len + 1);
 			memmove(hostmask, buf_orig + nick_len + 2, mask_len);
 			hostmask[mask_len] = '\0';
 
