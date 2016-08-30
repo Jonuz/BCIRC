@@ -115,8 +115,7 @@ int server_send(server *srv, char *buf)
 
 void *server_recv(void *srv_void)
 {
-	char tmpbuf[1024];
-	char *buf = NULL;
+	char tmpbuf[2048];
 
 	server *srv = (server*) srv_void;
 
@@ -153,18 +152,19 @@ void *server_recv(void *srv_void)
 
 		int res;
 		res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
-		srv->recvd_len += res;
-
-		tmpbuf[res] = '\0';
-
-		buf = malloc(2048);
-		bcirc_escape_buf(tmpbuf, buf);
 
 		if (res <= 0)
 		{
 			server_disconnect(srv, SERVER_CLOSED_CONNECTION);
 			return NULL;
 		}
+		srv->recvd_len += res;
+
+
+		tmpbuf[res] = '\0';
+
+		char *buf = malloc(2048);
+		bcirc_escape_buf(tmpbuf, buf);
 
 		char *save;
 		char *line = strtok_r(buf, "\r\n", &save);
@@ -173,11 +173,15 @@ void *server_recv(void *srv_void)
 		{
 			void **params = malloc(2 * sizeof(void*));
 
+			char *line_mallocd = malloc(strlen(line)+1);
+			strcpy(line_mallocd, line);
+
 			params[0] = (void*) srv;
-			params[1] = (void*) line;
+			params[1] = (void*) line_mallocd;
 
 			execute_callbacks(CALLBACK_SERVER_RECV, params, 2);
 			free(params);
+			free(line_mallocd);
 
 			line = strtok_r(NULL, "\r\n", &save);
 		}

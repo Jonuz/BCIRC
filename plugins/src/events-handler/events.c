@@ -119,9 +119,9 @@ int get_privmsg(void **params, int argc)
 
 int get_numeric(void **params, int argc)
 {
-
 	server *srv = (server*) params[0];
-	char buffer[strlen(params[1])];
+
+	char buffer[strlen(params[1])+1];
 	strcpy(buffer, params[1]);
 
 	if (buffer == NULL)
@@ -146,17 +146,21 @@ int get_numeric(void **params, int argc)
 		int *numeric = malloc(sizeof(int));
 		*numeric = atoi(word);
 
-		strcpy(buffer, params[1]);
+		char *buf = malloc(strlen(params[1]) + 1);
+		strcpy(buf, params[1]);
+
+
 		void **new_params = malloc(sizeof(void*) * 3);
 
 		new_params[0] = srv;
 		new_params[1] = (int*) numeric;
-		new_params[2] = buffer;
+		new_params[2] = buf;
 
 		execute_callbacks(CALLBACK_GOT_NUMERIC, new_params, 3);
 
 		free(numeric);
 		free(new_params);
+		free(buf);
 	}
 	return BCIRC_PLUGIN_OK;
 }
@@ -165,14 +169,21 @@ int get_numeric(void **params, int argc)
 
 int get_chan_event(void **params, int argv)
 {
+	if ((params[0] == NULL) || (params[1] == NULL))
+		return BCIRC_PLUGIN_FAIL;
+
+	size_t buf_len = strlen(params[1]) + 1;
+
 	server *srv = params[0];
-	char *buffer = params[1];
 
 	if (srv->motd_sent == 0)
 		return 0;
 
-	char *str = malloc((strlen(buffer) + 1) * sizeof(char));
-	strcpy(str, buffer);
+	char *str = malloc(buf_len);
+	strcpy(str, params[1]);
+
+	char buf_orig[buf_len];
+	strcpy(buf_orig, params[1]);
 
 	char *save, *token;
 
@@ -205,18 +216,18 @@ int get_chan_event(void **params, int argv)
 				return BCIRC_PLUGIN_OK;
 			}
 
-			char *nick_end = memchr(buffer, '!', strlen(buffer));
-			size_t nick_len = strlen(buffer) - strlen(nick_end) - 1;
+			char *nick_end = memchr(buf_orig, '!', strlen(buf_orig));
+			size_t nick_len = strlen(buf_orig) - strlen(nick_end) - 1;
 
 			nick = malloc((nick_len + 1) * sizeof(char));
-			memmove(nick, buffer+1, nick_len);
+			memmove(nick, buf_orig+1, nick_len);
 			nick[nick_len] = '\0';
 
-			char *mask_end = memchr(buffer, ' ', strlen(buffer));
-			size_t mask_len = strlen(buffer) - strlen(mask_end) - nick_len - 2;
+			char *mask_end = memchr(buf_orig, ' ', strlen(buf_orig));
+			size_t mask_len = strlen(buf_orig) - strlen(mask_end) - nick_len - 2;
 
 			hostmask = malloc((mask_len + 1) * sizeof(char));
-			memmove(hostmask, buffer + nick_len + 2, mask_len);
+			memmove(hostmask, buf_orig + nick_len + 2, mask_len);
 			hostmask[mask_len] = '\0';
 
 		}

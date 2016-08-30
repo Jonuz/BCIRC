@@ -14,7 +14,7 @@
 #pragma GCC diagnostic ignored "-Wvarargs" //but it works
 
 
-int bcirc_escape_buf(char *str, char *new_str)
+int bcirc_escape_buf(char *str, char *escaped_str)
 {
 	#define MAX_LEN 2048
 
@@ -45,9 +45,9 @@ int bcirc_escape_buf(char *str, char *new_str)
 		}
 		i++;
 	}
-	str_copy[str_copy_len] = '\0';
+	str_copy[str_copy_len-1] = '\0';
 
-	strcpy(new_str, str_copy);
+	strcpy(escaped_str, str_copy);
 
 	return 1;
 }
