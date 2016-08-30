@@ -7,6 +7,7 @@
 #include "events.h"
 #include "../headers/log.h"
 #include "../headers/irc.h"
+#include "../headers/log.h"
 #include "../headers/server.h"
 #include "../headers/plugin_handler.h"
 #include "../headers/callback_defines.h"
@@ -217,6 +218,14 @@ int get_chan_event(void **params, int argv)
 			}
 
 			char *nick_end = memchr(buf_orig, '!', strlen(buf_orig));
+
+			if (nick_end == NULL)
+			{
+				bcirc_printf("Can't find end of nick..\n");
+				free(str);
+				return BCIRC_PLUGIN_CONTINUE;
+			}
+
 			size_t nick_len = strlen(buf_orig) - strlen(nick_end) - 1;
 
 			nick = malloc((nick_len + 1) * sizeof(char));
@@ -224,6 +233,15 @@ int get_chan_event(void **params, int argv)
 			nick[nick_len] = '\0';
 
 			char *mask_end = memchr(buf_orig, ' ', strlen(buf_orig));
+
+			if (mask_end == NULL)
+			{
+				bcirc_printf("Can't find end of nick..\n");
+				free(str);
+				free(nick);
+				return BCIRC_PLUGIN_CONTINUE;
+			}
+
 			size_t mask_len = strlen(buf_orig) - strlen(mask_end) - nick_len - 2;
 
 			hostmask = malloc((mask_len + 1) * sizeof(char));
