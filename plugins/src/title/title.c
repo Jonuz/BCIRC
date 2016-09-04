@@ -142,7 +142,15 @@ int http_request(char *url, ark *arkptr)
 		return BCIRC_PLUGIN_STOP;
 	}
 
-	curl_easy_setopt(curl, CURLOPT_URL, url);
+	char *curl_encoded = curl_easy_escape(curl, url, strlen(url));
+	if (!curl_encoded)
+	{
+		bcirc_printf("Failed to escape url \"%s\"\n",url);
+		curl_easy_setopt(curl, CURLOPT_URL, curl_encoded);
+	} else {
+		curl_easy_setopt(curl, CURLOPT_URL, curl_encoded);
+	}
+
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, arkptr);
 
 	curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "utf8");
@@ -158,6 +166,7 @@ int http_request(char *url, ark *arkptr)
 
 
 	res = curl_easy_perform(curl);
+	curl_free(curl_encoded);
 	curl_easy_cleanup(curl);
 
 	if (res != CURLE_OK)
