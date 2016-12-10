@@ -121,6 +121,7 @@ int check_for_url(void **params, int argv)
 			return BCIRC_PLUGIN_OK;
 		}
 
+
 	http_request(url, new_ark);
 	free(url);
 	free(new_ark->target_save);
@@ -142,7 +143,18 @@ int http_request(char *url, ark *arkptr)
 		return BCIRC_PLUGIN_STOP;
 	}
 
-	curl_easy_setopt(curl, CURLOPT_URL, url);
+	char url_encoded[512];
+	char *token, *save;
+	token = strtok_r(url, "/", &save); //http(s)
+	if (token != NULL)  {
+		token = strtok_r(NULL, "/", &save); //example.com
+	}
+	if (save != NULL && token != NULL) {
+		sprintf(url_encoded, "http://%s/%s", token, curl_easy_escape(curl, save, 0));
+		bcirc_printf("encoded: %s", url_encoded);
+	}
+
+	curl_easy_setopt(curl, CURLOPT_URL, (url_encoded != NULL) ? url_encoded : url);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, arkptr);
 
 	curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "utf8");
@@ -151,6 +163,7 @@ int http_request(char *url, ark *arkptr)
 
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+	curl_easy_setopt(curl, CURL_OPT_MAXREDIRS, 2);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
 
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
