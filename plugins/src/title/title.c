@@ -163,7 +163,7 @@ int http_request(char *url, ark *arkptr)
 
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-	curl_easy_setopt(curl, CURL_OPT_MAXREDIRS, 2);
+	curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 2);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
 
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
