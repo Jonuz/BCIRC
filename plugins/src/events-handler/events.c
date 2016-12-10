@@ -171,6 +171,7 @@ int get_numeric(void **params, int argc)
 //Todo: Check if something is wrong when joining channel starting with ##
 int get_chan_event(void **params, int argv)
 {
+<<<<<<< HEAD
 	if ((params[0] == NULL) || (params[1] == NULL))
 		return BCIRC_PLUGIN_BREAK;
 
@@ -317,4 +318,122 @@ int get_chan_event(void **params, int argv)
 	free(reason);
 
 	return BCIRC_PLUGIN_OK;
+=======
+    server *srv = params[0];
+    char *buffer = params[1];
+
+    if (srv->motd_sent == 0)
+        return 0;
+
+    char *str = malloc((strlen(buffer) + 1) * sizeof(char));
+    strcpy(str, buffer);
+
+    char *save, *token;
+
+    char *nick, *hostmask;
+    char *reason = NULL;
+    channel *chan = NULL;
+
+    int event_type = 0; // 0 = part, 1 = kick
+
+    token = strtok_r(str, " ", &save);
+
+    //joona!~joona@127.0.0.1 PART #tesm :WeeChat 1.2
+    for (int i = 0; token != NULL; i++)
+    {
+        if (i == 1)
+        {
+            if (strcmp(token, "JOIN") == 0)
+                event_type = CHAN_JOIN;
+            else if (strcmp(token, "KICK") == 0)
+                event_type = CHAN_KICK;
+            else if (strcmp(token, "PART") == 0)
+                event_type = CHAN_PART;
+            else if (strcmp(token, "QUIT") == 0)
+                event_type = CHAN_QUIT;
+            else if (strcmp(token, "INVITE") == 0)
+                event_type = CHAN_INVITE;
+            else
+            {
+                free(str);
+                return BCIRC_PLUGIN_OK;
+            }
+
+            char *nick_end = memchr(buffer, '!', strlen(buffer));
+            if (nick_end == NULL)
+                nick_end = memchr(buffer, '*', strlen(buffer));
+            if (nick_end == NULL)
+            {
+                bcirc_printf("nick_end is still NULL(%s)\n", __PRETTY_FUNCTION__);
+                return BCIRC_PLUGIN_OK;
+            }
+
+            size_t nick_len = strlen(buffer) - strlen(nick_end) - 1;
+
+            nick = malloc((nick_len + 1) * sizeof(char));
+            memmove(nick, buffer+1, nick_len);
+            nick[nick_len] = '\0';
+
+            char *mask_end = memchr(buffer, ' ', strlen(buffer));
+            size_t mask_len = strlen(buffer) - strlen(mask_end) - nick_len - 2;
+
+            hostmask = malloc((mask_len + 1) * sizeof(char));
+            memmove(hostmask, buffer + nick_len + 2, mask_len);
+            hostmask[mask_len] = '\0';
+        }
+
+        if (i == 2)
+        {
+            if (event_type == CHAN_INVITE)
+                continue;
+            chan = (channel*) get_channel(token, (server*) srv);
+            if (!chan)
+                chan = create_channel(token,srv);
+        }
+        if (i == 3)
+        {
+            if (event_type == CHAN_INVITE)
+            {
+                chan = (channel*) get_channel(save, (server*) srv);
+                if (!chan)
+                    chan = create_channel(save,srv);
+                break;
+            }
+
+            reason = malloc(( strlen(token) + 1 + strlen(save) + 1) * sizeof(char));
+            strcpy(reason, token+1);
+            strcat(reason, save);
+
+            break;
+        }
+        token = strtok_r(NULL, " ", &save);
+    }
+
+
+    void **params2 = malloc(4 * sizeof(void*));
+    params2[0] = chan;
+    params2[1] = nick;
+    params2[2] = hostmask;
+    params2[3] = reason;
+
+
+    if (event_type == CHAN_JOIN)
+        execute_callbacks(CALLBACK_CHANNEL_JOIN, params2, 4);
+    else if (event_type == CHAN_KICK)
+        execute_callbacks(CALLBACK_CHANNEL_KICK, params2, 4);
+    else if (event_type == CHAN_PART)
+        execute_callbacks(CALLBACK_CHANNEL_PART, params2, 4);
+    else if (event_type == CHAN_QUIT)
+        execute_callbacks(CALLBACK_CHANNEL_QUIT, params2, 4);
+    else if (event_type == CHAN_INVITE)
+        execute_callbacks(CALLBACK_CHANNEL_INVITE, params2, 4);
+
+    free(str);
+    free(params2);
+    free(nick);
+    free(hostmask);
+    free(reason);
+
+    return BCIRC_PLUGIN_OK;
+>>>>>>> parent of a08a3ed... Revert "asd"
 }

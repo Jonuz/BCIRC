@@ -186,8 +186,13 @@ int handle_ping(void **params, int argc)
 
 	pong[1] = 'O';
 
+<<<<<<< HEAD
 	bcirc_printf("PONG!\n");
 	server_send(pong, srv);
+=======
+    bcirc_printf("PONG!\n");
+    server_send(srv, pong);
+>>>>>>> parent of a08a3ed... Revert "asd"
 
 	free(pong);
 	free(tmp);
@@ -218,9 +223,15 @@ int handle_registeration(void **params, int argc)
 	sprintf(key_buf, "PASS %s\r\n", (srv->pass) ? srv->pass : "asd");
 	sprintf(username_buf, "USER %s 8 * :%s\r\n", srv->realname, srv->username);
 
+<<<<<<< HEAD
 	server_send(key_buf, srv);
 	server_send(username_buf, srv);
 	nick(srv->nick, srv);
+=======
+    server_send(srv, key_buf);
+    server_send(srv, username_buf);
+    nick(srv->nick, srv);
+>>>>>>> parent of a08a3ed... Revert "asd"
 
 	return BCIRC_PLUGIN_OK;
 }

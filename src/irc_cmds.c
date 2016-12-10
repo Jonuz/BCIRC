@@ -11,7 +11,7 @@ int privmsg(char *msg, char *target, server *srv)
 {
 	char *buf = malloc(( 7 + 1 + strlen(target) + 2 + strlen(msg) + 2 + 1) * sizeof(char));
 	sprintf(buf,"PRIVMSG %s :%s\r\n", target, msg);
-	int res = server_send(buf, srv);
+	int res = server_send(srv, buf);
 	free(buf);
 
 	return res;
@@ -38,7 +38,7 @@ int join_channel(char *chan_name, char *chan_pass, server *srv)
 	strcpy(buf_copy, buf);
 	free(buf);
 
-	return server_send(buf_copy, srv);
+	return server_send(srv, buf_copy);
 }
 
 
@@ -53,7 +53,7 @@ int part_channel(char *reason, channel *chan)
 	strcpy(buf_copy, buf);
 	free(buf);
 
-	return server_send(buf_copy, (server*) chan->srv);
+	return server_send((server*) chan->srv, buf_copy);
 }
 
 
@@ -69,7 +69,7 @@ int nick(char *nick, server *srv)
 	srv->nick = malloc((strlen(nick)+1) * sizeof(char));
 	strcpy(srv->nick, nick);
 
-	int res = server_send(buf, srv);
+	int res = server_send(srv, buf);
 	free(buf);
 
 	return res;
@@ -82,7 +82,7 @@ int quit(char *reason, server *srv)
 	buf = malloc(( strlen(BUF_QUIT_BASE) + 1 + strlen(reason) + 3) * sizeof(char));
 	sprintf(buf, BUF_QUIT_BASE, reason);
 
-	int res = server_send(buf, srv);
+	int res = server_send(srv, buf);
 	free(buf);
 
 	return res;
