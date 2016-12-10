@@ -3,7 +3,6 @@ script_version = "0.1"
 script_author = "Joona"
 
 import bcirc
-from ctypes import *
 
 def on_recv(params, count):
     srv = bcirc.get_chan_srv(params[0])

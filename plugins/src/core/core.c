@@ -286,6 +286,7 @@ void *try_rejoin(void *srv_void)
 		sleep(15);
 	}
 	bcirc_printf("Reopened connection to %s\n", srv->host);
+	remove_from_serverpool(srv);
 	add_to_serverpool(srv);
 
 	return NULL;
