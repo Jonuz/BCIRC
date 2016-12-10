@@ -32,6 +32,8 @@ int main()
 {
     channel_count = 0;
     server_count = 0;
+
+
     pthread_mutex_init(&servers_global_mutex, NULL);
 
     plugin_list = malloc(sizeof(plugin*));
@@ -47,7 +49,6 @@ int main()
 
     char *configdir = getenv("BCIRC_CONFIG_DIR");
     char *serverfile = malloc( (strlen(configdir) + 13 + 1) * sizeof(char) );
-
     sprintf(serverfile, "%s/bcirc.conf", configdir);
     load_servers(serverfile);
     free(serverfile);
