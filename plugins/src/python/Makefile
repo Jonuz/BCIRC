@@ -1,0 +1,11 @@
+CC = gcc
+CFLAGS = -fPIC -shared -std=gnu11 $(shell python3-config --cflags) $(shell python3-config --ldflags) ../libbcirc.a
+SOURCES = $(wildcard *.c)
+TARGET = $(BCIRC_PLUGINS_BIN)/python.so
+
+$(TARGET):
+	$(CC) $(SOURCES) $(CFLAGS) -o $@
+	@echo $CFLAGS
+
+clean:
+	rm -rf ${TARGET}
