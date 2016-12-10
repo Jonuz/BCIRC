@@ -50,8 +50,8 @@ int on_recv(void **params, int argc)
 	if ((!srv) || (!buffer))
 		return BCIRC_PLUGIN_CONTINUE;
 
-	bcirc_log("%s\n", "raw", buffer);
-
+	//bcirc_printf("%s\n", "raw", buffer);
+	bcirc_printf("%s\n", buffer);
 	return BCIRC_PLUGIN_OK;
 }
 
