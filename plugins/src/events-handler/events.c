@@ -197,6 +197,8 @@ int get_chan_event(void **params, int argv)
                 event_type = CHAN_PART;
             else if (strcmp(token, "QUIT") == 0)
                 event_type = CHAN_QUIT;
+            else if (strcmp(token, "INVITE") == 0)
+                event_type = CHAN_INVITE;
             else
             {
                 free(str);
@@ -259,6 +261,8 @@ int get_chan_event(void **params, int argv)
         execute_callbacks(CALLBACK_CHANNEL_PART, params2, 4);
     else if (event_type == CHAN_QUIT)
         execute_callbacks(CALLBACK_CHANNEL_QUIT, params2, 4);
+    else if (event_type == CHAN_INVITE)
+    execute_callbacks(CALLBACK_CHANNEL_INVITE, params2, 4);
 
     free(str);
     free(params2);
