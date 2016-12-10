@@ -64,7 +64,8 @@ int load_script(char *filename, char *dir)
     new_script->name = malloc(strlen(filename) + 1);
     strcpy(new_script->name, filename);
 
-    PyObject *name = PyUnicode_DecodeFSDefault(new_script->name);
+    PyObject *name = PyUnicode_DecodeFSDefault(filename);
+	new_script->handle = malloc(sizeof(PyObject));
     new_script->handle = PyImport_Import(name);
     Py_DECREF(name);
 
@@ -102,7 +103,7 @@ int load_script_dir(char *dirname)
                     continue;
 
                 size_t len = strlen(dir->d_name) - 3;
-                char filename[len+1];
+                char *filename = malloc(len+1);
                 strncpy(filename, dir->d_name, len);
                 filename[len] = '\0';
                 load_script(filename, dirname);
@@ -122,8 +123,6 @@ int plugin_init(plugin *pluginptr)
     Py_Initialize();
     PyEval_InitThreads();
 
-
-    int test = 0;
 
 
     mainThreadState = PyThreadState_Get();
