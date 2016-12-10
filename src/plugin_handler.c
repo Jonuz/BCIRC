@@ -121,6 +121,7 @@ int load_plugin(char *path)
 	bcirc_printf("Added plugin %s version %s\n", new_plugin->plugin_name, new_plugin->plugin_version);
 
 	return 1;
+
 }
 
 
@@ -388,15 +389,26 @@ int execute_callbacks(char *cb_name, void **args, int argc)
 				return BCIRC_PLUGIN_FAIL;
 		}
 	}
-	return BCIRC_PLUGIN_OK;
-}
-
-int callback_params_null_check(void **params, int argc)
-{
-	for (int i = 0; i < argc; i++)
+	if (strcmp(cb_name, CALLBACK_CALLBACKS_EXECUTED) != 0)
 	{
-		if (params[i] == NULL)
-			return i;
+		void **new_args = malloc((argc + 1) * sizeof(void*));
+		if (!new_args)
+		{
+			bcirc_printf("Failed to malloc new args.\n");
+			return -1;
+		}
+
+		for (int i = 0; i < argc; i++)
+			new_args[i] = args[i];
+
+		new_args[argc] = malloc( (strlen(cb_name) + 1) * sizeof(char) );
+		strcpy(new_args[argc], cb_name);
+		execute_callbacks(CALLBACK_CALLBACKS_EXECUTED, new_args, argc+1);
+
+		free(new_args[argc]);
+		free(new_args);
 	}
-	return -1;
+
+
+	return BCIRC_PLUGIN_OK;
 }
