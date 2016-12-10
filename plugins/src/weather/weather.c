@@ -23,7 +23,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *info);
 #define URL_BASE "http://api.openweathermap.org/data/2.5/weather?q=%s&APPID=%s&units=metric"
 #define API_KEY "0c1e91a011ff56ae37fbd55928e8b4e2"
 
-#define MSG "Paikkanunnan %s tiedot; lämpötila noin. %.2f°C, ilmankosteus: %.0f%%, tuulennopeus %.2f m/s"
+#define MSG "Paikkakunnan %s tiedot; lämpötila noin %.2f°C, ilmankosteus: %.0f%%, tuulen nopeus %.2f m/s"
 //#define MSG_DIVERS "Paikkanunnan %s tiedot; lämpötila noin. %.2f°C - %.2f°C, ilmankosteus: %.2f%%, tuulennopeus %.2f m/s"
 
 //#define MSG "Weather data of place %s; tempature %.2f°C, lowest tempature: %.2f°C, highest tempature %.2f°C, humidity: %.0f%%, speed of wind %.2f m/s"
