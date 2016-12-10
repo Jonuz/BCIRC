@@ -28,7 +28,7 @@ typedef struct server
 	char *nick;
 	char *alt_nick;
 
-    int motd_sent;
+	int motd_sent;
 
 	int s;
 

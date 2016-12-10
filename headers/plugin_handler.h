@@ -31,9 +31,9 @@ typedef enum { RUNNING, PAUSED } PLUGIN_STATUS;
 
 typedef struct
 {
-    char *cb_name;
-    int (*cb_func)(void **, int); //Function to call
-    int priority;
+	char *cb_name;
+	int (*cb_func)(void **, int); //Function to call
+	int priority;
 } callback;
 
 typedef struct
@@ -42,24 +42,24 @@ typedef struct
 
 	char *plugin_name;
 	char *plugin_version;
-    char *plugin_author;
+	char *plugin_author;
 
-    char *path;
+	char *path;
 
-    PLUGIN_STATUS status;
+	PLUGIN_STATUS status;
 
-    callback **callback_list;
-    int callback_count;
+	callback **callback_list;
+	int callback_count;
 
 } plugin;
 
 typedef struct
 {
-    char *cb_name;
-    callback **callbacks;
-    size_t cb_count;
+	char *cb_name;
+	callback **callbacks;
+	size_t cb_count;
 
-    void *next_index;
+	void *next_index;
 } callback_index;
 
 extern callback_index **index_list;

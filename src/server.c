@@ -30,7 +30,7 @@ int server_connect(server *srv)
 	if (s == NULL)
 	{
 		pthread_mutex_unlock(&srv->mutex);
-        return -1;
+		return -1;
 	}
 	pthread_mutex_unlock(&srv->mutex);
 
@@ -51,17 +51,17 @@ int server_connect(server *srv)
 	}
 
 	if (connect(*s, res->ai_addr, res->ai_addrlen) != 0)
-    {
+	{
 		pthread_mutex_unlock(&srv->mutex);
-	    return -3;
+		return -3;
 	}
 	srv->motd_sent = 0;
 	srv->connected = 1;
 	pthread_mutex_unlock(&srv->mutex);
 
-    void **cb_params = malloc( sizeof(void*) );
-    cb_params[0] = (void*) srv;
-    execute_callbacks( CALLBACK_SERVER_CONNECTED, cb_params, 1 );
+	void **cb_params = malloc( sizeof(void*) );
+	cb_params[0] = (void*) srv;
+	execute_callbacks( CALLBACK_SERVER_CONNECTED, cb_params, 1 );
 	free(cb_params);
 
 
@@ -77,9 +77,9 @@ int server_disconnect(server *srv, int reason)
 	int close_res = close(srv->s);
 
 	void **cb_params = malloc( 2 * sizeof(void*) );
-    cb_params[0] = srv;
+	cb_params[0] = srv;
 	cb_params[1] = &reason;
-    execute_callbacks( CALLBACK_SERVER_DISCONNECTED, cb_params, 2 );
+	execute_callbacks( CALLBACK_SERVER_DISCONNECTED, cb_params, 2 );
 	free(cb_params);
 
 	return close_res;
@@ -103,14 +103,14 @@ int server_send(server *srv, char *buf)
 
 	int res = send(srv->s, buf, strlen(buf), 0);
 
-    if (res <= 0)
-        return res;
+	if (res <= 0)
+		return res;
 
 	pthread_mutex_lock(&srv->mutex);
-    srv->sent_len += res;
+	srv->sent_len += res;
 	pthread_mutex_unlock(&srv->mutex);
 
-    return res;
+	return res;
 }
 
 void *server_recv(void *srv_void)
