@@ -176,11 +176,11 @@ int get_chan_event(void **params, int argv)
 
 	size_t buf_len = strlen(params[1]) + 1;
 
-	if (buf_len <= 24) //This is strange but some times happens in channel where are many users and leads to seg fault.
+	if (buf_len <= 20) //This is strange but some times happens in channel where are many users and leads to seg fault.
 	{
 		bcirc_printf("Buf is: %s\n", params[1]);
 		bcirc_print_callstack();
-		return BCIRC_PLUGIN_BREAK;
+		return BCIRC_PLUGIN_CONTINUE;
 	}
 
 	server *srv = params[0];
