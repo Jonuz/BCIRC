@@ -60,6 +60,7 @@ Params:
         char *nick
         char *hostmask
         int event_type
+
 */
 
 
@@ -70,6 +71,8 @@ Params:
         char *nick
         char *hostmask
         char *reason
+
+
 */
 
 #define CALLBACK_CHANNEL_KICK "channel_kick"
@@ -90,20 +93,6 @@ Params:
         char *reason
 
 */
-#define CALLBACK_CALLBACKS_EXECUTED "callback_callbacks_executed"
-/*
-    Params:
-        void **arguments
-        int count
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-    Note:
-        When CALLBACK_CALLBACKS_EXECUTED are executed, name of callback which are being executed is added to end of aguments list.
-        So you can get name of callback like this:
-
-        char *cb_name = arguments[count-1];
-*/
 
 #define CALLBACK_CHANNEL_INVITE "channel_invite"
 /*
@@ -121,17 +110,19 @@ Params:
         char* input
 
 */
-
 #define CALLBACK_CALLBACKS_EXECUTED "callback_callbacks_executed"
 /*
     Params:
         void **arguments
         int count
 
+    Note:
         When CALLBACK_CALLBACKS_EXECUTED are executed, name of callback which are being executed is added to end of aguments list.
         So you can get name of callback like this:
 
         char *cb_name = arguments[count-1];
 */
+
+
 
 #endif
