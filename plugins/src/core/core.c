@@ -138,10 +138,10 @@ int got_in(void **params, int argc)
 	server *srv = (server*) params[0];
 	int *numeric = (int*) params[1];
 
-	if (srv->motd_sent == 1)
-		return BCIRC_PLUGIN_OK;
+	//if (srv->motd_sent == 1)
+	//	return BCIRC_PLUGIN_OK;
 
-	if (*numeric != RPL_ENDOFMOTD)
+	if (*numeric != RPL_WELCOME)
 		return BCIRC_PLUGIN_CONTINUE;
 
 	bcirc_printf("Connected to %s!\n", srv->host);
