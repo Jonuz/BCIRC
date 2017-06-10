@@ -30,6 +30,8 @@ typedef struct ark
 	char *nick_save;
 	int tries;
 
+	CURL *curl;
+
 	int found; /*Sometimes curl returns errror even if message gets sent, so we set this 1 when title is sent so request will not be sent again. */
 
 	clock_t start_time;
@@ -143,6 +145,7 @@ int http_request(char *url, ark *arkptr)
 		return BCIRC_PLUGIN_STOP;
 	}
 
+	/*
 	char url_encoded[512];
 	char *token, *save;
 	token = strtok_r(url, "/", &save); //http(s)
@@ -153,8 +156,9 @@ int http_request(char *url, ark *arkptr)
 		sprintf(url_encoded, "http://%s/%s", token, curl_easy_escape(curl, save, 0));
 		bcirc_printf("encoded: %s", url_encoded);
 	}
+	*/
 
-	curl_easy_setopt(curl, CURLOPT_URL, (url_encoded != NULL) ? url_encoded : url);
+	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, arkptr);
 
 	curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "utf8");
@@ -169,8 +173,11 @@ int http_request(char *url, ark *arkptr)
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 
+	arkptr->curl = curl;
+
 
 	res = curl_easy_perform(curl);
+
 	curl_easy_cleanup(curl);
 
 	if (res != CURLE_OK)
@@ -203,6 +210,26 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
 	regmatch_t matches[2];
 
 	ark *arkptr = (ark*) ark_param;
+
+	CURL *curl = arkptr->curl;
+
+	if (curl)
+	{
+		long http_code = 0;
+		curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
+
+		if (curl == CURLE_ABORTED_BY_CALLBACK)
+		{
+			bcirc_printf("Curl aborted");
+			return size * nmemb;;
+		}
+
+		if (http_code > 299)
+		{
+			bcirc_printf("Server returned http code > 299");
+			return size * nmemb;;
+		}
+	}
 
 	char *response = (char*) malloc((size * nmemb + 2) * sizeof(char));
 	strncpy(response, (char*) ptr, size * nmemb);
