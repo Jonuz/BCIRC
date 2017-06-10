@@ -17,10 +17,11 @@ Remember that BCIRC's enviroment variables has to be set, to do it run source ex
 
 
 ##Features
->URL title announce  
+>URL title announcing  
 >Weather announcer  
 >Multiserver support  
 >C plugin support  
+> Python script support (disabled by default & might be buggy)
 >Logging  
 
 
@@ -28,7 +29,6 @@ Remember that BCIRC's enviroment variables has to be set, to do it run source ex
 >gcc5 (Might work with gcc4)  
 >libcurl-dev  
 >libconfig-dev  
->POSIX compatible compiler  
 
 If you are using python branch, then this too.  
 >python3-dev  

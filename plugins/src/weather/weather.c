@@ -122,9 +122,7 @@ int on_privmsg(void **params, int argc)
 		return BCIRC_PLUGIN_OK;
 
 	if (strstr(city, "perse") != NULL) {
-		//city = malloc(strlen("Turku") + 1));
 		strcpy(city, "turku");
-		bcirc_printf("City: %s\n", city);
 	}
 
 	char *url = malloc(strlen(URL_BASE) + strlen(city) + strlen(API_KEY) + 1);

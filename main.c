@@ -43,7 +43,6 @@ int main()
 	channel_count = 0;
 	server_count = 0;
 
-
 	pthread_mutex_init(&servers_global_mutex, NULL);
 
 	plugin_list = malloc(sizeof(plugin*));

@@ -301,7 +301,6 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
 			continue;
 		new_title[new_count] = title[i];
 		new_count++;
-
 	}
 	new_title[new_count] = '\0';
 
