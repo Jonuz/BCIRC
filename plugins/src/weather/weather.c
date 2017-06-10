@@ -25,10 +25,10 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *info);
 /*
 	Please get your own API key from http://openweathermap.org/
 */
-#define API_KEY ""
+#define API_KEY "0c1e91a011ff56ae37fbd55928e8b4e2"
 
 #define MSG_FI "Paikkakunnan %s säätiedot; lämpötila noin %.1f°C, ilmankosteus %.0f%%, tuulen nopeus %.1f m/s"
-#define MSG_EN "Weather data of place %s; tempature: %.1f°C, humidity: %.0f%%, speed of wind: %.1f m/s"
+#define MSG_EN "Weather of place %s; tempature %.1f°C, humidity %.0f%%, wind speed %.1f m/s"
 
 #define MSG_WAIT_FI "Vielä %d sekunttia jotta säätietoja voidaan hakea."
 #define MSG_WAIT_EN "Yet %d seconds till wetaher data can be fetched."
@@ -115,12 +115,8 @@ int on_privmsg(void **params, int argc)
 		return BCIRC_PLUGIN_OK;
 	}
 
-	char *save = NULL;
-	char *city = strtok_r(str, " ", &save);
-
-	if (city == NULL)
-		return BCIRC_PLUGIN_OK;
-	city = strtok_r(NULL, " ", &save);
+	char *city = NULL;
+	strtok_r(str, " ", &city);
 
 	if (city == NULL)
 		return BCIRC_PLUGIN_OK;
