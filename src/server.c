@@ -183,8 +183,8 @@ void *server_recv(void *srv_void)
 				break;
 			}
 
-			bcirc_printf("line is %s\n", line);
-			bcirc_printf("save is: %s\n", save);
+			//bcirc_printf("line is %s\n", line);
+			//bcirc_printf("save is: %s\n", save);
 
 			char *line_mallocd = malloc(strlen(line)+1);
 			strcpy(line_mallocd, line);
