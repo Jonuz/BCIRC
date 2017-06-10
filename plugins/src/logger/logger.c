@@ -106,14 +106,14 @@ int on_join(void **params, int argc)
 {
 	channel *chan = params[0];
 	char *nick = params[1];
-	server *srv = chan->srv;
 
-	if ((!chan) || (!nick))
+	if (!chan || !chan->srv || !nick)
 	{
 		puts("wut");
 		return BCIRC_PLUGIN_BREAK;
 	}
 
+	server *srv = chan->srv;
 	bcirc_printf("User %s joined channel %s.%s\n", nick, srv->network_name, chan->name);
 
 	return BCIRC_PLUGIN_OK;
