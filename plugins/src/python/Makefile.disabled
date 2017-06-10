@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -fPIC -shared -std=gnu11 $(shell python3-config --cflags) $(shell python3-config --ldflags) ../libbcirc.a
+CFLAGS = -fPIC -shared -std=gnu11 $(shell python3-config --cflags) $(shell python3-config --ldflags) ../libbcirc.a -Wstrict-prototypes
 SOURCES = $(wildcard *.c)
 TARGET = $(BCIRC_PLUGINS_BIN)/python.so
 
