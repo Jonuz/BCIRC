@@ -389,6 +389,8 @@ int execute_callbacks(char *cb_name, void **args, int argc)
 				return BCIRC_PLUGIN_FAIL;
 		}
 	}
+
+/*
 	if (strcmp(cb_name, CALLBACK_CALLBACKS_EXECUTED) != 0)
 	{
 		void **new_args = malloc((argc + 1) * sizeof(void*));
@@ -405,9 +407,10 @@ int execute_callbacks(char *cb_name, void **args, int argc)
 		strcpy(new_args[argc], cb_name);
 		execute_callbacks(CALLBACK_CALLBACKS_EXECUTED, new_args, argc+1);
 
-		free(new_args[argc]);
-		free(new_args);
+		//free(new_args[argc]);
+		//free(new_args);
 	}
+*/	
 
 
 	return BCIRC_PLUGIN_OK;

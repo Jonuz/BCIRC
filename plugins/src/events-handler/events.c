@@ -31,7 +31,7 @@ int plugin_init(plugin *pluginptr)
 {
 	register_callback(CALLBACK_SERVER_RECV, get_privmsg, 3, pluginptr);
 	register_callback(CALLBACK_SERVER_RECV, get_numeric, 3, pluginptr);
-	register_callback(CALLBACK_SERVER_RECV, get_chan_event, 3, pluginptr);
+	register_callback(CALLBACK_SERVER_RECV, get_chan_event, 2, pluginptr);
 
 
 	return BCIRC_PLUGIN_OK;
@@ -178,10 +178,10 @@ int get_chan_event(void **params, int argv)
 
 	if (buf_len <= 20) //This is strange but some times happens in channel where are many users and leads to seg fault.
 	{
-		if (strstr(param[1], "PING"))
+		if (strstr(params[1], "PING"))
 			return BCIRC_PLUGIN_CONTINUE;
 		bcirc_printf("Buf is: %s\n", params[1]);
-		bcirc_print_callstack();
+		//bcirc_print_callstack();
 		return BCIRC_PLUGIN_CONTINUE;
 	}
 
@@ -198,13 +198,16 @@ int get_chan_event(void **params, int argv)
 
 	char *save, *token;
 
-	char *nick, *hostmask;
+	char *nick = NULL, *hostmask = NULL;
 	char *reason = NULL;
 	channel *chan = NULL;
 
 	int event_type = 0; // 0 = part, 1 = kick
 
-	token = strtok_r(str, " ", &save);
+	char to_tokenized[1024];
+	strcpy(to_tokenized, str);
+
+	token = strtok_r(to_tokenized, " ", &save);
 
 	//joona!~joona@127.0.0.1 PART #tesm :WeeChat 1.2
 	for (int i = 0; token != NULL; i++)
@@ -223,6 +226,7 @@ int get_chan_event(void **params, int argv)
 				event_type = CHAN_INVITE;
 			else
 			{
+				//bcirc_printf("No action\n");
 				free(str);
 				return BCIRC_PLUGIN_OK;
 			}
@@ -305,13 +309,11 @@ int get_chan_event(void **params, int argv)
 		token = strtok_r(NULL, " ", &save);
 	}
 
-
 	void **params2 = malloc(4 * sizeof(void*));
 	params2[0] = chan;
 	params2[1] = nick;
 	params2[2] = hostmask;
 	params2[3] = reason;
-
 
 	if (event_type == CHAN_JOIN)
 		execute_callbacks(CALLBACK_CHANNEL_JOIN, params2, 4);
@@ -325,10 +327,10 @@ int get_chan_event(void **params, int argv)
 		execute_callbacks(CALLBACK_CHANNEL_INVITE, params2, 4);
 
 	free(str);
-	free(params2);
 	free(nick);
 	free(hostmask);
 	free(reason);
+	free(params2);
 
 	return BCIRC_PLUGIN_OK;
 }

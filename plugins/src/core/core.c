@@ -172,8 +172,12 @@ int handle_ping(void **params, int argc)
 	char *tmp = malloc( (strlen(buf) + 1) * sizeof(char));
 	strcpy(tmp, buf);
 
-	char *maybe_ping;
+	char *maybe_ping = NULL;
 	maybe_ping = strtok(tmp, " ");
+	if (!maybe_ping) {
+		free(tmp);
+		return BCIRC_PLUGIN_CONTINUE;
+	}
 
 	if (strcmp(maybe_ping, "PING") != 0)
 	{

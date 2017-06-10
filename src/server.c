@@ -161,31 +161,35 @@ void *server_recv(void *srv_void)
 		tmpbuf[res] = '\0';
 
 		char *escaped = malloc(512);
-		bcirc_escape_buf(tmpbuf, escaped);
+		//bcirc_escape_buf(tmpbuf, escaped);
+		strcpy(escaped, tmpbuf);
+
+
+		char to_tokenized[1024];
+		strcpy(to_tokenized, escaped);
+		free(escaped);
 
 		char *save;
-		char *line = strtok_r(escaped, "\r\n", &save);
+		char *line = strtok_r(to_tokenized, "\r\n", &save);
 
 		while (line != NULL)
 		{
-			void **params = malloc(2 * sizeof(void*));
-
 			if (strlen(line) == 0) {
 					line = strtok_r(NULL, "\r\n", &save);
 					continue;
 			}
+			//if (strlen(line) < 30 && strstr(line, "PING") == NULL ) { //fuck it, yolo.
+			//	bcirc_printf("strange line: %s\n", line);
+			//	//break;
+			//}
 
-			if (strlen(line) < 30 && line[0] == ':' ) { //fuck it, yolo.
-				bcirc_printf("strange line: %s\n", line);
-				break;
-			}
-
-			bcirc_printf("line is %s\n", line);
-			bcirc_printf("save is: %s\n", save);
+			//bcirc_printf("line is %s\n", line);
+			//bcirc_printf("save is: %s\n", save);
 
 			char *line_mallocd = malloc(strlen(line)+1);
 			strcpy(line_mallocd, line);
 
+			void **params = malloc(2 * sizeof(void*));
 			params[0] = (void*) srv;
 			params[1] = (void*) line_mallocd;
 
@@ -195,7 +199,6 @@ void *server_recv(void *srv_void)
 
 			line = strtok_r(NULL, "\r\n", &save);
 		}
-		free(escaped);
 	}
 	bcirc_printf("If this gets printed something is wrong(%s)\nHost: %s Network: %s.\n", __PRETTY_FUNCTION__, srv->host, srv->network_name);
 
