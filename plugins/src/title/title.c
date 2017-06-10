@@ -192,6 +192,8 @@ int http_request(char *url, ark *arkptr)
 		}
 
 		bcirc_printf("curl failed: %s\n", curl_easy_strerror(res));
+		bcirc_printf("url: %s\n", url);
+
 		arkptr->tries++;
 
 		http_request(url, arkptr);
@@ -218,11 +220,11 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
 		long http_code = 0;
 		curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
 
-		if (curl == CURLE_ABORTED_BY_CALLBACK)
-		{
-			bcirc_printf("Curl aborted");
-			return size * nmemb;;
-		}
+		//if (curl == CURLE_ABORTED_BY_CALLBACK)
+		//{
+		//	bcirc_printf("Curl aborted");
+		//	return size * nmemb;;
+		//}
 
 		if (http_code > 299)
 		{
@@ -231,7 +233,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *ark_param)
 		}
 	}
 
-	char *response = (char*) malloc((size * nmemb + 2) * sizeof(char));
+	char *response = (char*) malloc(size * nmemb + 2);
 	strncpy(response, (char*) ptr, size * nmemb);
 	response[size*nmemb] = '\0';
 

@@ -44,10 +44,10 @@ int seek_for_benis(void **params, int argv)
 
 		srand(time(NULL));
 
-		int lucky_number = rand() % 10;
-		bcirc_printf("Lucky number is %d:DDD\n", lucky_number);
+		int lucky_number = rand() % 6;
+		bcirc_printf("Lucky number is %d :DDDD\n", lucky_number);
 
-		if (lucky_number == 0)
+		if (lucky_number == 1)
 		{
 			bcirc_printf("we are lucky :DDD\n");
 
