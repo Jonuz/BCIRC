@@ -115,8 +115,6 @@ int server_send(char *buf, server *srv)
 
 void *server_recv(void *srv_void)
 {
-	char tmpbuf[2048];
-
 	server *srv = (server*) srv_void;
 
 	if (!srv)
@@ -150,6 +148,7 @@ void *server_recv(void *srv_void)
 			return NULL;
 		}
 
+		char tmpbuf[512];
 		int res;
 		res = recv(srv->s, tmpbuf, sizeof tmpbuf, 0);
 
@@ -159,11 +158,9 @@ void *server_recv(void *srv_void)
 			return NULL;
 		}
 		srv->recvd_len += res;
-
-
 		tmpbuf[res] = '\0';
 
-		char *escaped = malloc(2048);
+		char *escaped = malloc(512);
 		bcirc_escape_buf(tmpbuf, escaped);
 
 		char *save;
@@ -178,7 +175,7 @@ void *server_recv(void *srv_void)
 					continue;
 			}
 
-			if (strlen(line) < 20 && !save && !strlen(save) && !strstr(line, "PING")) {
+			if (strlen(line) < 30 && line[0] == ':' ) { //fuck it, yolo.
 				bcirc_printf("strange line: %s\n", line);
 				break;
 			}
