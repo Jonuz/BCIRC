@@ -163,15 +163,28 @@ void *server_recv(void *srv_void)
 
 		tmpbuf[res] = '\0';
 
-		char *buf = malloc(2048);
-		bcirc_escape_buf(tmpbuf, buf);
+		char *escaped = malloc(2048);
+		bcirc_escape_buf(tmpbuf, escaped);
 
 		char *save;
-		char *line = strtok_r(buf, "\r\n", &save);
+		char *line = strtok_r(escaped, "\r\n", &save);
 
 		while (line != NULL)
 		{
 			void **params = malloc(2 * sizeof(void*));
+
+			if (strlen(line) == 0) {
+					line = strtok_r(NULL, "\r\n", &save);
+					continue;
+			}
+
+			if (strlen(line) < 20 && !save && !strlen(save) && !strstr(line, "PING")) {
+				bcirc_printf("strange line: %s\n", line);
+				break;
+			}
+
+			bcirc_printf("line is %s\n", line);
+			bcirc_printf("save is: %s\n", save);
 
 			char *line_mallocd = malloc(strlen(line)+1);
 			strcpy(line_mallocd, line);
@@ -185,7 +198,7 @@ void *server_recv(void *srv_void)
 
 			line = strtok_r(NULL, "\r\n", &save);
 		}
-		free(buf);
+		free(escaped);
 	}
 	bcirc_printf("If this gets printed something is wrong(%s)\nHost: %s Network: %s.\n", __PRETTY_FUNCTION__, srv->host, srv->network_name);
 
