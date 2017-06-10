@@ -171,13 +171,15 @@ int get_numeric(void **params, int argc)
 //Todo: Check if something is wrong when joining channel starting with ##
 int get_chan_event(void **params, int argv)
 {
-	if ((params[0] == NULL) || (params[1] == NULL))
+	if (!params[0] || !params[1])
 		return BCIRC_PLUGIN_BREAK;
 
 	size_t buf_len = strlen(params[1]) + 1;
 
 	if (buf_len <= 20) //This is strange but some times happens in channel where are many users and leads to seg fault.
 	{
+		if (strstr(param[1], "PING"))
+			return BCIRC_PLUGIN_CONTINUE;
 		bcirc_printf("Buf is: %s\n", params[1]);
 		bcirc_print_callstack();
 		return BCIRC_PLUGIN_CONTINUE;
@@ -264,6 +266,11 @@ int get_chan_event(void **params, int argv)
 			chan = (channel*) get_channel(token, (server*) srv);
 			if (!chan)
 				chan = create_channel(token,srv);
+			if (!chan || !chan->srv)
+			{
+				bcirc_printf("Failed get channel");
+				return BCIRC_PLUGIN_CONTINUE;
+			}
 		}
 		if (i == 3)
 		{
@@ -272,6 +279,13 @@ int get_chan_event(void **params, int argv)
 				chan = (channel*) get_channel(save, (server*) srv);
 				if (!chan)
 					chan = create_channel(save,srv);
+
+				if (!chan || !chan->srv)
+				{
+					bcirc_printf("Failed get channel");
+					return BCIRC_PLUGIN_CONTINUE;
+				}
+
 				break;
 			}
 
