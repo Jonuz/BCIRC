@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 #include "../headers/irc.h"
 #include "../headers/log.h"
 #include "../headers/plugin_handler.h"
@@ -35,7 +36,7 @@ int handle_nick(void **params, int argv)
 	server *srv = params[0];
 	char *msg = params[4];
 
-	if (strstr(msg, "!nick") == 0)
+	if (strncmp("!nick", msg, strlen(msg)) == 0)
 	{
 		char * nick_token, *save;
 		nick_token = strtok_r(msg, " ", &save);
