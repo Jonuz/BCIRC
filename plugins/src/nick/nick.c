@@ -36,16 +36,12 @@ int handle_nick(void **params, int argv)
 	server *srv = params[0];
 	char *msg = params[4];
 
-	if (strncmp("!nick", msg, strlen(msg)) == 0)
-	{
-		char * nick_token, *save;
-		nick_token = strtok_r(msg, " ", &save);
+	char * nick_token, *save;
+	nick_token = strtok_r(msg, " ", &save);
+	if (nick_token && (strcmp(nick_token, "!nick") == 0)) {
+		nick_token = strtok_r(NULL, " ", &save);
 		if (nick_token) {
-			nick_token = strtok_r(NULL, " ", &save);
-			if (nick_token) {
-				nick(nick_token, srv);
-			}
+			nick(nick_token, srv);
 		}
 	}
-
 }
