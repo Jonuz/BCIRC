@@ -160,13 +160,13 @@ void *server_recv(void *srv_void)
 		srv->recvd_len += res;
 		tmpbuf[res] = '\0';
 
-		char *escaped = malloc(512);
+		char *escaped = malloc(1024);
 		//bcirc_escape_buf(tmpbuf, escaped);
 		strcpy(escaped, tmpbuf);
 
 
 		char to_tokenized[1024];
-		strcpy(to_tokenized, escaped);
+		strncpy(to_tokenized, escaped, 1024);
 		free(escaped);
 
 		char *save;
@@ -325,8 +325,8 @@ int remove_from_serverpool(server *srv)
 		return -1;
 	}
 
-	if (srv->thread)
-		pthread_exit(&srv->thread);
+	//if (srv->thread)
+	//	pthread_exit(&srv->thread);
 
 	server **new_list = NULL;
 	int new_count = 0;

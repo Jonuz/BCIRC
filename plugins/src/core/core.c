@@ -22,6 +22,7 @@ int got_in(void **params, int argc);
 void autojoin_channels();
 int server_rejoin(void **params, int);
 
+void *try_rejoin(void *srv_void);
 void sig_handler(int sig);
 
 int handle_nick(void **params, int argc); //This function handles usage alternative nick.
@@ -202,7 +203,6 @@ int handle_ping(void **params, int argc)
 
 int handle_registeration(void **params, int argc)
 {
-
 	if (params[0] == NULL)
 		return BCIRC_PLUGIN_BREAK;
 
@@ -263,39 +263,6 @@ int handle_nick(void **params, int argc)
 	return BCIRC_PLUGIN_OK;
 }
 
-
-void *try_rejoin(void *srv_void)
-{
-	server *srv = srv_void;
-
-	time_t timenow;
-	time(&timenow);
-
-	#define WAIT_TIME 30
-
-	time_t timediff = timenow - srv->time_connected;
-	if ((timediff < WAIT_TIME) && (srv->rejoin_tries != 0))
-	{
-		size_t sleeptime = WAIT_TIME * (srv->rejoin_tries + 1);
-		printf("Sleeping for %d seconds before trying rejoin to %s.\n", sleeptime, srv->host);
-		sleep(sleeptime);
-	}
-	srv->rejoin_tries++;
-
-	int res;
-	while((res = server_connect(srv)) != 1337) //i had to
-	{
-		if (res == 1)
-			break;
-		sleep(15);
-	}
-	bcirc_printf("Reopened connection to %s\n", srv->host);
-	remove_from_serverpool(srv);
-	add_to_serverpool(srv);
-
-	return NULL;
-}
-
 int server_rejoin(void **params, int argc)
 {
 	server *srv = params[0];
@@ -324,4 +291,39 @@ int server_rejoin(void **params, int argc)
 	}
 
 	return BCIRC_PLUGIN_OK;
+}
+
+void *try_rejoin(void *srv_void)
+{
+	server *srv = srv_void;
+
+	time_t timenow;
+	time(&timenow);
+
+	#define WAIT_TIME 30
+
+	time_t timediff = timenow - srv->time_connected;
+	if ((timediff < WAIT_TIME) && (srv->rejoin_tries != 0))
+	{
+		size_t sleeptime = WAIT_TIME * (srv->rejoin_tries + 1);
+		printf("Sleeping for %d seconds before trying rejoin to %s.\n", sleeptime, srv->host);
+		sleep(sleeptime);
+	}
+	srv->rejoin_tries++;
+
+	remove_from_serverpool(srv);
+
+	int res;
+	while((res = server_connect(srv)) != 1)
+	{
+		sleep(15);
+	}
+
+	bcirc_printf("Reopened connection to %s\n", srv->host);
+
+	srv->motd_sent = 1;
+	srv->rejoin_tries = 0;
+
+	add_to_serverpool(srv);
+	return NULL;
 }
