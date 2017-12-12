@@ -161,9 +161,8 @@ void *server_recv(void *srv_void)
 		tmpbuf[res] = '\0';
 
 		char *escaped = malloc(1024);
-		//bcirc_escape_buf(tmpbuf, escaped);
-		strcpy(escaped, tmpbuf);
-
+		bcirc_escape_buf(tmpbuf, escaped);
+		//strncpy(escaped, tmpbuf, 1024);
 
 		char to_tokenized[1024];
 		strncpy(to_tokenized, escaped, 1024);
@@ -178,13 +177,6 @@ void *server_recv(void *srv_void)
 					line = strtok_r(NULL, "\r\n", &save);
 					continue;
 			}
-			//if (strlen(line) < 30 && strstr(line, "PING") == NULL ) { //fuck it, yolo.
-			//	bcirc_printf("strange line: %s\n", line);
-			//	//break;
-			//}
-
-			//bcirc_printf("line is %s\n", line);
-			//bcirc_printf("save is: %s\n", save);
 
 			char *line_mallocd = malloc(strlen(line)+1);
 			strcpy(line_mallocd, line);

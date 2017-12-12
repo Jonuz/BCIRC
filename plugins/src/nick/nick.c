@@ -34,7 +34,8 @@ int handle_nick(void **params, int argv)
 		}
 
 	server *srv = params[0];
-	char *msg = params[4];
+	char msg[512];
+	strncpy(msg, params[4], 512);
 
 	char * nick_token, *save;
 	nick_token = strtok_r(msg, " ", &save);
@@ -44,4 +45,6 @@ int handle_nick(void **params, int argv)
 			nick(nick_token, srv);
 		}
 	}
+
+	return BCIRC_PLUGIN_OK;
 }
