@@ -19,7 +19,6 @@ import ctypes
 
 try:
     import bcirc
-
     running_inside_bcirc = True
 except ImportError:
     pass
@@ -110,6 +109,7 @@ def request_info(place, gmt_time=None):
         return
     end_time = (start_time + timedelta(minutes=60))
 
+    # Metodit täältä http://data.fmi.fi/fmi-apikey/f70c2550-b857-45ca-a54b-e15c8a772968/wfs?request=describeStoredQueries
     if not request_forecast:
         fmiId = "fmi::observations::weather::timevaluepair"
     else:
@@ -148,12 +148,12 @@ def request_info(place, gmt_time=None):
 def handle_message(params, count):
     global last_err_msg_sent_time
     global last_weather_msg_sent_time
-    time_now = time.time()
+    time_now = int(time.time())
 
     if time_now < last_weather_msg_sent_time + 3:
         return 1
 
-    last_weather_msg_sent_time = datetime.now()
+    last_weather_msg_sent_time = int(time.time())
 
     srv = params[0]
     target = bcirc.get_string_from_ptr(params[3])
@@ -169,7 +169,6 @@ def handle_message(params, count):
 
     place = place_and_time["place"]
     request_time = place_and_time["time"]
-
 
     # Check if time can be parse
     if request_time:
@@ -200,18 +199,18 @@ def format_message(weather_data):
 
     def has_value(key):
         return weather_data and weather_data[key] \
-            and key in weather_data \
-            and "value" in weather_data[key]\
-            and weather_data[key]["value"] \
-            and "date" in weather_data[key] \
-            and weather_data[key]["date"]
+               and key in weather_data \
+               and "value" in weather_data[key] \
+               and weather_data[key]["value"] \
+               and "date" in weather_data[key] \
+               and weather_data[key]["date"]
 
     msg = ""
 
     if has_value("temperature"):
         formatted_date = parser.parse(weather_data["temperature"]["date"]).strftime("%d.%m.%Y %H:%M")
 
-    if "place" in weather_data and weather_data["place"]:
+    if formatted_date and "place" in weather_data and weather_data["place"]:
         print(formatted_date)
         msg = "Ilmastotiedot paikassa " + weather_data["place"] + " " + formatted_date + ";"
 
@@ -252,7 +251,6 @@ def parse_args(args):
         date = args[time_starts.start():].strip()
 
     print(date)
-
 
     return {
         "place": place,
