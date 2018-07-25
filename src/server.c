@@ -104,6 +104,7 @@ int server_send(char *buf, server *srv)
 	int res = send(srv->s, buf, strlen(buf), 0);
 
 	if (res <= 0)
+		bcirc_printf("Failed to send buffer\n");
 		return res;
 
 	pthread_mutex_lock(&srv->mutex);

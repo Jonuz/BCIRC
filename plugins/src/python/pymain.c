@@ -23,6 +23,7 @@ static PyMethodDef BcircMethods[] = {
     { "register_callback", py_register_callback, METH_VARARGS, "Registers python callback." },
 
     { "get_chan_srv", py_get_chan_srv, METH_VARARGS, "Returns pointer to channel's server." },
+	{ "get_string_from_ptr", py_get_string_from_ptr, METH_VARARGS, "Returns string value from pointer." },
 
 
     { "server_send", py_server_send, METH_VARARGS, "Sends to server." },
@@ -69,7 +70,7 @@ int load_script(char *filename, char *dir)
     new_script->handle = PyImport_Import(name);
     Py_DECREF(name);
 
-    setenv("PYTHONPATH", dir, 1);
+    //setenv("PYTHONPATH", dir, 1);
 
     if (!new_script->handle)
     {
@@ -116,13 +117,17 @@ int load_script_dir(char *dirname)
 int plugin_init(plugin *pluginptr)
 {
     char *pydir = getenv("BCIRC_PY_DIR");
-    setenv("PYTHONPATH", pydir, 1);
+    //setenv("PYTHONPATH", pydir, 1);
 
     PyImport_AppendInittab("bcirc", &InitMod);
 
     Py_Initialize();
     PyEval_InitThreads();
 
+	PyObject* sysPath = PySys_GetObject((char*)"path");
+	PyList_Append(sysPath, PyUnicode_DecodeFSDefault("./py/"));
+
+	//Py_DECREF(programName);
 
 
     mainThreadState = PyThreadState_Get();
@@ -201,6 +206,7 @@ int py_execute_callbacks(void **params, int argc) //Todo: Make this not so ugly.
                 if (res == NULL)
                 {
                     bcirc_printf("Failed to execute py-function!\n");
+					PyErr_Print();
                 }
                 //PyEval_ReleaseThread(tstate);
                 //PyThreadState_Delete(tstate);

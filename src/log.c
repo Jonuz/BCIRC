@@ -94,7 +94,7 @@ int bcirc_printf(char *str, ...)
 
 	bcirc_log(output, NULL);
 
-	printf(output);
+	printf("%s", output);
 	free(output);
 
 	return 1;

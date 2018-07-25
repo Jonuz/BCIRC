@@ -45,6 +45,7 @@ PyObject* py_register_script(PyObject *self, PyObject *args);
 PyObject* py_register_callback(PyObject *self, PyObject *args);
 
 PyObject* py_get_chan_srv(PyObject *self, PyObject *args);
+PyObject* py_get_string_from_ptr(PyObject *self, PyObject *args);
 
 
 PyObject *py_server_send(PyObject *self, PyObject *args);

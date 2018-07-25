@@ -390,7 +390,7 @@ int execute_callbacks(char *cb_name, void **args, int argc)
 		}
 	}
 
-/*
+
 	if (strcmp(cb_name, CALLBACK_CALLBACKS_EXECUTED) != 0)
 	{
 		void **new_args = malloc((argc + 1) * sizeof(void*));
@@ -410,7 +410,7 @@ int execute_callbacks(char *cb_name, void **args, int argc)
 		//free(new_args[argc]);
 		//free(new_args);
 	}
-*/	
+
 
 
 	return BCIRC_PLUGIN_OK;

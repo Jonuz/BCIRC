@@ -96,6 +96,8 @@ PyObject* py_register_callback(PyObject *self, PyObject *args)
     script->cbs[script->cb_count] = new_cb;
     script->cb_count++;
 
+	bcirc_printf("Python callback registered\n");
+
     return PyLong_FromLong(1);
 }
 
@@ -187,7 +189,51 @@ PyObject *py_add_to_serverpool(PyObject *self, PyObject *args)
     int res = add_to_serverpool(srv);
 
     return PyLong_FromLong(res);
+}
 
+PyObject *py_get_string_from_ptr(PyObject *self, PyObject *args)
+{
+	PyObject *pyptr = NULL;
+
+	if (!PyArg_ParseTuple(args, "O", &pyptr))
+	{
+		bcirc_printf("Bad argument");
+		PyErr_BadArgument();
+	}
+
+	/*
+	server *srv = (server*) PyLong_AsVoidPtr(pyptr);
+	if (!srv)
+		return PyLong_FromLong(-2);
+	*/
+
+	/*
+		04:34:52 | Failed to create string?04:34:52 | Failed to execute py-function!
+		Traceback (most recent call last):
+		 File "/home/joona/Ohjelmointi/C/BCIRC/py/fmi.py", line 144, in handle_message
+	    srv = bcirc.get_string_from_ptr(params[0])
+		UnicodeDecodeError: 'utf-8' codec can't decode byte 0xb0 in position 0: invalid start byte
+	*/
+
+
+	if (!pyptr)
+        return PyLong_FromLong(-2);
+
+	char *str = (char*) PyLong_AsVoidPtr(pyptr);
+
+	bcirc_printf("??? WAT %s\n", str);
+
+	PyObject *pyStr = PyUnicode_FromString(str);
+
+	if (!pyStr) {
+		bcirc_printf("Failed to create string");
+		PyErr_BadArgument();
+	}
+
+	return pyStr;
+	//PyObject *py_str = PyUnicode_DecodeFSDefault(str);
+
+	//return PyLong_FromUnicodeObject(py_str, 1024);
 }
 
 PyObject *py_remove_from_serverpool(PyObject *self, PyObject *args)
@@ -218,15 +264,15 @@ PyObject *py_free_server(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "O", &pyptr))
     {
-        return PyLong_FromLong(-1);
+        PyErr_BadArgument();
     }
 
     if (!pyptr)
-        return PyLong_FromLong(-2);
+        PyErr_BadArgument();
 
     server *srv = (server*) PyLong_AsVoidPtr(pyptr);
     if (!srv)
-        return PyLong_FromLong(-3);
+        PyErr_BadArgument();
 
 
     int res = free_server(srv);
@@ -247,7 +293,6 @@ PyObject *py_load_servers(PyObject *self, PyObject *args)
     int res = load_servers(file);
 
     return PyLong_FromLong(res);
-
 }
 
 
@@ -258,7 +303,7 @@ PyObject *py_bcirc_printf(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "s", &buf))
     {
-        return PyLong_FromLong(-1);
+        PyErr_BadArgument();
     }
 
     int res = bcirc_printf(buf);
@@ -269,11 +314,11 @@ PyObject *py_bcirc_printf(PyObject *self, PyObject *args)
 
 PyObject *py_bcirc_log(PyObject *self, PyObject *args)
 {
-    char *buf, *logname;
+    char *buf = NULL, *logname = NULL;
 
     if (!PyArg_ParseTuple(args, "ss", &buf, &logname))
     {
-        return PyLong_FromLong(-1);
+        PyErr_BadArgument();
     }
 
     int res = bcirc_log(buf, logname);
@@ -291,11 +336,11 @@ PyObject *py_privmsg_queue(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "ssOd", &msg, &target, &pyptr, &drop))
     {
-        return PyLong_FromLong(-1);
+        return PyErr_BadArgument();
     }
     server *srv = (server*) PyLong_AsVoidPtr(pyptr);
     if (!srv)
-        return PyLong_FromLong(-2);
+        PyErr_BadArgument();
 
     int res = add_to_privmsg_queue(msg, target, srv, drop);
 
@@ -305,12 +350,12 @@ PyObject *py_privmsg_queue(PyObject *self, PyObject *args)
 
 PyObject *py_privmsg(PyObject *self, PyObject *args)
 {
-    char *msg, *target;
+    char *msg = NULL, *target = NULL;
     PyObject *pyptr = NULL;
 
     if (!PyArg_ParseTuple(args, "ssO", &msg, &target, &pyptr))
     {
-        return PyLong_FromLong(-1);
+        PyErr_BadArgument();
     }
 
     server *srv = (server*) PyLong_AsVoidPtr(pyptr);
@@ -326,17 +371,17 @@ PyObject *py_privmsg(PyObject *self, PyObject *args)
 
 PyObject *py_join_channel(PyObject *self, PyObject *args)
 {
-    char *channame, *chanpass;
+    char *channame = NULL, *chanpass = NULL;
     PyObject *pyptr = NULL;
 
     if (!PyArg_ParseTuple(args, "ssO", &channame, &chanpass, &pyptr))
     {
-        return PyLong_FromLong(-1);
+        PyErr_BadArgument();
     }
 
     server *srv = (server*) PyLong_AsVoidPtr(pyptr);
     if (!srv)
-        return PyLong_FromLong(-2);
+        PyErr_BadArgument();
 
     int res = join_channel(channame, chanpass, srv);
 
@@ -350,12 +395,12 @@ PyObject *py_part_channel(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "sO", &reason, &pyptr))
     {
-        return PyLong_FromLong(-1);
+        PyErr_BadArgument();
     }
 
     channel *chan = (channel*) PyLong_AsVoidPtr(pyptr);
     if (!chan)
-        return PyLong_FromLong(-2);
+        PyErr_BadArgument();
 
     int res = part_channel(reason, chan);
 
