@@ -177,7 +177,7 @@ def handle_message(params, count):
         except ValueError:
             if time_now > last_err_msg_sent_time + 5:
                 last_weather_msg_sent_time = time_now
-                bcirc.privsmg("Aikaa ei voitu parsia")
+                bcirc.privmsg("Aikaa ei voitu parsia")
     weather_data = request_info(place, request_time)
 
     if not weather_data or "temperature" not in weather_data:
