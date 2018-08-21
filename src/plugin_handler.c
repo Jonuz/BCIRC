@@ -249,7 +249,7 @@ int register_callback(char *cb_name, CALLBACK_FUNC cb_func, int priority, plugin
 	return 1;
 }
 
-int init_index()
+int init_index(void)
 {
 	index_count = 0;
 	index_list = malloc(sizeof(callback_index*));

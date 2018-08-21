@@ -4,8 +4,10 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/inotify.h>
+#include <unistd.h>
 
 #include "../headers/log.h"
+#include "../headers/irc_cmds.h"
 #include "../headers/plugin_handler.h"
 #include "../headers/callback_defines.h"
 

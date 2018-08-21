@@ -4,6 +4,7 @@
 
 
 #include "../headers/irc.h"
+#include "../headers/irc_cmds.h"
 #include "../headers/log.h"
 #include "../headers/plugin_handler.h"
 #include "../headers/callback_defines.h"

@@ -11,7 +11,7 @@ STATIC = $(BCIRC_PLUGINS_SRC)/libbcirc.a
 default: irc
 
 irc:
-	$(CC) $(SOURCES) $(CFLAGS) $(shell python3-config --ldflags) -o $@ 
+	$(CC) $(SOURCES) $(CFLAGS) $(shell python3-config --ldflags) -o $@
 	$(CC) $(SOURCES) $(CFLAGS)  -fPIC -c
 
 	ar rcs $(STATIC) *.o

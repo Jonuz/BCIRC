@@ -8,22 +8,11 @@
 #include "channel.h"
 #include "server.h"
 
-/*
-#define BCIRC_PLUGIN_NAME(__name) \
-	char plugin_name[] = __name;
-*/
-
-/*
-#define BCIRC_PLUGIN_VERSION(__version)
-	char plugin_version[] = __version;
-*/
-
 #define BCIRC_PLUGIN_CONTINUE 3
 #define BCIRC_PLUGIN_BREAK 2
 #define BCIRC_PLUGIN_OK 1
 #define BCIRC_PLUGIN_STOP 0
 #define BCIRC_PLUGIN_FAIL -1
-
 
 
 typedef enum { RUNNING, PAUSED } PLUGIN_STATUS;
@@ -83,9 +72,8 @@ int execute_callbacks(char *cb_name, void **args, int argc);
 // Returns paramameter "index" when it's null, -1 when none of params are null.
 int callback_params_null_check(void **params, int argc);
 
-int init_index();
+int init_index(void);
 int index_callback(callback *callback_ptr);
-int get_index_count();
 int get_cb_index(char *cb_name);
 int remove_index(callback *cb_ptr);
 

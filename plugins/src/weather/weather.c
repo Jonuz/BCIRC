@@ -16,7 +16,7 @@ char plugin_version[] = "1.0";
 char plugin_author[] = "Joona";
 char plugin_name[] = "Weather service";
 
-int http_request(char *url, void **params, int argc, int lang);
+int http_request(char *url, void **params, int argc, char *lang);
 int on_privmsg(void **params, int argc);
 size_t write_callback(void *ptr, size_t size, size_t nmemb, void *info);
 
@@ -34,15 +34,14 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *info);
 #define MSG_WAIT_EN "Yet %d seconds till wetaher data can be fetched."
 
 
-#define LANG_FI 0
-#define LANG_EN 1
-
+#define LANG_FI "FI"
+#define LANG_EN "FI"
 
 typedef struct target_info
 {
 	server *srv;
 	char *target;
-	int lang;
+	char *lang;
 } target_info;
 
 int plugin_init(plugin *pluginptr)
@@ -64,12 +63,12 @@ int on_privmsg(void **params, int argc)
 	#define COMMANDS_COUNT 6
 
 	char *commands[COMMANDS_COUNT][COMMANDS_COUNT] = {
-			{"!sää", (char*) LANG_FI },
-			{ ".sää", (char*) LANG_FI },
-			{ "!saa", (char*) LANG_FI },
-			{ ".saa", (char*) LANG_FI },
-			{ "!weather", (char*) LANG_EN },
-			{ ".weather", (char*) LANG_EN }
+			{"!sää", LANG_FI },
+			{ ".sää",  LANG_FI },
+			{ "!saa", LANG_FI },
+			{ ".saa",  LANG_FI },
+			{ "!weather", LANG_EN },
+			{ ".weather", LANG_EN }
 		} ;
 
 	static unsigned long last_call = 0;
@@ -79,14 +78,15 @@ int on_privmsg(void **params, int argc)
 
 	char *str = params[4];
 	int is_command = 0;
-	int lang = 0;
+	char *lang = NULL;
 
 	for (int i = 0; i < COMMANDS_COUNT; i++)
 	{
  		if (strncmp(str, commands[i][0], strlen(commands[i][0])) == 0) //Check if string starts with command string
 		{
 			is_command = 1;
-			lang = (int) commands[i][1];
+			lang = commands[i][1];
+			//lang = commands[i][1];
 			break;
 		}
 	}
@@ -104,7 +104,7 @@ int on_privmsg(void **params, int argc)
 		{
 			char *msg = malloc(512);
 
-			if (lang == LANG_FI)
+			if (!strcpy(lang, LANG_FI))
 				sprintf(msg, MSG_WAIT_FI, (call_now - (last_call + WAIT_FETCH_TIME)) * -1);
 			else
 				sprintf(msg, MSG_WAIT_EN, (call_now - (last_call + WAIT_FETCH_TIME)) * -1);
@@ -137,7 +137,7 @@ int on_privmsg(void **params, int argc)
 	return BCIRC_PLUGIN_OK;
 }
 
-int http_request(char *url, void **params, int argc, int lang)
+int http_request(char *url, void **params, int argc, char *lang)
 {
 	CURLcode res;
 

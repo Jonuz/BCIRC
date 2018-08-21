@@ -27,7 +27,7 @@ script_name = "FMI"
 script_version = "0.1"
 script_author = "Joona"
 
-# Avain täältä https://ilmatieteenlaitos.fi/rekisteroityminen-avoimen-datan-kayttajaksi
+# Hanki avain täältä https://ilmatieteenlaitos.fi/rekisteroityminen-avoimen-datan-kayttajaksi
 FMI_API_KEY = ""
 
 # Stored as unix timestamp

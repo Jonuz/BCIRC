@@ -72,7 +72,7 @@ int add_to_privmsg_queue(char *msg, char *target, server *srv, const int drop )
 
 	if (handler_started == 0)
 	{
-		if ((pthread_create(&thread, NULL, &handle_privmsg_queue, NULL)))
+		if ((pthread_create(&thread, NULL, handle_privmsg_queue, NULL)))
 		{
 			bcirc_printf("Failed to create thread!\n");
 			exit(0);
@@ -93,7 +93,7 @@ int add_to_privmsg_queue(char *msg, char *target, server *srv, const int drop )
 #define HISTORY_SIZE 5
 time_t last_message_times[HISTORY_SIZE] = { 0 };
 
-void *handle_privmsg_queue()
+void *handle_privmsg_queue(void *ptr)
 {
 	static time_t last_message_times[HISTORY_SIZE] = { 0 };
 

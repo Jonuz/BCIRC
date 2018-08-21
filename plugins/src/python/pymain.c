@@ -155,7 +155,7 @@ int py_execute_callbacks(void **params, int argc) //Todo: Make this not so ugly.
 {
     char *cb_name = params[argc-1];
 
-    for (int i = 0; i < py_script_count; i++)
+    for (unsigned int i = 0; i < py_script_count; i++)
     {
         for (int y = 0; y < py_scripts_list[i]->cb_count; y++)
         {

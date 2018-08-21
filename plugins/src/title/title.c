@@ -4,7 +4,8 @@
 #include <sys/types.h>
 #include <time.h>
 
-#include  "entities.h"
+#include "entities.h"
+#include "urls.h"
 
 #include "../headers/irc.h"
 #include "../headers/log.h"
@@ -48,7 +49,7 @@ int has_filter = 0; // 1 if true
 
 int plugin_init(plugin *pluginptr)
 {
-	has_filter = get_urls(); //1 if urls in urls.txt
+	has_filter = get_urls();
 	curl_global_init(CURL_GLOBAL_DEFAULT);
 
 	register_callback(CALLBACK_GOT_PRIVMSG, check_for_url, 20, pluginptr);
@@ -85,7 +86,7 @@ int check_for_url(void **params, int argv)
 	int reti;
 	regmatch_t matches[1];
 
-	reti = regcomp(&regex, "https?:\/\/[^\ ]+", REG_EXTENDED);
+	reti = regcomp(&regex, "https?:\\/\\/[^\\ ]+", REG_EXTENDED);
 	if (reti != 0)
 	{
 		bcirc_printf("Failed to compile regex!\n");

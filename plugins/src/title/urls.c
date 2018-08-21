@@ -10,15 +10,11 @@
 
 char *urls = NULL;
 
-int get_urls();
-int check_url(char *);
-int add_url(void **, int);
-
-int check_url(char *str) // 1 if true, othetwise 0.
+bool check_url(char *str)
 {
 	if ((!str) || (!urls))
 	{
-		return 0;
+		return false;
 	}
 
 	char *token, *save;
@@ -32,16 +28,16 @@ int check_url(char *str) // 1 if true, othetwise 0.
 		if (strstr(str, token) != NULL)
 		{
 			strcpy(urls, urls_save);
-			return 1;
+			return true;
 		}
 		token = strtok_r(NULL, "\n", &save);
 	}
 	strcpy(urls, urls_save);
-	return 0;
+	return true;
 }
 
 
-int get_urls()
+int get_urls(void)
 {
 	FILE *urlstxt = NULL;
 	char url_file[512];
@@ -102,7 +98,7 @@ int add_url(void **params, int argc)
 	strncpy(str, msg+8, strlen(msg) - 8);
 	str[ strlen(msg) - 8 ] = '\0';
 
-	if (check_url(str) == 1)
+	if ((check_url(str)) == true)
 		return BCIRC_PLUGIN_CONTINUE;
 
 	FILE *urlstxt = NULL;
