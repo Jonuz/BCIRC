@@ -63,7 +63,7 @@ PyObject* py_register_script(PyObject *self, PyObject *args)
 
 PyObject* py_register_callback(PyObject *self, PyObject *args)
 {
-    PyObject *pyptr = NULL
+    PyObject *pyptr = NULL;
     char *cb_name = NULL;
 
     py_cb *new_cb = malloc(sizeof(py_cb));
