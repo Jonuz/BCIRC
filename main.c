@@ -10,8 +10,6 @@
 #include "./headers/plugin_handler.h"
 #include "./headers/callback_defines.h"
 
-#define WITH_VALGRIND
-
 //Global variables
 int server_count;
 int channel_count;
