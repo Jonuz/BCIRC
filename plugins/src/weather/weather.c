@@ -35,7 +35,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *info);
 
 
 #define LANG_FI "FI"
-#define LANG_EN "FI"
+#define LANG_EN "EN"
 
 typedef struct target_info
 {
