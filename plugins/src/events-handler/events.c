@@ -44,6 +44,10 @@ int get_privmsg(void **params, int argc)
 	char buf[strlen(params[1])];
 	strcpy(buf, params[1]);
 
+	if (strstr(buf, "PRIVMSG") == NULL) {
+		return BCIRC_PLUGIN_OK;
+	}
+
 	char *hostmask = NULL;
 	char *target = NULL;
 	char *nick = NULL;
@@ -51,23 +55,38 @@ int get_privmsg(void **params, int argc)
 	char *str;
 	char *save;
 
-	str = strtok_r(buf, ":! ", &save);
+	str = strtok_r(buf, " ", &save);
 
 	int i = 0;
 	for (i = 0; str != NULL; i++)
 	{
 		if (i == 0)
 		{
-			nick = malloc((strlen(str) + 1) * sizeof(char));
-			strcpy(nick, str);
+			char nick_and_mask[strlen(str) + 1];
+			strcpy(nick_and_mask, str);
+
+			char *nick_part = NULL;
+			char *mask_part = NULL;
+
+			nick_part = strtok_r(nick_and_mask, "!", &mask_part);
+
+			if (nick_part && strlen(nick_part)) {
+				nick = malloc(strlen(nick_part));
+				nick_part++; // Remove ':'
+				strcpy(nick, nick_part);
+			} else {
+				return BCIRC_PLUGIN_OK;
+			}
+
+			if (mask_part && strlen(mask_part)) {
+				hostmask = malloc(strlen(mask_part) + 1);
+				strcpy(hostmask, mask_part);
+			} else {
+				free(nick);
+				return BCIRC_PLUGIN_CONTINUE;
+			}
 		}
 		if (i == 1)
-		{
-			hostmask =  malloc((strlen(str) + 1) * sizeof(char));
-			strcpy(hostmask, str);
-
-		}
-		if (i == 2)
 			if (strcmp(str, "PRIVMSG") != 0)
 			{
 				free(nick);
@@ -75,25 +94,17 @@ int get_privmsg(void **params, int argc)
 
 				return BCIRC_PLUGIN_OK;
 			}
-		if (i == 3)
+		if (i == 2)
 		{
-			target =  malloc((strlen(str) + 1) * sizeof(char));
+			target =  malloc((strlen(str) + 1));
 			strcpy(target, str);
 			break;
 		}
-		str = strtok_r(NULL, ":! ", &save);
-	}
-
-	if (i < 3) // In case of PING or something like that since loop might end before PRIVMSG check.
-	{
-		free(nick);
-		free(hostmask);
-
-		return BCIRC_PLUGIN_OK;
+		str = strtok_r(NULL, " ", &save);
 	}
 
 	int msg_len = strlen(save);
-	char *msg = malloc((msg_len + 1) * sizeof(char) );
+	char *msg = malloc(msg_len + 1);
 	strncpy(msg, save+1, msg_len);
 	msg[msg_len] = '\0';
 
