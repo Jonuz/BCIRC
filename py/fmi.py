@@ -19,6 +19,7 @@ import ctypes
 
 try:
     import bcirc
+
     running_inside_bcirc = True
 except ImportError:
     pass
@@ -28,11 +29,13 @@ script_version = "0.1"
 script_author = "Joona"
 
 # Hanki avain täältä https://ilmatieteenlaitos.fi/rekisteroityminen-avoimen-datan-kayttajaksi
-FMI_API_KEY = ""
+FMI_API_KEY = "f70c2550-b857-45ca-a54b-e15c8a772968"
 
-# Stored as unix timestamp
-last_err_msg_sent_time = 0
-last_weather_msg_sent_time = 0
+last_request_time = 0
+
+
+class FmiException(Exception):
+    pass
 
 
 # https://stackoverflow.com/a/4771733
@@ -52,8 +55,7 @@ def from_gmt_to_uct(gmt_date, timezone="Europe/Helsinki", handle_offset=True):
     try:
         dt = parser.parse(gmt_date + "GMT" + offset, dayfirst=True)
     except ValueError:
-        print("Invalid date format")
-        return None
+        raise FmiException("Aika on epäkelvossa muodossa.")
     uctd = dt.replace(tzinfo=pytz.utc)
     if handle_offset:
         uctd += + dt.tzinfo._offset
@@ -93,9 +95,12 @@ def request_info(place, gmt_time=None):
     request_forecast = False
 
     if gmt_time:
-        if parser.parse(gmt_time) > datetime.now():
-            request_forecast = True
-            print("Requesting forecast")
+        try:
+            if parser.parse(gmt_time) > datetime.now():
+                request_forecast = True
+                print("Requesting forecast")
+        except ValueError:
+            raise FmiException("Aikaa ei voitu käsitellä.")
     else:
         gmt_time = str((datetime.now()).time())
         result_pick_order_is_asc = True
@@ -109,7 +114,7 @@ def request_info(place, gmt_time=None):
         return
     end_time = (start_time + timedelta(minutes=60))
 
-    # Metodit täältä http://data.fmi.fi/fmi-apikey/f70c2550-b857-45ca-a54b-e15c8a772968/wfs?request=describeStoredQueries
+    # Metodit täältä http://data.fmi.fi/fmi-apikey/*KEY*/wfs?request=describeStoredQueries
     if not request_forecast:
         fmiId = "fmi::observations::weather::timevaluepair"
     else:
@@ -125,9 +130,7 @@ def request_info(place, gmt_time=None):
     endpoint += "&endtime=" + end_time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     try:
-        print(endpoint)
-        res = requests.get(endpoint, timeout=10)
-        print(res)
+        res = requests.get(endpoint, timeout=5)
         soup = BeautifulSoup(res.content, features="xml")
 
         prefix = "obs-obs" if not request_forecast else "mts"
@@ -139,22 +142,14 @@ def request_info(place, gmt_time=None):
             "windspeed": get_last_item_with_value(soup, prefix + "-1-1-windspeedms", result_pick_order_is_asc),
             "humidity": get_last_item_with_value(soup, prefix + "-1-1-humidity", result_pick_order_is_asc),
             "pressure": get_last_item_with_value(soup, prefix + "-1-1-pressure", result_pick_order_is_asc),
+            "snowdepth": get_last_item_with_value(soup, prefix + "-1-1-pressure", result_pick_order_is_asc),
         }
 
     except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
-        print("Failed to fetch weather data")
+        raise FmiException("Haku aikakatkaistiin.")
 
 
-def handle_message(params, count):
-    global last_err_msg_sent_time
-    global last_weather_msg_sent_time
-    time_now = int(time.time())
-
-    if time_now < last_weather_msg_sent_time + 3:
-        return 1
-
-    last_weather_msg_sent_time = int(time.time())
-
+def handle_request(params, count):
     srv = params[0]
     target = bcirc.get_string_from_ptr(params[3])
 
@@ -163,6 +158,15 @@ def handle_message(params, count):
     if not msg.startswith("!fmi "):
         return 1
 
+    global last_request_time
+    time_now = int(time.time())
+
+    if time_now < last_request_time + 3:
+        bcirc.privmsg_queue("Odota hetki!", target, srv, 1);
+        return
+
+    last_request_time = int(time.time())
+
     msg = msg[5:]
 
     place_and_time = parse_args(msg)
@@ -170,18 +174,17 @@ def handle_message(params, count):
     place = place_and_time["place"]
     request_time = place_and_time["time"]
 
-    # Check if time can be parse
-    if request_time:
-        try:
-            parser.parse(request_time)
-        except ValueError:
-            if time_now > last_err_msg_sent_time + 5:
-                last_weather_msg_sent_time = time_now
-                bcirc.privmsg("Aikaa ei voitu parsia")
-    weather_data = request_info(place, request_time)
+    try:
+        last_request_time = time_now
+        weather_data = request_info(place, request_time)
+    except FmiException as e:
+        bcirc.privmsg(e, target, srv)
+        return 1
 
     if not weather_data or "temperature" not in weather_data:
-        return 1
+        bcirc.privmsg("Säätietoja ei löytynyt", target, srv)
+        return
+
     response = format_message(weather_data)
 
     print(response)
@@ -223,6 +226,9 @@ def format_message(weather_data):
     if has_value("humidity"):
         msg += ", kosteus " + weather_data["humidity"]["value"] + "%"
 
+    if has_value("snowdepth"):
+        msg += ", lumensyvyys " + weather_data["snowdepth"]["value"] + " cm"
+
     if has_value("pressure"):
         msg += ", ilmanpaine " + weather_data["pressure"]["value"] + " hPa"
 
@@ -233,13 +239,12 @@ def script_init(script):
     print("Setting up FMI script")
 
     bcirc.register_script(script, script_name, script_version, script_author)
-    bcirc.register_callback(script, "got_privmsg", handle_message, 20)
+    bcirc.register_callback(script, "got_privmsg", handle_request, 20)
 
     return 1
 
 
 def parse_args(args):
-    place = None
     date = None
 
     time_starts = re.search("\d", args)

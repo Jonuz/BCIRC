@@ -329,10 +329,10 @@ PyObject *py_bcirc_log(PyObject *self, PyObject *args)
 PyObject *py_privmsg_queue(PyObject *self, PyObject *args)
 {
     //int add_to_privmsg_queue(char *msg, char *target, server *srv, const int drop )
-    char *msg = NULL;
-    char *target = NULL;
-    int drop;
+    char *msg = NULL, *target = NULL;
     PyObject *pyptr = NULL;
+	int drop;
+
 
     if (!PyArg_ParseTuple(args, "ssOd", &msg, &target, &pyptr, &drop))
     {
