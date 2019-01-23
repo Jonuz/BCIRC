@@ -29,7 +29,7 @@ script_version = "0.1"
 script_author = "Joona"
 
 # Hanki avain täältä https://ilmatieteenlaitos.fi/rekisteroityminen-avoimen-datan-kayttajaksi
-FMI_API_KEY = "f70c2550-b857-45ca-a54b-e15c8a772968"
+FMI_API_KEY = ""
 
 last_request_time = 0
 
@@ -37,17 +37,7 @@ last_request_time = 0
 class FmiException(Exception):
     pass
 
-
-# https://stackoverflow.com/a/4771733
-def from_uct_to_gmt(uct_date, format="%Y-%m-%dT%H:%M:%SZ", timezone="Europe/Helsinki"):
-    from_zone = tz.gettz('UTC')
-    to_zone = tz.gettz(timezone)
-    utc = datetime.strptime(uct_date, format)
-    utc = utc.replace(tzinfo=from_zone)
-    return utc.astimezone(to_zone)
-
-
-def from_gmt_to_uct(gmt_date, timezone="Europe/Helsinki", handle_offset=True):
+def from_gmt_to_utc(gmt_date, timezone="Europe/Helsinki", handle_offset=True):
     if not isinstance(gmt_date, str):
         gmt_date = str(gmt_date)
 
@@ -55,7 +45,7 @@ def from_gmt_to_uct(gmt_date, timezone="Europe/Helsinki", handle_offset=True):
     try:
         dt = parser.parse(gmt_date + "GMT" + offset, dayfirst=True)
     except ValueError:
-        raise FmiException("Aika on epäkelvossa muodossa.")
+        raise FmiException("Aika käsittämättömässä muodossa.")
     uctd = dt.replace(tzinfo=pytz.utc)
     if handle_offset:
         uctd += + dt.tzinfo._offset
@@ -100,12 +90,12 @@ def request_info(place, gmt_time=None):
                 request_forecast = True
                 print("Requesting forecast")
         except ValueError:
-            raise FmiException("Aikaa ei voitu käsitellä.")
+            raise FmiException("Aika käsittämättömässä muodossa.")
     else:
         gmt_time = str((datetime.now()).time())
         result_pick_order_is_asc = True
 
-    start_time = from_gmt_to_uct(gmt_time, handle_offset=True)
+    start_time = from_gmt_to_utc(gmt_time, handle_offset=True)
 
     if not request_forecast:
         start_time = (start_time - timedelta(minutes=30))
@@ -130,7 +120,12 @@ def request_info(place, gmt_time=None):
     endpoint += "&endtime=" + end_time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     try:
+        print(endpoint)
         res = requests.get(endpoint, timeout=5)
+
+        if res.status_code is not 200:
+            raise FmiException("Kohdetta ei löytynyt ({})?".format(res.status_code))
+
         soup = BeautifulSoup(res.content, features="xml")
 
         prefix = "obs-obs" if not request_forecast else "mts"
@@ -142,7 +137,7 @@ def request_info(place, gmt_time=None):
             "windspeed": get_last_item_with_value(soup, prefix + "-1-1-windspeedms", result_pick_order_is_asc),
             "humidity": get_last_item_with_value(soup, prefix + "-1-1-humidity", result_pick_order_is_asc),
             "pressure": get_last_item_with_value(soup, prefix + "-1-1-pressure", result_pick_order_is_asc),
-            "snowdepth": get_last_item_with_value(soup, prefix + "-1-1-pressure", result_pick_order_is_asc),
+            "snowdepth": get_last_item_with_value(soup, prefix + "-1-1-snowdepth", result_pick_order_is_asc),
         }
 
     except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
@@ -162,10 +157,8 @@ def handle_request(params, count):
     time_now = int(time.time())
 
     if time_now < last_request_time + 3:
-        bcirc.privmsg_queue("Odota hetki!", target, srv, 1);
+        bcirc.privmsg_queue("Odota hetki!", target, srv, 1)
         return
-
-    last_request_time = int(time.time())
 
     msg = msg[5:]
 
@@ -178,10 +171,12 @@ def handle_request(params, count):
         last_request_time = time_now
         weather_data = request_info(place, request_time)
     except FmiException as e:
-        bcirc.privmsg(e, target, srv)
+        print(e)
+        bcirc.privmsg(str(e), target, srv)
         return 1
 
     if not weather_data or "temperature" not in weather_data:
+        print("täh")
         bcirc.privmsg("Säätietoja ei löytynyt", target, srv)
         return
 
