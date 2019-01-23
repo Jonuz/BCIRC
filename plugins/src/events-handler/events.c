@@ -58,7 +58,7 @@ int get_privmsg(void **params, int argc)
 	str = strtok_r(buf, " ", &save);
 
 	int i = 0;
-	for (i = 0; str != NULL; i++)
+	for (i; str != NULL; i++)
 	{
 		if (i == 0)
 		{
@@ -179,7 +179,6 @@ int get_numeric(void **params, int argc)
 
 
 
-//Todo: Check if something is wrong when joining channel starting with ##
 int get_chan_event(void **params, int argv)
 {
 	if (!params[0] || !params[1])
@@ -278,9 +277,14 @@ int get_chan_event(void **params, int argv)
 		{
 			if (event_type == CHAN_INVITE)
 				continue;
+                
 			chan = (channel*) get_channel(token, (server*) srv);
-			if (!chan)
-				chan = create_channel(token,srv);
+			if (!chan) {
+				if (event_type == CHAN_QUIT) {
+                    continue;
+                }
+                chan = create_channel(token,srv);
+            }
 			if (!chan || !chan->srv)
 			{
 				bcirc_printf("Failed get channel");
@@ -320,11 +324,12 @@ int get_chan_event(void **params, int argv)
 		token = strtok_r(NULL, " ", &save);
 	}
 
-	void **params2 = malloc(4 * sizeof(void*));
+	void **params2 = malloc(5 * sizeof(void*));
 	params2[0] = chan;
 	params2[1] = nick;
 	params2[2] = hostmask;
 	params2[3] = reason;
+    params2[4] = srv;
 
 	if (event_type == CHAN_JOIN)
 		execute_callbacks(CALLBACK_CHANNEL_JOIN, params2, 4);

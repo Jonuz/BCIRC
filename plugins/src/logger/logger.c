@@ -141,11 +141,12 @@ int on_quit(void **params, int argc)
 	char *nick = params[1];
 	char *hostmask = params[2];
 	char *reason = params[3];
+    server *srv = params[4];
 
 	if (reason)
-		bcirc_printf("User %s left server %s(%s)\n", nick, chan->srv->network_name, reason);
+		bcirc_printf("User %s left server %s(%s)\n", nick, srv->network_name, reason);
 	else
-		bcirc_printf("User %s left server %s\n", nick, chan->srv->network_name);
+		bcirc_printf("User %s left server %s\n", nick, srv->network_name);
 
 	return BCIRC_PLUGIN_OK;
 }

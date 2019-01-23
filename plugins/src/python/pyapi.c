@@ -334,16 +334,18 @@ PyObject *py_privmsg_queue(PyObject *self, PyObject *args)
 	int drop;
 
 
-    if (!PyArg_ParseTuple(args, "ssOd", &msg, &target, &pyptr, &drop))
+    if (!PyArg_ParseTuple(args, "ssOi", &msg, &target, &pyptr, &drop))
     {
         PyErr_BadArgument();
 		return NULL;
     }
     server *srv = (server*) PyLong_AsVoidPtr(pyptr);
-    if (!srv) {
+    if (!srv || !msg || !drop) {
         PyErr_BadArgument();
 		return NULL;
 	}
+
+	bcirc_printf("adding message %s", msg);
 
     int res = add_to_privmsg_queue(msg, target, srv, drop);
     return PyLong_FromLong(res);

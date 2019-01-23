@@ -71,6 +71,7 @@ Params:
         char *nick
         char *hostmask
         char *reason
+        server *srv
 
 
 */
@@ -82,6 +83,7 @@ Params:
         char *nick
         char *hostmask
         char *reason
+        server *srv
 */
 
 #define CALLBACK_CHANNEL_QUIT "channel_quit"
@@ -91,7 +93,7 @@ Params:
         char *nick
         char *hostmask
         char *reason
-
+        server *srv
 */
 
 #define CALLBACK_CHANNEL_INVITE "channel_invite"
@@ -101,6 +103,7 @@ Params:
         char *nick
         char *hostmask
         char *reason
+        server *srv
 
 */
 
