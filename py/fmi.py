@@ -43,7 +43,7 @@ def from_gmt_to_utc(gmt_date, timezone="Europe/Helsinki", handle_offset=True):
 
     offset = datetime.now(pytz.timezone(timezone)).strftime('%z')
     try:
-        dt = parser.parse(gmt_date + "GMT" + offset, dayfirst=True)
+        dt = parser.parse(gmt_date + " GMT" + offset, dayfirst=True)
     except ValueError:
         raise FmiException("Aika käsittämättömässä muodossa.")
     uctd = dt.replace(tzinfo=pytz.utc)
@@ -54,17 +54,17 @@ def from_gmt_to_utc(gmt_date, timezone="Europe/Helsinki", handle_offset=True):
 
 def get_last_item_with_value(soup, gmlId, asc=True):
     result = None
-    items = soup.find("wml2:MeasurementTimeseries", {"gml:id": gmlId})
+    time_series = soup.find("wml2:MeasurementTimeseries", {"gml:id": gmlId})
 
-    if not items or not len(items):
+    if not time_series or not len(time_series):
         return None
 
-    items = items.findAll("wml2:MeasurementTVP")
+    measurements = time_series.findAll("wml2:MeasurementTVP")
 
-    for item in items:
-        value = item.find("wml2:value")
+    for it in measurements:
+        value = it.find("wml2:value")
         if value and value.string != "NaN":
-            res_date = item.find("wml2:time")
+            res_date = it.find("wml2:time")
             result = {
                 "value": value.string,
                 "date": res_date.string if res_date else None
@@ -124,13 +124,14 @@ def request_info(place, gmt_time=None):
         res = requests.get(endpoint, timeout=5)
 
         if res.status_code is not 200:
-            raise FmiException("Kohdetta ei löytynyt ({})?".format(res.status_code))
+            raise FmiException("Kylää ei löytynyt!".format(res.status_code))
 
         soup = BeautifulSoup(res.content, features="xml")
 
         prefix = "obs-obs" if not request_forecast else "mts"
 
         return {
+            "is_forecast": request_forecast,
             "place": get_soup_value(soup, "gml:name", {"codeSpace": "http://xml.fmi.fi/namespace/locationcode/name"}),
 
             "temperature": get_last_item_with_value(soup, prefix + "-1-1-temperature", result_pick_order_is_asc),
@@ -141,14 +142,14 @@ def request_info(place, gmt_time=None):
         }
 
     except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
-        raise FmiException("Haku aikakatkaistiin.")
+        raise FmiException("Kysely aikakatkaistiin.")
 
 
 def handle_request(params, count):
     srv = params[0]
     target = bcirc.get_string_from_ptr(params[3])
 
-    msg = bcirc.get_string_from_ptr(params[4])
+    msg = str(bcirc.get_string_from_ptr(params[4]))
 
     if not msg.startswith("!fmi "):
         return 1
@@ -185,15 +186,12 @@ def handle_request(params, count):
     print(response)
 
     bcirc.privmsg(response, target, srv)
-    last_weather_msg_sent_time = time_now
 
     return 1
 
 
 def format_message(weather_data):
     formatted_date = None
-
-    print(weather_data)
 
     def has_value(key):
         return weather_data and weather_data[key] \
@@ -209,8 +207,10 @@ def format_message(weather_data):
         formatted_date = parser.parse(weather_data["temperature"]["date"]).strftime("%d.%m.%Y %H:%M")
 
     if formatted_date and "place" in weather_data and weather_data["place"]:
-        print(formatted_date)
-        msg = "Ilmastotiedot paikassa " + weather_data["place"] + " " + formatted_date + ";"
+        if not weather_data["is_forecast"]:
+            msg = "Ilmastotiedot paikassa " + weather_data["place"] + " " + formatted_date + ";"
+        else:
+            msg = "Ennuste kohteeseen "+ weather_data["place"] + " " + formatted_date + ";"
 
     if has_value("temperature"):
         msg += " lämpötila " + weather_data["temperature"]["value"] + "°C"
