@@ -113,7 +113,7 @@ def request_info(place, gmt_time=None):
     endpoint = "http://data.fmi.fi/fmi-apikey/" \
                + FMI_API_KEY + \
                "/wfs?request=getFeature&storedquery_id=" + fmiId + "&place=" \
-               + place + "&timestep=10" + "&parameters=temperature,windspeedms,humidity,pressure,snowdepth" \
+               + place + "&timestep=10" + "&parameters=temperature,windspeedms,humidity,pressure,snowdepth,windgust" \
                + "&timezone=Europe/Helsinki"
 
     endpoint += "&starttime=" + start_time.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -136,6 +136,7 @@ def request_info(place, gmt_time=None):
 
             "temperature": get_last_item_with_value(soup, prefix + "-1-1-temperature", result_pick_order_is_asc),
             "windspeed": get_last_item_with_value(soup, prefix + "-1-1-windspeedms", result_pick_order_is_asc),
+            "windgust": get_last_item_with_value(soup, prefix + "-1-1-windgust", result_pick_order_is_asc),
             "humidity": get_last_item_with_value(soup, prefix + "-1-1-humidity", result_pick_order_is_asc),
             "pressure": get_last_item_with_value(soup, prefix + "-1-1-pressure", result_pick_order_is_asc),
             "snowdepth": get_last_item_with_value(soup, prefix + "-1-1-snowdepth", result_pick_order_is_asc),
@@ -215,8 +216,9 @@ def format_message(weather_data):
     if has_value("temperature"):
         msg += " lämpötila " + weather_data["temperature"]["value"] + "°C"
 
+    gustspeed = weather_data["windgust"]["value"]
     if has_value("windspeed"):
-        msg += ", tuulen nopeus " + weather_data["windspeed"]["value"] + " m/s"
+        msg += ", tuulen nopeus " + weather_data["windspeed"]["value"] + " (+" + gustspeed + ") m/s"
 
     if has_value("humidity"):
         msg += ", kosteus " + weather_data["humidity"]["value"] + "%"
